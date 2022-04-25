@@ -1,0 +1,24 @@
+@startuml
+title CODE GEN
+hide footbox
+<style>
+ganttDiagram {
+  # timeline {
+  #   LineColor transparent
+  #   FontColor transparent
+  # }
+  closed {
+    FontColor transparent
+  }
+}
+</style>
+
+project starts 2022-04-18
+[codegen] lasts 2 days
+[codegen] starts 2022-04-18
+[enum] lasts 2 days
+[enum] starts at [codegen]'s end
+[status error] lasts 2 days
+[status error] starts at [enum]'s end
+@enduml
+
