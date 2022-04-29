@@ -48,19 +48,13 @@ func IsValidIdent(s string) bool {
 	return true
 }
 
-func IsReserved(s string) bool {
-	_, ok := ReservedKeys[s]
-	if ok {
-		return ok
-	}
-	_, ok = BuiltinFuncs[s]
-	return ok
-}
+func IsReserved(s string) bool { return false }
 
-func IsBuiltinFunc(s string) bool {
-	_, ok := BuiltinFuncs[s]
-	return ok
-}
+func IsBuiltinFn(string) bool { return false }
+
+// var builtins = []string{}
+//
+// var reserved = []string{}
 
 const (
 	Bool       BuiltInType = "bool"
@@ -96,53 +90,27 @@ const (
 )
 
 var (
-	ReservedKeys = map[string]bool{
-		"bool":        true,
-		"int":         true,
-		"int8":        true,
-		"int16":       true,
-		"int32":       true,
-		"int64":       true,
-		"uint":        true,
-		"uint8":       true,
-		"uint16":      true,
-		"uint32":      true,
-		"uint64":      true,
-		"uintptr":     true,
-		"float32":     true,
-		"float64":     true,
-		"complex64":   true,
-		"complex128":  true,
-		"string":      true,
-		"byte":        true,
-		"rune":        true,
-		"error":       true,
-		"iota":        true,
-		"true":        true,
-		"false":       true,
-		"nil":         true,
-		"break":       true,
-		"continue":    true,
-		"fallthrough": true,
-	}
-	BuiltinFuncs = map[string]bool{
-		"append":  true,
-		"complex": true,
-		"cap":     true,
-		"close":   true,
-		"copy":    true,
-		"delete":  true,
-		"imag":    true,
-		"len":     true,
-		"make":    true,
-		"new":     true,
-		"panic":   true,
-		"print":   true,
-		"println": true,
-		"real":    true,
-		"recover": true,
-	}
-)
+	ReservedIdent = map[string]struct{} {}
+	BuiltinFuncs = map[string]struct {}{}
+
+
+var BuiltinFuncs = []string {
+	"append":true,
+	"complex":true,
+	"cap":true,
+	"close":true,
+	"copy":true,
+	"delete":true,
+	"imag":true
+	"len":true
+	"make":true
+	"new":true,
+	"panic":true,
+	"print":true,
+	"println":true,
+	"real":true,
+	"recover":true,
+}
 
 const AnonymousIdent SnippetIdent = "_"
 

@@ -132,7 +132,7 @@ func Casting(ori SnippetType, tar Snippet) *SnippetCallExpr { return CallWith(or
 
 func Call(name string, args ...Snippet) *SnippetCallExpr {
 	var callee Snippet
-	if IsBuiltinFn(name) {
+	if IsBuiltinFunc(name) {
 		callee = SnippetIdent(name)
 	} else {
 		callee = Ident(name)
