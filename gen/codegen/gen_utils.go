@@ -1,11 +1,37 @@
 package codegen
 
 import (
+	"path"
 	"reflect"
 	"unicode"
 )
 
-func IsEmptyValue(rv reflect.Value) bool { return false }
+func IsEmptyValue(rv reflect.Value) bool {
+	if !rv.IsValid() || !rv.CanInterface() {
+		return false
+	}
+
+	if chk, ok := rv.Interface().(interface{ IsZero() bool }); ok && chk.IsZero() {
+		return false
+	}
+
+	switch rv.Kind() {
+	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
+		return rv.Len() == 0
+	case reflect.Bool:
+		return !rv.Bool()
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return rv.Int() == 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return rv.Uint() == 0
+	case reflect.Float32, reflect.Float64:
+		return rv.Float() == 0
+	case reflect.Interface, reflect.Ptr:
+		return rv.IsNil()
+	}
+
+	return false
+}
 
 func IsValidIdent(s string) bool {
 	if len(s) == 0 {
@@ -63,4 +89,20 @@ const (
 	Fallthrough SnippetBuiltIn = "fallthrough"
 )
 
-const Anonymous SnippetIdent = "_"
+const AnonymousIdent SnippetIdent = "_"
+
+var naming = path.Base
+
+func SetPkgNaming(fn func(string) string) {
+	if fn != nil {
+		naming = fn
+	}
+}
+
+var (
+	Valuer = ValueWithAlias(naming)
+	Typer  = TypeWithAlias(naming)
+	Exprer = ExprWithAlias(naming)
+)
+
+func Stringify(s Snippet) string { return string(s.Bytes()) }

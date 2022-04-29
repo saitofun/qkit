@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"go/token"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/saitofun/qlib/util/qnaming"
 )
 
 func Var(t SnippetType, names ...string) *SnippetField {
@@ -30,12 +29,12 @@ func Compose(typ SnippetType, elements ...Snippet) *SnippetLiteralCompose {
 	return &SnippetLiteralCompose{Type: typ, Elements: elements}
 }
 
-func Comments(lines ...string) SnippetComments {
-	comments := make([]string, 0, len(lines))
-	for _, comment := range lines {
-		comments = append(comments, strings.Split(comment, "\n")...)
+func Comments(cmt ...string) SnippetComments {
+	comments := make([]string, 0, len(cmt))
+	for _, c := range cmt {
+		comments = append(comments, strings.Split(c, "\n")...)
 	}
-	return comments
+	return SnippetComments{OneLine: false, Comments: comments}
 }
 
 func KeyValue(k, v Snippet) *SnippetKVExpr { return &SnippetKVExpr{K: k, V: v} }
@@ -81,20 +80,30 @@ func Inc(v SnippetCanAddr) *SnippetIncExpr { return &SnippetIncExpr{Value: v} }
 func Dec(v SnippetCanAddr) *SnippetDecExpr { return &SnippetDecExpr{Value: v} }
 
 func Ref(lead Snippet, refs ...Snippet) *SnippetRefExpr {
-	return &SnippetRefExpr{
-		Lead: lead,
-		Refs: refs,
-	}
+	return &SnippetRefExpr{Lead: lead, Refs: refs}
 }
 
-func CaseClause(s ...Snippet) *SnippetCaseClause { return &SnippetCaseClause{Case: s} }
+func Access(v SnippetCanAddr, index int) *SnippetAccessExpr {
+	return &SnippetAccessExpr{V: v, Index: Valuer(index)}
+}
 
-func ForRange(ranger Snippet, k, v  SnippetIdent) *SnippetForRangeStmt {
-	return &SnippetForRangeStmt{
-		Ranger: ranger,
-		K:      k,
-		V:      v,
+func AccessWith(v SnippetCanAddr, index Snippet) *SnippetAccessExpr {
+	return &SnippetAccessExpr{V: v, Index: index}
+}
+
+func CaseClause(s ...Snippet) *SnippetCaseClause {
+	return &SnippetCaseClause{Case: s}
+}
+
+func ForRange(ranger Snippet, k, v *SnippetIdent) *SnippetForRangeStmt {
+	var kv, vv = AnonymousIdent, AnonymousIdent
+	if k != nil {
+		kv = *k
 	}
+	if v != nil {
+		vv = *v
+	}
+	return &SnippetForRangeStmt{Ranger: ranger, K: kv, V: vv}
 }
 
 func For(init, cond, post Snippet) *SnippetForStmt {
@@ -103,13 +112,23 @@ func For(init, cond, post Snippet) *SnippetForStmt {
 
 func If(cond Snippet) *SnippetIfStmt { return &SnippetIfStmt{Cond: cond} }
 
+func Switch(cond Snippet) *SnippetSwitchStmt {
+	return &SnippetSwitchStmt{Cond: cond}
+}
+
+func Select(clauses ...*SnippetCaseClause) *SnippetSelectStmt {
+	return &SnippetSelectStmt{Clauses: clauses}
+}
+
 func Star(typ SnippetType) *SnippetStarExpr { return &SnippetStarExpr{T: typ} }
 
 func Addr(val SnippetCanAddr) *SnippetAddrExpr { return &SnippetAddrExpr{V: val} }
 
 func Paren(s Snippet) *SnippetParenExpr { return &SnippetParenExpr{V: s} }
 
-func Conv(ori SnippetType, tar Snippet) *SnippetCallExpr { return CallWith(ori, tar) }
+func Arrow(ch Snippet) *SnippetArrowExpr { return &SnippetArrowExpr{Chan: ch} }
+
+func Casting(ori SnippetType, tar Snippet) *SnippetCallExpr { return CallWith(ori, tar) }
 
 func Call(name string, args ...Snippet) *SnippetCallExpr {
 	var callee Snippet
@@ -126,7 +145,22 @@ func CallWith(callee Snippet, args ...Snippet) *SnippetCallExpr {
 	return &SnippetCallExpr{Callee: callee, Args: args}
 }
 
-func Chan(t SnippetType) *ChanType { return &ChanType{T: t} }
+func CallMakeChan(t SnippetType, length int) *SnippetCallExpr {
+	return &SnippetCallExpr{
+		Callee: Ident("make"),
+		Args:   []Snippet{Chan(t), Valuer(length)},
+	}
+}
+
+func Return(s ...Snippet) *SnippetReturnStmt { return &SnippetReturnStmt{Res: s} }
+
+func Func(args ...*SnippetField) *FuncType { return &FuncType{Args: args} }
+
+func Chan(t SnippetType) *ChanType { return &ChanType{T: t, Mode: ChanModeRW} }
+
+func ChanRO(t SnippetType) *ChanType { return &ChanType{T: t, Mode: ChanModeRO} }
+
+func ChanWO(t SnippetType) *ChanType { return &ChanType{T: t, Mode: ChanModeWO} }
 
 func Array(t SnippetType, l int) *ArrayType { return &ArrayType{T: t, Len: l} }
 
@@ -152,13 +186,13 @@ func DeclType(specs ...SnippetSpec) *SnippetTypeDecl {
 	return &SnippetTypeDecl{Token: token.TYPE, Specs: specs}
 }
 
-func ValueWith(imp FnAlaise) func(interface{}) Snippet {
+func ValueWithAlias(alias FnAlaise) func(interface{}) Snippet {
 	return func(v interface{}) Snippet {
 		rv := reflect.ValueOf(v)
 		rt := reflect.TypeOf(v)
 
-		val := ValueWith(imp)
-		typ := TypeOf(imp)
+		val := ValueWithAlias(alias)
+		typ := TypeWithAlias(alias)
 
 		switch rv.Kind() {
 		case reflect.Ptr:
@@ -169,6 +203,10 @@ func ValueWith(imp FnAlaise) func(interface{}) Snippet {
 			for i := 0; i < rv.NumField(); i++ {
 				fi := rv.Field(i)
 				ft := rt.Field(i)
+
+				if !ft.IsExported() {
+					continue
+				}
 
 				if !IsEmptyValue(fi) {
 					values = append(values,
@@ -235,15 +273,13 @@ func ValueWith(imp FnAlaise) func(interface{}) Snippet {
 	}
 }
 
-var Value = ValueWith(qnaming.LowerCamelCase)
-
-func TypeOf(aliase FnAlaise) func(reflect.Type) SnippetType {
+func TypeWithAlias(aliase FnAlaise) func(reflect.Type) SnippetType {
 	return func(t reflect.Type) SnippetType {
 		if t.PkgPath() != "" {
 			return Type(aliase(t.PkgPath()) + "." + t.Name())
 		}
 
-		tof := TypeOf(aliase)
+		tof := TypeWithAlias(aliase)
 		switch t.Kind() {
 		case reflect.Ptr:
 			return Star(tof(t.Elem()))
@@ -278,4 +314,19 @@ func TypeOf(aliase FnAlaise) func(reflect.Type) SnippetType {
 	}
 }
 
-func Stringify(s Snippet) string { return string(s.Bytes()) }
+func ExprWithAlias(alias FnAlaise) func(string, ...interface{}) SnippetExpr {
+	val := ValueWithAlias(alias)
+	holder := regexp.MustCompile(`(\$\d+)|\?`)
+
+	return func(f string, args ...interface{}) SnippetExpr {
+		idx := 0
+		return SnippetExpr(holder.ReplaceAllStringFunc(f, func(i string) string {
+			arg := args[idx]
+			idx++
+			if s, ok := arg.(Snippet); ok {
+				return Stringify(s)
+			}
+			return Stringify(val(arg))
+		}))
+	}
+}

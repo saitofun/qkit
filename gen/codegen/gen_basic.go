@@ -29,17 +29,6 @@ type (
 		IfCanAddr
 	}
 
-	SnippetKVExpr struct {
-		Snippet
-		K, V Snippet
-	}
-
-	SnippetAddrExpr struct {
-		V SnippetCanAddr
-	}
-)
-
-type (
 	IfSpec          interface{ _spec() }
 	IfCanAddr       interface{ _canAddr() }
 	IfCanBeIfMethod interface{ _canBeInterfaceMethod() }
@@ -169,19 +158,40 @@ func (s SnippetIdent) LowerSnakeCase() *SnippetIdent {
 }
 
 // SnippetComments comment code
-type SnippetComments []string
+type SnippetComments struct {
+	OneLine  bool
+	Comments []string
+}
 
-var _ Snippet = SnippetComments([]string{})
+var _ Snippet = (*SnippetComments)(nil)
 
-func (s SnippetComments) Bytes() []byte {
+func (s *SnippetComments) Bytes() []byte {
 	buf := bytes.NewBuffer(nil)
 
-	for _, c := range s {
+	if s.IsOneLine() {
 		buf.WriteString("// ")
-		buf.WriteString(c)
-		buf.WriteRune('\n')
+		buf.WriteString(s.Comments[0])
+	} else {
+		for i, c := range s.Comments {
+			if i > 0 {
+				buf.WriteRune('\n')
+			}
+			buf.WriteString("// ")
+			buf.WriteString(c)
+		}
 	}
 	return buf.Bytes()
+}
+
+func (s SnippetComments) AsOneLine() *SnippetComments { s.OneLine = true; return &s }
+
+func (s SnippetComments) IsOneLine() bool { return s.OneLine && len(s.Comments) == 1 }
+
+func (s SnippetComments) Append(cmt ...string) SnippetComments {
+	for _, c := range cmt {
+		s.Comments = append(s.Comments, strings.Split(c, "\n")...)
+	}
+	return s
 }
 
 // SnippetExpr expression `a == 0 // a == 0 is a expression`
@@ -190,6 +200,24 @@ type SnippetExpr string
 var _ Snippet = SnippetExpr("")
 
 func (s SnippetExpr) Bytes() []byte { return []byte(s) }
+
+type SnippetKVExpr struct {
+	Snippet
+	K, V Snippet
+}
+
+var _ Snippet = (*SnippetKVExpr)(nil)
+
+func (s *SnippetKVExpr) Bytes() []byte {
+	buf := bytes.NewBuffer(nil)
+
+	buf.Write(s.K.Bytes())
+	buf.WriteString(token.COLON.String())
+	buf.WriteRune(' ')
+	buf.Write(s.V.Bytes())
+
+	return buf.Bytes()
+}
 
 type SnippetTypeDecl struct {
 	Token token.Token
@@ -242,8 +270,12 @@ var _ Snippet = (*SnippetField)(nil)
 func (s *SnippetField) Bytes() []byte {
 	buf := bytes.NewBuffer(nil)
 
-	if s.SnippetComments != nil {
-		buf.Write(s.SnippetComments.Bytes())
+	if !s.SnippetComments.IsOneLine() {
+		tmp := s.SnippetComments.Bytes()
+		buf.Write(tmp)
+		if len(tmp) > 0 {
+			buf.WriteRune('\n')
+		}
 	}
 
 	for i := range s.Names {
@@ -258,19 +290,25 @@ func (s *SnippetField) Bytes() []byte {
 		if s.Alias {
 			buf.WriteRune(' ')
 			buf.WriteRune('=')
-			buf.WriteRune(' ')
-		} else {
-			buf.WriteRune(' ')
 		}
 	}
 
-	buf.Write(s.Type.Bytes())
+	// type inference
+	if s.Type != nil {
+		buf.WriteRune(' ')
+		buf.Write(s.Type.Bytes())
+	}
 
 	if s.Tag != "" {
 		buf.WriteRune(' ')
 		buf.WriteRune('`')
 		buf.WriteString(s.Tag)
 		buf.WriteRune('`')
+	}
+
+	if s.SnippetComments.IsOneLine() {
+		buf.WriteRune(' ')
+		buf.Write(s.SnippetComments.Bytes())
 	}
 
 	return buf.Bytes()
@@ -320,6 +358,12 @@ func (s SnippetField) WithComments(cmt ...string) *SnippetField {
 	return &s
 }
 
+func (s SnippetField) WithOneLineComment(cmt string) *SnippetField {
+	s.SnippetComments.OneLine = true
+	s.SnippetComments.Comments = []string{cmt}
+	return &s
+}
+
 func (s SnippetField) AsAlias() *SnippetField {
 	s.Alias = true
 	return &s
@@ -346,13 +390,12 @@ func (s *SnippetCaseClause) Bytes() []byte {
 			buf.Write(c.Bytes())
 		}
 	}
+
 	buf.WriteRune(':')
 	for _, b := range s.Blk {
 		buf.WriteRune('\n')
 		buf.Write(b.Bytes())
 	}
-
-	buf.WriteRune('\n')
 
 	return buf.Bytes()
 }
@@ -423,7 +466,7 @@ func (s SnippetAssignStmt) By(rs ...Snippet) *SnippetAssignStmt {
 }
 
 type SnippetReturnStmt struct {
-	Results []Snippet
+	Res []Snippet
 }
 
 var _ Snippet = (*SnippetReturnStmt)(nil)
@@ -433,7 +476,7 @@ func (s *SnippetReturnStmt) Bytes() []byte {
 
 	buf.WriteString("return")
 
-	for i, r := range s.Results {
+	for i, r := range s.Res {
 		if i > 0 {
 			buf.WriteRune(',')
 		}
@@ -454,12 +497,15 @@ func (s *SnippetSelectStmt) Bytes() []byte {
 	buf := bytes.NewBuffer(nil)
 
 	buf.WriteString(token.SELECT.String())
-	buf.WriteString(" {\n")
+	buf.WriteRune(' ')
+	buf.WriteRune('{')
 
 	for _, c := range s.Clauses {
+		buf.WriteRune('\n')
 		buf.Write(c.Bytes())
 	}
 
+	buf.WriteRune('\n')
 	buf.WriteRune('}')
 
 	return buf.Bytes()
@@ -480,18 +526,21 @@ func (s *SnippetSwitchStmt) Bytes() []byte {
 		if s.Init != nil {
 			buf.WriteRune(' ')
 			buf.Write(s.Init.Bytes())
-			buf.WriteString(";")
+			buf.WriteRune(';')
 		}
 		buf.WriteRune(' ')
 		buf.Write(s.Cond.Bytes())
 	}
 
-	buf.WriteString(" {\n")
+	buf.WriteRune(' ')
+	buf.WriteRune('{')
 
 	for _, c := range s.Clauses {
+		buf.WriteRune('\n')
 		buf.Write(c.Bytes())
 	}
 
+	buf.WriteRune('\n')
 	buf.WriteRune('}')
 
 	return buf.Bytes()
@@ -521,11 +570,15 @@ func (s *SnippetForRangeStmt) Bytes() []byte {
 	buf.WriteString(token.FOR.String())
 	buf.WriteRune(' ')
 
-	if s.K != Anonymous || s.V != Anonymous {
-		buf.Write(s.K.Bytes())
-		buf.WriteRune(',')
-		buf.WriteRune(' ')
-		buf.Write(s.V.Bytes())
+	if s.K != AnonymousIdent || s.V != AnonymousIdent {
+		if s.K != AnonymousIdent && s.V == AnonymousIdent {
+			buf.Write(s.K.Bytes())
+		} else if s.V != AnonymousIdent {
+			buf.Write(s.K.Bytes())
+			buf.WriteRune(',')
+			buf.WriteRune(' ')
+			buf.Write(s.V.Bytes())
+		}
 		buf.WriteRune(' ')
 		buf.WriteString(token.DEFINE.String())
 		buf.WriteRune(' ')
@@ -584,7 +637,7 @@ func (s SnippetForStmt) Do(blk ...Snippet) *SnippetForStmt {
 type SnippetIfStmt struct {
 	Init, Cond Snippet
 	Blk        SnippetBlockWithBrace
-	Else       []*SnippetIfStmt
+	ElseList   []*SnippetIfStmt
 }
 
 var _ Snippet = (*SnippetIfStmt)(nil)
@@ -610,7 +663,7 @@ func (s *SnippetIfStmt) Bytes() []byte {
 	buf.WriteRune(' ')
 	buf.Write(s.Blk.Bytes())
 
-	for _, then := range s.Else {
+	for _, then := range s.ElseList {
 		buf.WriteRune(' ')
 		buf.WriteString(token.ELSE.String())
 		if then.Cond != nil {
@@ -620,6 +673,21 @@ func (s *SnippetIfStmt) Bytes() []byte {
 	}
 
 	return buf.Bytes()
+}
+
+func (s SnippetIfStmt) InitWith(init Snippet) *SnippetIfStmt {
+	s.Init = init
+	return &s
+}
+
+func (s SnippetIfStmt) Do(ss ...Snippet) *SnippetIfStmt {
+	s.Blk = append(s.Blk, ss...)
+	return &s
+}
+
+func (s SnippetIfStmt) Else(sub *SnippetIfStmt) *SnippetIfStmt {
+	s.ElseList = append(s.ElseList, sub)
+	return &s
 }
 
 type SnippetRefExpr struct {
@@ -656,6 +724,10 @@ func (s *SnippetStarExpr) Bytes() []byte {
 	buf.Write(s.T.Bytes())
 
 	return buf.Bytes()
+}
+
+type SnippetAddrExpr struct {
+	V SnippetCanAddr
 }
 
 var _ Snippet = (*SnippetAddrExpr)(nil)
@@ -711,7 +783,41 @@ func (s *SnippetDecExpr) Bytes() []byte {
 	buf := bytes.NewBuffer(nil)
 
 	buf.Write(s.Value.Bytes())
-	buf.WriteString(token.INC.String())
+	buf.WriteString(token.DEC.String())
+
+	return buf.Bytes()
+}
+
+type SnippetArrowExpr struct {
+	SnippetCanAddr
+	Chan Snippet
+}
+
+var _ Snippet = (*SnippetArrowExpr)(nil)
+
+func (s *SnippetArrowExpr) Bytes() []byte {
+	buf := bytes.NewBuffer(nil)
+
+	buf.WriteString(token.ARROW.String())
+	buf.Write(s.Chan.Bytes())
+
+	return buf.Bytes()
+}
+
+type SnippetAccessExpr struct {
+	V     Snippet
+	Index Snippet
+}
+
+var _ Snippet = (*SnippetAccessExpr)(nil)
+
+func (s *SnippetAccessExpr) Bytes() []byte {
+	buf := bytes.NewBuffer(nil)
+
+	buf.Write(s.V.Bytes())
+	buf.WriteString(token.LBRACK.String())
+	buf.Write(s.Index.Bytes())
+	buf.WriteString(token.RBRACK.String())
 
 	return buf.Bytes()
 }
@@ -756,7 +862,7 @@ func (s SnippetCallExpr) AsDefer() *SnippetCallExpr {
 	return &s
 }
 
-func (s SnippetCallExpr) AsRotine() *SnippetCallExpr {
+func (s SnippetCallExpr) AsRoutine() *SnippetCallExpr {
 	s.Modifier = token.GO
 	return &s
 }
@@ -827,9 +933,18 @@ func (s *SliceType) Bytes() []byte {
 	return buf.Bytes()
 }
 
+type ChanMode uint8
+
+const (
+	ChanModeRO ChanMode = 0x01
+	ChanModeWO ChanMode = 0x10
+	ChanModeRW ChanMode = 0x11
+)
+
 type ChanType struct {
 	SnippetType
-	T SnippetType
+	T    SnippetType
+	Mode ChanMode
 }
 
 var _ SnippetType = (*ChanType)(nil)
@@ -837,7 +952,13 @@ var _ SnippetType = (*ChanType)(nil)
 func (s *ChanType) Bytes() []byte {
 	buf := bytes.NewBuffer(nil)
 
+	if s.Mode == ChanModeRO {
+		buf.WriteString(token.ARROW.String())
+	}
 	buf.WriteString(token.CHAN.String())
+	if s.Mode == ChanModeWO {
+		buf.WriteString(token.ARROW.String())
+	}
 	buf.WriteRune(' ')
 	buf.Write(s.T.Bytes())
 
@@ -926,10 +1047,15 @@ func (f *FuncType) Bytes() []byte {
 	return buf.Bytes()
 }
 
-func (f FuncType) WithoutToken() *FuncType {
-	f.noToken = true
-	return &f
-}
+func (f FuncType) WithoutToken() *FuncType { f.noToken = true; return &f }
+
+func (f FuncType) Named(name string) *FuncType { f.Name = Ident(name); return &f }
+
+func (f FuncType) MethodOf(rcv *SnippetField) *FuncType { f.Recv = rcv; return &f }
+
+func (f FuncType) Return(rets ...*SnippetField) *FuncType { f.Rets = rets; return &f }
+
+func (f FuncType) Do(ss ...Snippet) *FuncType { f.Blk = append([]Snippet{}, ss...); return &f }
 
 type StructType struct {
 	SnippetType
