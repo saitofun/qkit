@@ -2,12 +2,11 @@ package format_test
 
 import (
 	"fmt"
-	"os"
 
 	. "github.com/sincospro/qkit/gen/codegen"
 )
 
-func ExampleFormat() {
+func CreateDemoFile() *File {
 	filename := "examples/hello/hello.go"
 	f := NewFile("main", filename)
 
@@ -20,25 +19,18 @@ func ExampleFormat() {
 		Assign(AnonymousIdent).By(Call(f.Use("bytes", "NewBuffer"), f.Value(nil))),
 	))
 
-	fmt.Println(string(f.Formatted()))
+	return f
+}
 
-	if _, err := f.Write(); err != nil {
-		panic(err)
-	}
-	if raw, err := os.ReadFile(f.Name); err != nil {
-		panic(err)
-	} else {
-		// NOTE: this test should always FAILED because the generated file
-		// contains `time` and `version` information
-		fmt.Println("*********the following is generated file content*********")
-		fmt.Println(string(raw))
-	}
+func ExampleFormat() {
+	f := CreateDemoFile()
+	fmt.Println(string(f.Formatted()))
 
 	// Output:
 	// package main
 	//
 	// import (
-	//	"bytes"
+	// 	"bytes"
 	// 	"fmt"
 	//
 	// 	gen_pkg_1 "github.com/another/pkg"
@@ -51,7 +43,7 @@ func ExampleFormat() {
 	// 	pkg.Println("Hello World!")
 	// 	gen_pkg_1.Println("Hello World!")
 	// 	gen_pkg_2.Println("Hello World!")
-	//	_ = bytes.NewBuffer(nil)
+	// 	_ = bytes.NewBuffer(nil)
 	// }
 
 }

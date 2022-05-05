@@ -146,10 +146,7 @@ func CallWith(callee Snippet, args ...Snippet) *SnippetCallExpr {
 }
 
 func CallMakeChan(t SnippetType, length int) *SnippetCallExpr {
-	return &SnippetCallExpr{
-		Callee: Ident("make"),
-		Args:   []Snippet{Chan(t), Valuer(length)},
-	}
+	return Call("make", Chan(t), Valuer(length))
 }
 
 func Return(s ...Snippet) *SnippetReturnStmt { return &SnippetReturnStmt{Res: s} }

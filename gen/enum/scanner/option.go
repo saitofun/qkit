@@ -1,6 +1,9 @@
 package scanner
 
-import "strconv"
+import (
+	"sort"
+	"strconv"
+)
 
 type Option struct {
 	Label string   `json:"label"`
@@ -23,6 +26,8 @@ func (o Option) Value() interface{} {
 }
 
 type Options []Option
+
+var _ sort.Interface = Options{}
 
 func (o Options) Len() int { return len(o) }
 
@@ -48,7 +53,7 @@ func (o Options) Swap(i, j int) {
 	o[i], o[j] = o[j], o[i]
 }
 
-func NewEnumOption(i int64, str, label string) *Option {
+func NewOption(i int64, str, label string) *Option {
 	ret := &Option{
 		Label: label,
 		Str:   &str,
@@ -66,7 +71,7 @@ func NewIntOption(i int64, label string) *Option {
 		Int:   &i,
 	}
 	if label == "" {
-		ret.Label = strconv.Itoa(i)
+		ret.Label = strconv.FormatInt(i, 10)
 	}
 	return ret
 }
