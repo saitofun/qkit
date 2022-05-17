@@ -4,10 +4,11 @@ go 1.18
 
 require (
 	github.com/saitofun/qlib v0.0.0-20220516014151-bc1ebdc5411d
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.7.0
 )
 
 require (
+	github.com/gomodule/redigo v1.8.8
 	github.com/onsi/gomega v1.19.0
 	golang.org/x/tools v0.1.10
 )
@@ -27,4 +28,5 @@ require (
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )

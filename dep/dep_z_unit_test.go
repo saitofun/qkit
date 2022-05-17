@@ -8,10 +8,10 @@ import (
 )
 
 type PostgresqlConfig struct {
-	Command               string         `name:"command"`
-	User                  string         `name:"user"`
-	AutoStart             bool           `name:"autostart"`
-	AutoRestart           bool           `name:"atuorestart"`
+	Command               string         `name:"command,default=''"`
+	User                  string         `name:"user,default='postgres'"`
+	AutoStart             bool           `name:"autostart,default=false"`
+	AutoRestart           bool           `name:"atuorestart,default=true"`
 	StartSecs             types.Second   `name:"startsecs"`
 	StartRetries          int            `name:"startretries"`
 	ExitCodes             int            `name:"exitcodes"`
@@ -34,10 +34,8 @@ func TestConfigLoader_Load(t *testing.T) {
 	if err != nil {
 		t.Log(err)
 	}
+
 	for k, v := range loader.Values {
 		t.Logf("%s=%s", k, v)
 	}
-
-	v := &PostgresqlConfig{}
-	loader.Into(v)
 }
