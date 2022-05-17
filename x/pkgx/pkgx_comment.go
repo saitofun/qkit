@@ -30,7 +30,7 @@ func (c *CommentScanner) CommentGroupsOf(n ast.Node) (cgs []*ast.CommentGroup) {
 	switch n.(type) {
 	case *ast.File, *ast.Field, ast.Stmt, ast.Decl:
 		if comments, ok := c.CommentMap[n]; ok {
-			cgs = append(cgs, comments...)
+			cgs = comments
 		}
 	case ast.Spec:
 		if comments, ok := c.CommentMap[n]; ok {
@@ -52,13 +52,13 @@ func (c *CommentScanner) CommentGroupsOf(n ast.Node) (cgs []*ast.CommentGroup) {
 			pos    token.Pos = -1
 			parent ast.Node
 		)
-		ast.Inspect(c.File, func(node ast.Node) bool {
-			switch node.(type) {
-			case *ast.File, *ast.Field, ast.Stmt, ast.Decl:
-				if n.Pos() >= node.Pos() && n.Pos() <= node.End() {
-					next := n.Pos() - node.Pos()
+		ast.Inspect(c.File, func(iter ast.Node) bool {
+			switch iter.(type) {
+			case *ast.Field, ast.Stmt, ast.Decl, ast.Spec:
+				if n.Pos() >= iter.Pos() && n.End() <= iter.End() {
+					next := n.Pos() - iter.Pos()
 					if pos == -1 || next <= pos {
-						pos, parent = next, node
+						pos, parent = next, iter
 					}
 				}
 			}

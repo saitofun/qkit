@@ -1,0 +1,22 @@
+{
+  "name": "itr",
+  "assert": "itr.x86_64",
+  "cmd": "tar",
+  "args": [
+    "vxf",
+    "irt.x85_64"
+  ],
+  "required": true,
+  "subs": [
+    {
+      "name": "redis",
+      "assert": "redis.rpm",
+      "cmd": "",
+      "args": [
+        ""
+      ]
+    },
+    {
+    }
+  ]
+}

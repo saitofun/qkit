@@ -5,39 +5,43 @@ import (
 	"go/token"
 	"go/types"
 
-	"golang.org/x/tools/go/packages"
+	. "golang.org/x/tools/go/packages"
 )
 
-type Package struct {
-	*packages.Package
-	packages []*packages.Package
+type Pkg struct {
+	*Package
+	lst []*Package
+	set *Set
 }
 
 type Pos interface{ Pos() token.Pos }
 
 type End interface{ End() token.Pos }
 
-func Load(pattern string) (*Package, error) {
-	packages, err := packages.Load(
-		&packages.Config{Mode: packages.LoadMode(0b101111111111)},
+func LoadFrom(pattern string) (*Pkg, error) {
+	lst, err := Load(
+		&Config{Mode: LoadMode(0b111111111111)},
 		pattern,
 	)
 	if err != nil {
 		return nil, err
 	}
-	return New(packages[0]), nil
+	return New(lst[0]), nil
 }
 
-func New(pkg *packages.Package) *Package {
-	ps := &pkgs{}
-	ps.add(pkg)
-	return &Package{
-		Package:  pkg,
-		packages: ps.packages(),
+func New(pkg *Package) *Pkg {
+	set := &Set{}
+	set.Append(pkg)
+	return &Pkg{
+		Package: pkg,
+		lst:     set.List(),
+		set:     set,
 	}
 }
 
-func (p *Package) Const(name string) *types.Const {
+func (p *Pkg) Imports() []*Package { return p.lst }
+
+func (p *Pkg) Const(name string) *types.Const {
 	for ident, def := range p.TypesInfo.Defs {
 		if t, ok := def.(*types.Const); ok && ident.Name == name {
 			return t
@@ -46,7 +50,7 @@ func (p *Package) Const(name string) *types.Const {
 	return nil
 }
 
-func (p *Package) TypeName(name string) *types.TypeName {
+func (p *Pkg) TypeName(name string) *types.TypeName {
 	for ident, def := range p.TypesInfo.Defs {
 		if t, ok := def.(*types.TypeName); ok && ident.Name == name {
 			return t
@@ -55,7 +59,7 @@ func (p *Package) TypeName(name string) *types.TypeName {
 	return nil
 }
 
-func (p *Package) Var(name string) *types.Var {
+func (p *Pkg) Var(name string) *types.Var {
 	for ident, def := range p.TypesInfo.Defs {
 		if t, ok := def.(*types.Var); ok && ident.Name == name {
 			return t
@@ -64,7 +68,7 @@ func (p *Package) Var(name string) *types.Var {
 	return nil
 }
 
-func (p *Package) Func(name string) *types.Func {
+func (p *Pkg) Func(name string) *types.Func {
 	for ident, def := range p.TypesInfo.Defs {
 		if t, ok := def.(*types.Func); ok && ident.Name == name {
 			return t
@@ -73,8 +77,8 @@ func (p *Package) Func(name string) *types.Func {
 	return nil
 }
 
-func (p *Package) Pkg(path string) *packages.Package {
-	for _, pkg := range p.packages {
+func (p *Pkg) Pkg(path string) *Package {
+	for _, pkg := range p.lst {
 		if path == pkg.PkgPath {
 			return pkg
 		}
@@ -82,8 +86,8 @@ func (p *Package) Pkg(path string) *packages.Package {
 	return nil
 }
 
-func (p *Package) PkgOf(n Pos) *types.Package {
-	for _, pkg := range p.packages {
+func (p *Pkg) PkgOf(n Pos) *types.Package {
+	for _, pkg := range p.lst {
 		for _, file := range pkg.Syntax {
 			if file.Pos() <= n.Pos() && file.End() > n.Pos() {
 				return pkg.Types
@@ -93,8 +97,8 @@ func (p *Package) PkgOf(n Pos) *types.Package {
 	return nil
 }
 
-func (p *Package) PkgInfoOf(n Pos) *types.Info {
-	for _, pkg := range p.packages {
+func (p *Pkg) PkgInfoOf(n Pos) *types.Info {
+	for _, pkg := range p.lst {
 		for _, file := range pkg.Syntax {
 			if file.Pos() <= n.Pos() && file.End() > n.Pos() {
 				return pkg.TypesInfo
@@ -104,8 +108,8 @@ func (p *Package) PkgInfoOf(n Pos) *types.Info {
 	return nil
 }
 
-func (p *Package) FileOf(n Pos) *ast.File {
-	for _, pkg := range p.packages {
+func (p *Pkg) FileOf(n Pos) *ast.File {
+	for _, pkg := range p.lst {
 		for _, file := range pkg.Syntax {
 			if file.Pos() <= n.Pos() && file.End() > n.Pos() {
 				return file
@@ -115,7 +119,7 @@ func (p *Package) FileOf(n Pos) *ast.File {
 	return nil
 }
 
-func (p *Package) IdentOf(obj types.Object) *ast.Ident {
+func (p *Pkg) IdentOf(obj types.Object) *ast.Ident {
 	info := p.Pkg(obj.Pkg().Path())
 
 	for ident, def := range info.TypesInfo.Defs {
@@ -126,7 +130,7 @@ func (p *Package) IdentOf(obj types.Object) *ast.Ident {
 	return nil
 }
 
-func (p *Package) CommentsOf(n ast.Node) string {
+func (p *Pkg) CommentsOf(n ast.Node) string {
 	if f := p.FileOf(n); f == nil {
 		return ""
 	} else {
@@ -134,19 +138,19 @@ func (p *Package) CommentsOf(n ast.Node) string {
 	}
 }
 
-func (p *Package) Eval(expr ast.Expr) (types.TypeAndValue, error) {
+func (p *Pkg) Eval(expr ast.Expr) (types.TypeAndValue, error) {
 	return types.Eval(
 		p.Fset, p.PkgOf(expr), expr.Pos(), StringifyNode(p.Fset, expr),
 	)
 }
 
-func (p *Package) FuncDeclOf(fn *types.Func) (decl *ast.FuncDecl) {
+func (p *Pkg) FuncDeclOf(fn *types.Func) (decl *ast.FuncDecl) {
 	ast.Inspect(p.FileOf(fn), func(node ast.Node) bool {
 		fd, ok := node.(*ast.FuncDecl)
-		if ok &&
-			fd.Pos() <= fn.Pos() &&
-			fd.Body != nil &&
-			fn.Pos() < fd.Body.Pos() {
+		if !ok {
+			return true
+		}
+		if fd.Pos() <= fn.Pos() && fd.Body != nil && fn.Pos() < fd.Body.Pos() {
 			decl = fd
 			return false
 		}
@@ -155,7 +159,7 @@ func (p *Package) FuncDeclOf(fn *types.Func) (decl *ast.FuncDecl) {
 	return
 }
 
-func (p *Package) ResultsOf(callee *ast.CallExpr) (Results, int) {
+func (p *Pkg) ResultsOf(callee *ast.CallExpr) (Results, int) {
 	typ := p.PkgInfoOf(callee).TypeOf(callee)
 	res := Results{}
 
@@ -177,7 +181,7 @@ func (p *Package) ResultsOf(callee *ast.CallExpr) (Results, int) {
 	return res, len(res)
 }
 
-func (p *Package) AssignedValueOf(ident *ast.Ident, pos token.Pos) []TypeAndValueExpr {
+func (p *Pkg) AssignedValueOf(ident *ast.Ident, pos token.Pos) []TypeAndValueExpr {
 	var (
 		ass  *ast.AssignStmt
 		blk  *ast.BlockStmt
@@ -244,7 +248,7 @@ func (p *Package) AssignedValueOf(ident *ast.Ident, pos token.Pos) []TypeAndValu
 	return res[idx]
 }
 
-func (p *Package) AppendResult(res Results, i int, tve TypeAndValueExpr) {
+func (p *Pkg) AppendResult(res Results, i int, tve TypeAndValueExpr) {
 	if _, ok := tve.Type.(*types.Interface); !ok {
 		res[i] = append(res[i], tve)
 		return
@@ -259,7 +263,7 @@ func (p *Package) AppendResult(res Results, i int, tve TypeAndValueExpr) {
 	}
 }
 
-func (p *Package) SetResultsBy(res Results, exprs ...ast.Expr) {
+func (p *Pkg) SetResultsBy(res Results, exprs ...ast.Expr) {
 	for i := range exprs {
 		switch e := exprs[i].(type) {
 		case *ast.CallExpr:
@@ -282,7 +286,7 @@ func (p *Package) SetResultsBy(res Results, exprs ...ast.Expr) {
 	}
 }
 
-func (p *Package) FuncResultsOf(fn *types.Func) (Results, int) {
+func (p *Pkg) FuncResultsOf(fn *types.Func) (Results, int) {
 	if fn == nil {
 		return nil, 0
 	}
@@ -297,7 +301,7 @@ func (p *Package) FuncResultsOf(fn *types.Func) (Results, int) {
 	)
 }
 
-func (p *Package) FuncResultsOfSignature(sig *types.Signature, body *ast.BlockStmt, typ *ast.FuncType) (Results, int) {
+func (p *Pkg) FuncResultsOfSignature(sig *types.Signature, body *ast.BlockStmt, typ *ast.FuncType) (Results, int) {
 	results := sig.Results()
 	if results.Len() == 0 {
 		return nil, 0
@@ -314,7 +318,7 @@ func (p *Package) FuncResultsOfSignature(sig *types.Signature, body *ast.BlockSt
 		ast.Inspect(body, func(node ast.Node) bool {
 			switch node := node.(type) {
 			case *ast.FuncLit:
-				return false
+				return false // inline declaration
 			case *ast.ReturnStmt:
 				lst = append(lst, node)
 			}
@@ -327,9 +331,11 @@ func (p *Package) FuncResultsOfSignature(sig *types.Signature, body *ast.BlockSt
 
 	for _, stmt := range returns {
 		if stmt.Results != nil {
+			p.SetResultsBy(finals, stmt.Results...)
 			continue
 		}
 		for i := 0; i < results.Len(); i++ {
+			// named return
 			for _, tve := range p.AssignedValueOf(named[i], stmt.Pos()) {
 				p.AppendResult(finals, i, tve)
 			}

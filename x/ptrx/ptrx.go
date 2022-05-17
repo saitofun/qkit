@@ -1,5 +1,5 @@
-// Package ptr used for inline point value
-package ptr
+// Package ptrx used for inline point value
+package ptrx
 
 func Bool(v bool) *bool          { return &v }
 func Int(v int) *int             { return &v }

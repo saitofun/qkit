@@ -9,6 +9,9 @@ import (
 )
 
 func StringifyNode(fs *token.FileSet, n ast.Node) string {
+	if cg, ok := n.(*ast.CommentGroup); ok {
+		return StringifyCommentGroup(cg)
+	}
 	buf := bytes.NewBuffer(nil)
 	if err := format.Node(buf, fs, n); err != nil {
 		panic(err)
@@ -16,19 +19,20 @@ func StringifyNode(fs *token.FileSet, n ast.Node) string {
 	return buf.String()
 }
 
-func StringifyCommentGroup(lst ...*ast.CommentGroup) (ret string) {
-	if len(lst) == 0 {
+func StringifyCommentGroup(cgs ...*ast.CommentGroup) string {
+	if len(cgs) == 0 {
 		return ""
 	}
-	for _, cg := range lst {
+	comments := ""
+	for _, cg := range cgs {
 		for _, line := range strings.Split(cg.Text(), "\n") {
 			if strings.HasPrefix(line, "go:") {
 				continue
 			}
-			ret = ret + "\n" + line
+			comments = comments + "\n" + line
 		}
 	}
-	return
+	return strings.TrimSpace(comments)
 }
 
 func Import(path string) string {
