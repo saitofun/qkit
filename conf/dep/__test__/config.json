@@ -1,22 +1,41 @@
 {
-  "name": "itr",
-  "assert": "itr.x86_64",
-  "cmd": "tar",
-  "args": [
-    "vxf",
-    "irt.x85_64"
-  ],
-  "required": true,
-  "subs": [
+  "os_id":"centos",
+  "os_version": "7.9.2009",
+  "components": [
     {
-      "name": "redis",
-      "assert": "redis.rpm",
-      "cmd": "",
-      "args": [
-        ""
-      ]
+      "name":"rootfs",
+      "version":"x.y.z-alpha-commit_id",
+      "type":"required",
+      "install_cmd": "bash ./install",
+      "uninstall_cmd": "...",
+      "runtime": {
+        "type": "static",
+        "env": ""
+      },
+      "release_note":"..."
     },
     {
+      "name":"redis",
+      "version":"x.y.z-alpha-commit_id",
+      "type":"optional",
+      "install_cmd": "bash ./install",
+      "uninstall__cmd": "...",
+      "config": [
+        "opt/iTR/redis/etc/redis.conf",
+        "opt/iTR/redis/etc/sentinel.conf"
+      ],
+      "runtime":{
+        "type": "daemon",
+        "method": "supervisor",
+        "config": "opt/iTR/core/etc/supervisor.d/redis.conf",
+        "start": "supervisorctl start redis",
+        "stop": "....",
+        "status": "....",
+        "env": "export ....",
+        "log_dir": "..."
+      },
+      "release_note":"..."
     }
-  ]
+  ],
+  "release_note":"..."
 }
