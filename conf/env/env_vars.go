@@ -39,7 +39,12 @@ func (vs *Vars) Set(v *Var) {
 	vs.Values[v.Name] = v
 }
 
-func (vs *Vars) SetWithKeyValue(k, v string) { vs.Set(&Var{Name: k, Value: v}) }
+func (vs *Vars) SetWithKeyValue(k, v string) {
+	vs.Set(&Var{
+		Name:  strings.Replace(k, vs.Prefix+"__", "", 1),
+		Value: v,
+	})
+}
 
 func (vs *Vars) Get(key string) *Var {
 	if vs.Values == nil {

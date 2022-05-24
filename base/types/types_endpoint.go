@@ -62,7 +62,7 @@ func (e Endpoint) Host() string {
 	return e.Hostname + ":" + strconv.FormatUint(uint64(e.Port), 10)
 }
 
-func (e Endpoint) MarshaText() ([]byte, error) {
+func (e Endpoint) MarshalText() ([]byte, error) {
 	return []byte(e.String()), nil
 }
 

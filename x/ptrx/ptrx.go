@@ -1,6 +1,8 @@
 // Package ptrx used for inline point value
 package ptrx
 
+import "time"
+
 func Bool(v bool) *bool          { return &v }
 func Int(v int) *int             { return &v }
 func Int8(v int8) *int8          { return &v }
@@ -17,3 +19,5 @@ func Float64(v float64) *float64 { return &v }
 func Byte(v byte) *byte          { return &v }
 func Rune(v rune) *rune          { return &v }
 func String(v string) *string    { return &v }
+
+func Duration(d time.Duration) *time.Duration { return &d }

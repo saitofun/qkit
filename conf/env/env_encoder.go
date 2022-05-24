@@ -84,7 +84,7 @@ func (e *Encoder) scan(w *PathWalker, rv reflect.Value) error {
 	case reflect.Func, reflect.Interface, reflect.Chan, reflect.Map: // skip
 	default:
 		rt := rv.Type()
-		if rt.Implements(types.RTypeTextMarshaler) {
+		if _, ok := rv.Interface().(types.TextMarshaler); ok {
 			return setter(rv)
 		}
 		switch kind {

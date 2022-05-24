@@ -3,6 +3,8 @@ package reflectx
 import (
 	"bytes"
 	"reflect"
+
+	"github.com/sincospro/qkit/base/types"
 )
 
 func Indirect(v reflect.Value) reflect.Value {
@@ -12,6 +14,7 @@ func Indirect(v reflect.Value) reflect.Value {
 	return v
 }
 
+// New new a reflect.Value with reflect.Type
 func New(t reflect.Type) reflect.Value {
 	v := reflect.New(t).Elem()
 	if t.Kind() == reflect.Ptr {
@@ -35,8 +38,8 @@ func IsEmptyValue(v interface{}) bool {
 		return true
 	}
 	if rv.IsValid() && rv.CanInterface() {
-		if iface, ok := rv.Interface().(interface{ IsZero() bool }); ok {
-			return iface.IsZero()
+		if chk, ok := rv.Interface().(types.ZeroChecker); ok {
+			return chk.IsZero()
 		}
 	}
 	switch rv.Kind() {

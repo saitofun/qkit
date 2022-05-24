@@ -1,0 +1,9 @@
+GOENV: DEV
+SRV_DEMO__DEMOCONF__SomeAssertCertFile: "assert://file/to/path"
+SRV_DEMO__DEMOCONF__SomeBusinessRangeMax: "20018"
+SRV_DEMO__DEMOCONF__SomeBusinessRangeMin: "20099"
+SRV_DEMO__DEMOCONF__SomeCronTaskInterval: 100s
+SRV_DEMO__DEMOCONF__SomeDefaultKey: "1a2b3c"
+SRV_DEMO__PGCONF__Endpoint: postgres://username:password@127.0.0.1:5432/db_name
+SRV_DEMO__REDISCONF__Endpoint: redis://:password@1.2.3.4:6379?db=5
+SRV_DEMO__SERVERCONF__Port: 8088

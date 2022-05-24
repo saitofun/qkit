@@ -65,7 +65,7 @@ type Config struct {
 func TestEnvVars(t *testing.T) {
 	c := Config{}
 
-	c.Duration = types.Duration(10 * time.Second)
+	c.Duration = types.Duration(time.Hour + 2*time.Second + 3*time.Microsecond)
 	c.Password = types.Password("123123")
 	c.Key = "123456"
 	c.PtrString = qptr.String("123456=")
@@ -84,7 +84,7 @@ S__Config_Bool=false
 S__Config_Duration=0s
 S__Config_Key=key
 S__Config_Password=
-S__Duration=10s
+S__Duration=1h2s3us
 S__Host=
 S__Key=123456
 S__Password=123123

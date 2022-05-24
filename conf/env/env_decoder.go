@@ -92,7 +92,8 @@ func (d *Decoder) scan(w *PathWalker, rv reflect.Value) error {
 				}
 			}
 		default:
-			if v := d.vars.Get(w.String()); v != nil {
+			v := d.vars.Get(w.String())
+			if v != nil {
 				return qtext.UnmarshalText(rv, []byte(v.Value))
 			}
 		}
