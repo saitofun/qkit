@@ -3,7 +3,7 @@ package main
 import (
 	"strings"
 
-	"github.com/sincospro/qkit/x/pkg/__tests__/sub"
+	"github.com/saitofun/qkit/x/pkgx/__tests__/sub"
 )
 
 func Example() {

@@ -3,7 +3,7 @@ package ptrx_test
 import (
 	"fmt"
 
-	"github.com/sincospro/qkit/x/ptrx"
+	"github.com/saitofun/qkit/x/ptrx"
 )
 
 func Example() {

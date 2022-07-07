@@ -1,9 +1,9 @@
 package supervisor
 
 import (
-	"github.com/sincospro/qkit/base/cmd"
-	"github.com/sincospro/qkit/base/types"
-	"github.com/sincospro/qkit/conf/section_config"
+	"github.com/saitofun/qkit/base/cmd"
+	"github.com/saitofun/qkit/base/types"
+	"github.com/saitofun/qkit/conf/section_config"
 )
 
 type Program struct {

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/sincospro/qkit/conf/deploy"
+	"github.com/saitofun/qkit/conf/deploy"
 	"gopkg.in/yaml.v2"
 )
 

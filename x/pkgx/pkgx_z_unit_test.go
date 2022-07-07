@@ -13,7 +13,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
-	. "github.com/sincospro/qkit/x/pkgx"
+	. "github.com/saitofun/qkit/x/pkgx"
 )
 
 var root = "./__tests__"
@@ -69,7 +69,7 @@ func TestPkgFuncReturns(t *testing.T) {
 	NewWithT(t).Expect(err).To(BeNil())
 	NewWithT(t).Expect(pkg.Imports()).NotTo(BeEmpty())
 
-	var root = "github.com/sincospro/qkit/x/pkgx/__tests__"
+	var root = "github.com/saitofun/qkit/x/pkgx/__tests__"
 	var cases = []struct {
 		FuncName string
 		Results  [][]string

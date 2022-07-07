@@ -9,9 +9,9 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/sincospro/qkit/conf/deploy"
-	"github.com/sincospro/qkit/conf/env"
-	"github.com/sincospro/qkit/x/reflectx"
+	"github.com/saitofun/qkit/conf/deploy"
+	"github.com/saitofun/qkit/conf/env"
+	"github.com/saitofun/qkit/x/reflectx"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 )

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/sincospro/qkit/base/types"
+	"github.com/saitofun/qkit/base/types"
 )
 
 type Config struct {

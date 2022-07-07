@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/saitofun/qkit/x/ptrx"
 	"github.com/saitofun/qlib/container/qptr"
-	"github.com/sincospro/qkit/x/ptrx"
 )
 
 type Duration time.Duration

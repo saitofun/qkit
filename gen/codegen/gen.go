@@ -9,8 +9,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/saitofun/qkit/gen/codegen/internal/format"
 	"github.com/saitofun/qlib/util/qnaming"
-	"github.com/sincospro/qkit/gen/codegen/internal/format"
 	"golang.org/x/tools/go/packages"
 )
 

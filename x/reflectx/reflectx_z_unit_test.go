@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
-	. "github.com/sincospro/qkit/x/reflectx"
+	. "github.com/saitofun/qkit/x/reflectx"
 )
 
 type Foo struct {

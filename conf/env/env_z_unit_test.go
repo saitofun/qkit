@@ -6,9 +6,8 @@ import (
 	"time"
 
 	. "github.com/onsi/gomega"
+	"github.com/saitofun/qkit/base/types"
 	"github.com/saitofun/qlib/container/qptr"
-	"github.com/sincospro/qkit/base/types"
-	. "github.com/sincospro/qkit/conf/env"
 )
 
 func TestPathWalker(t *testing.T) {

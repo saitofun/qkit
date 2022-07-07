@@ -1,4 +1,4 @@
-module github.com/sincospro/qkit
+module github.com/saitofun/qkit
 
 go 1.18
 

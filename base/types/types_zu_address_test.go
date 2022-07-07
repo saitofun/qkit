@@ -7,7 +7,7 @@ import (
 	"time"
 
 	. "github.com/onsi/gomega"
-	. "github.com/sincospro/qkit/base/types"
+	. "github.com/saitofun/qkit/base/types"
 )
 
 func TestAddress(t *testing.T) {
@@ -25,9 +25,9 @@ func TestAddress(t *testing.T) {
 		},
 		"url": {
 			Addr: &Address{
-				URL: "http://venusgroup.com/avatar/filename.png",
+				URL: "http://demo.com/avatar/filename.png",
 			},
-			Expect: "http://venusgroup.com/avatar/filename.png",
+			Expect: "http://demo.com/avatar/filename.png",
 		},
 		"without_ext": {
 			Addr: &Address{

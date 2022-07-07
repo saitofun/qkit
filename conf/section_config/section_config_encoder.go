@@ -6,9 +6,9 @@ import (
 	"os"
 	"reflect"
 
+	"github.com/saitofun/qkit/base/types"
+	"github.com/saitofun/qkit/x/reflectx"
 	"github.com/saitofun/qlib/encoding/qtext"
-	"github.com/sincospro/qkit/base/types"
-	"github.com/sincospro/qkit/x/reflectx"
 )
 
 type Encoder struct {

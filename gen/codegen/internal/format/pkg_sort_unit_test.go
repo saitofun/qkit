@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/sincospro/qkit/gen/codegen/internal/format"
+	"github.com/saitofun/qkit/gen/codegen/internal/format"
 	"github.com/stretchr/testify/require"
 )
 

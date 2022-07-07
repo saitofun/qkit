@@ -2,12 +2,14 @@ package format_test
 
 import (
 	"fmt"
+	"os"
+	"path"
+	"path/filepath"
 
-	. "github.com/sincospro/qkit/gen/codegen"
+	. "github.com/saitofun/qkit/gen/codegen"
 )
 
-func CreateDemoFile() *File {
-	filename := "examples/hello/hello.go"
+func CreateDemoFile(filename string) *File {
 	f := NewFile("main", filename)
 
 	f.WriteSnippet(Func().Named("main").Do(
@@ -23,7 +25,19 @@ func CreateDemoFile() *File {
 }
 
 func ExampleFormat() {
-	f := CreateDemoFile()
+	cwd, _ := os.Getwd()
+	filename := path.Join(cwd, "hello/hello.go")
+
+	f := CreateDemoFile(filename)
+
+	defer os.Remove(filepath.Dir(f.Name))
+
+	_, err := f.Write()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	fmt.Println(string(f.Formatted()))
 
 	// Output:
@@ -45,5 +59,4 @@ func ExampleFormat() {
 	// 	gen_pkg_2.Println("Hello World!")
 	// 	_ = bytes.NewBuffer(nil)
 	// }
-
 }

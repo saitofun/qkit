@@ -11,11 +11,11 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/sincospro/qkit/base/cmd"
-	"github.com/sincospro/qkit/base/types"
-	"github.com/sincospro/qkit/conf/app"
-	"github.com/sincospro/qkit/conf/deploy/supervisor"
-	"github.com/sincospro/qkit/conf/section_config"
+	"github.com/saitofun/qkit/base/cmd"
+	"github.com/saitofun/qkit/base/types"
+	"github.com/saitofun/qkit/conf/app"
+	"github.com/saitofun/qkit/conf/deploy/supervisor"
+	"github.com/saitofun/qkit/conf/section_config"
 	"github.com/spf13/cobra"
 )
 
