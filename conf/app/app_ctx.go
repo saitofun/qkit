@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"go/ast"
 	"io/ioutil"
 	"os"
 	"path"
@@ -61,6 +62,9 @@ func (c *Ctx) Conf(vs ...interface{}) {
 		c.conf = append(c.conf, rv)
 		rv = reflectx.Indirect(rv)
 		for i := 0; i < rv.NumField(); i++ {
+			if !ast.IsExported(rv.Type().Name()) {
+				continue
+			}
 			value := rv.Field(i)
 			if conf, ok := value.Interface().(interface{ Init() }); ok {
 				conf.Init()
