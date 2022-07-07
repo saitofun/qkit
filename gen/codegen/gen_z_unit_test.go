@@ -11,7 +11,6 @@ import (
 func CreateDemoFile() *File {
 	filename := "examples/hello/hello.go"
 	f := NewFile("main", filename)
-
 	f.WriteSnippet(Func().Named("main").Do(
 		Call(f.Use("fmt", "Println"), f.Value("Hello, 世界")),
 		Call(f.Use("github.com/some/pkg", "Println"), f.Value("Hello World!")),
@@ -26,6 +25,9 @@ func CreateDemoFile() *File {
 
 func Test_NewFile(t *testing.T) {
 	f := CreateDemoFile()
+
+	defer os.RemoveAll("examples")
+
 	if _, err := f.Write(); err != nil {
 		panic(err)
 	}

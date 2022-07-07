@@ -32,10 +32,11 @@ func (f *File) bytes(withLeaderComment, doFormat bool) []byte {
 		cmt := Comments(
 			`This is a generated source file. DO NOT EDIT`,
 			`Version: `+Version,
-			`Source: `+path.Join(f.Pkg, f.Name),
+			`Source: `+path.Join(f.Pkg, path.Base(f.Name)),
 			`Date: `+time.Now().Format(time.Stamp),
 		)
 		buf.Write(cmt.Bytes())
+		buf.WriteRune('\n')
 	}
 
 	buf.Write([]byte("\npackage " + qnaming.LowerSnakeCase(f.Pkg) + "\n"))
