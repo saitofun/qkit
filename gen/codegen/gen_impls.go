@@ -29,12 +29,12 @@ func Compose(typ SnippetType, elements ...Snippet) *SnippetLiteralCompose {
 	return &SnippetLiteralCompose{Type: typ, Elements: elements}
 }
 
-func Comments(cmt ...string) SnippetComments {
+func Comments(cmt ...string) *SnippetComments {
 	comments := make([]string, 0, len(cmt))
 	for _, c := range cmt {
 		comments = append(comments, strings.Split(c, "\n")...)
 	}
-	return SnippetComments{OneLine: false, Comments: comments}
+	return &SnippetComments{OneLine: false, Comments: comments}
 }
 
 func KeyValue(k, v Snippet) *SnippetKVExpr { return &SnippetKVExpr{K: k, V: v} }

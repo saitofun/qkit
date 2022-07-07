@@ -262,7 +262,7 @@ type SnippetField struct {
 	Tag   string
 	Alias bool
 
-	SnippetComments
+	*SnippetComments
 }
 
 var _ Snippet = (*SnippetField)(nil)
@@ -270,7 +270,7 @@ var _ Snippet = (*SnippetField)(nil)
 func (s *SnippetField) Bytes() []byte {
 	buf := bytes.NewBuffer(nil)
 
-	if !s.SnippetComments.IsOneLine() {
+	if s.SnippetComments != nil && !s.SnippetComments.IsOneLine() {
 		tmp := s.SnippetComments.Bytes()
 		buf.Write(tmp)
 		if len(tmp) > 0 {
@@ -306,7 +306,7 @@ func (s *SnippetField) Bytes() []byte {
 		buf.WriteRune('`')
 	}
 
-	if s.SnippetComments.IsOneLine() {
+	if s.SnippetComments != nil && s.SnippetComments.IsOneLine() {
 		buf.WriteRune(' ')
 		buf.Write(s.SnippetComments.Bytes())
 	}
@@ -359,6 +359,9 @@ func (s SnippetField) WithComments(cmt ...string) *SnippetField {
 }
 
 func (s SnippetField) WithOneLineComment(cmt string) *SnippetField {
+	if s.SnippetComments == nil {
+		s.SnippetComments = &SnippetComments{}
+	}
 	s.SnippetComments.OneLine = true
 	s.SnippetComments.Comments = []string{cmt}
 	return &s
