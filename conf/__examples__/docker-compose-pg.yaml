@@ -1,0 +1,17 @@
+version: '3.3'
+services:
+  postgres:
+    image: postgres:12
+    restart: always
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pgpassword
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U pguser" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
