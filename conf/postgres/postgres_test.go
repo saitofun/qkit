@@ -27,7 +27,7 @@ func TestEndpoint(t *testing.T) {
 	var (
 		pg        = &postgres.Endpoint{Database: &sqlx.Database{Name: dbName}}
 		masterURL = []byte(fmt.Sprintf("postgresql://%s:%s@127.0.0.1/%s?sslmode=disable", dbUser, dbPasswd, dbName))
-		slaveURL  = []byte(fmt.Sprintf("postgresql://%s:%s@127.0.0.1/%s?sslmode=disable", dbUser, dbPasswd, dbName))
+		slaveURL  = []byte(fmt.Sprintf("postgresql://%s:%s@localhost/%s?sslmode=disable", dbUser, dbPasswd, dbName))
 	)
 
 	NewWithT(t).Expect(pg.Master.UnmarshalText(masterURL)).To(BeNil())
