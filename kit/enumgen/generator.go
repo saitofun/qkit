@@ -1,4 +1,4 @@
-package generator
+package enumgen
 
 import (
 	"go/types"

@@ -1,4 +1,4 @@
-package generator_test
+package enumgen_test
 
 import (
 	"fmt"
@@ -7,28 +7,28 @@ import (
 	_ "unsafe"
 
 	"github.com/saitofun/qkit/gen/codegen"
-	"github.com/saitofun/qkit/kit/enumgen/generator"
+	"github.com/saitofun/qkit/kit/enumgen"
 	"github.com/saitofun/qkit/x/pkgx"
 )
 
-//go:linkname _enum github.com/saitofun/qkit/kit/enumgen/generator._enum
-func _enum(g *generator.Generator, name string) *generator.Enum
+//go:linkname _enum github.com/saitofun/qkit/kit/enumgen._enum
+func _enum(g *enumgen.Generator, name string) *enumgen.Enum
 
 var (
-	g      *generator.Generator
-	sample *generator.Enum
-	scheme *generator.Enum
-	policy *generator.Enum
+	g      *enumgen.Generator
+	sample *enumgen.Enum
+	scheme *enumgen.Enum
+	policy *enumgen.Enum
 	f      *codegen.File
 )
 
 func init() {
 	cwd, _ := os.Getwd()
-	pkg, err := pkgx.LoadFrom(filepath.Join(cwd, "../__examples__"))
+	pkg, err := pkgx.LoadFrom(filepath.Join(cwd, "./__examples__"))
 	if err != nil {
 		panic(err)
 	}
-	g = generator.New(pkg)
+	g = enumgen.New(pkg)
 	g.Scan("Sample", "Scheme", "PullPolicy")
 
 	if sample = _enum(g, "Sample"); sample == nil {
