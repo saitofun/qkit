@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/saitofun/qkit/kit/database/sqlx/builder"
-	"github.com/saitofun/qkit/kit/database/sqlx/scanner/nullable"
+	"github.com/saitofun/qkit/kit/sqlx/builder"
+	"github.com/saitofun/qkit/kit/sqlx/scanner/nullable"
 	"github.com/saitofun/qkit/x/reflectx"
 )
 
@@ -78,7 +78,7 @@ func scan(ctx context.Context, rows *sql.Rows, v interface{}) error {
 			}
 		})
 
-		return rows.Scan()
+		return rows.Scan(dst...)
 	}
 }
 

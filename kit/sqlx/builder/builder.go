@@ -30,11 +30,11 @@ type WithTableDesc interface {
 }
 
 type WithColDesc interface {
-	ColDescs() map[string][]string
+	ColDesc() map[string][]string
 }
 
-type WithColRels interface {
-	ColRels() map[string][]string
+type WithColRel interface {
+	ColRel() map[string][]string
 }
 
 type Indexes map[string][]string

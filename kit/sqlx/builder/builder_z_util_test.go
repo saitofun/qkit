@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	g "github.com/onsi/gomega"
-	. "github.com/saitofun/qkit/kit/database/sqlx/builder"
+	. "github.com/saitofun/qkit/kit/sqlx/builder"
 )
 
 func TestFieldValueFromStruct(t *testing.T) {

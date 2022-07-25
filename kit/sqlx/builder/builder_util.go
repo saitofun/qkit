@@ -202,14 +202,14 @@ func ScanDefToTable(tbl *Table, i interface{}) {
 		}
 	}
 	if with, ok := i.(WithColDesc); ok {
-		for name, desc := range with.ColDescs() {
+		for name, desc := range with.ColDesc() {
 			if col := tbl.ColByFieldName(name); col != nil {
 				col.Desc = desc
 			}
 		}
 	}
-	if with, ok := i.(WithColRels); ok {
-		for name, rel := range with.ColRels() {
+	if with, ok := i.(WithColRel); ok {
+		for name, rel := range with.ColRel() {
 			if col := tbl.ColByFieldName(name); col != nil {
 				col.Rel = rel
 			}
@@ -261,6 +261,13 @@ type IndexDefine struct {
 	Name   string
 	Method string
 	IndexDef
+}
+
+func (i IndexDefine) ID() string {
+	if i.Method != "" {
+		return i.Name + "/" + i.Method
+	}
+	return i.Name
 }
 
 func ParseIndexDefine(def string) *IndexDefine {

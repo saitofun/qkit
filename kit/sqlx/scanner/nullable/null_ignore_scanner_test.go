@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
-	"github.com/saitofun/qkit/kit/database/sqlx/scanner/nullable"
+	"github.com/saitofun/qkit/kit/sqlx/scanner/nullable"
 )
 
 func BenchmarkNewNullIgnoreScanner(b *testing.B) {
