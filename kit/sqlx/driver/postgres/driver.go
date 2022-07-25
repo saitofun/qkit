@@ -9,6 +9,7 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
+
 	"github.com/saitofun/qkit/conf/log"
 	"github.com/saitofun/qkit/kit/sqlx"
 	"github.com/saitofun/qkit/x/misc/timer"

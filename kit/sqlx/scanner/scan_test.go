@@ -6,6 +6,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/onsi/gomega"
+
 	. "github.com/saitofun/qkit/kit/sqlx/scanner"
 )
 

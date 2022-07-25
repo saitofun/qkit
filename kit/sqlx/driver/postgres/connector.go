@@ -11,10 +11,10 @@ import (
 	"strings"
 
 	"github.com/lib/pq"
+
 	"github.com/saitofun/qkit/kit/sqlx"
 	"github.com/saitofun/qkit/kit/sqlx/builder"
 	"github.com/saitofun/qkit/kit/sqlx/migration"
-
 	"github.com/saitofun/qkit/x/typesx"
 )
 

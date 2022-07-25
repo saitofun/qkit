@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+
 	"github.com/saitofun/qkit/kit/sqlx/builder"
 	"github.com/saitofun/qkit/kit/sqlx/scanner/nullable"
 	"github.com/saitofun/qkit/x/reflectx"
