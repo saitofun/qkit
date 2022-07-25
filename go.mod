@@ -6,8 +6,6 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/eclipse/paho.mqtt.golang v1.4.1
 	github.com/go-courier/enumeration v1.3.1
-	github.com/go-courier/metax v1.3.0
-	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gomodule/redigo v1.8.9
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.3
@@ -20,7 +18,6 @@ require (
 )
 
 require (
-	github.com/go-courier/x v0.0.10 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect

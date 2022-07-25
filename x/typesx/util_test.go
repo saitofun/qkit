@@ -8,6 +8,7 @@ import (
 	"unsafe"
 
 	. "github.com/onsi/gomega"
+
 	"github.com/saitofun/qkit/x/ptrx"
 	. "github.com/saitofun/qkit/x/typesx"
 	"github.com/saitofun/qkit/x/typesx/testdata/typ"

@@ -8,8 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/saitofun/qkit/x/mapx"
 	"golang.org/x/tools/go/packages"
+
+	"github.com/saitofun/qkit/x/mapx"
 )
 
 var (

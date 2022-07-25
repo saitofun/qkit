@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"github.com/spf13/cobra"
+
 	"github.com/saitofun/qkit/kit/modelgen"
 	"github.com/saitofun/qkit/x/pkgx"
-	"github.com/spf13/cobra"
 )
 
 func init() {
@@ -19,6 +20,7 @@ func init() {
 					g := modelgen.New(pkg)
 					g.WithComments = true
 					g.WithTableInterfaces = true
+					g.WithMethods = true
 					g.StructName = arg
 					g.Database = database
 					g.TableName = tableName

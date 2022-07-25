@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
+
 	"github.com/saitofun/qkit/kit/statusx"
 	"github.com/saitofun/qkit/kit/statusxgen"
 	. "github.com/saitofun/qkit/kit/statusxgen/__examples__"

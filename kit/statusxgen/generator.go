@@ -7,11 +7,12 @@ import (
 	"path"
 	"path/filepath"
 
-	gen "github.com/saitofun/qkit/gen/codegen"
-	statuserror "github.com/saitofun/qkit/kit/statusx"
-	"github.com/saitofun/qkit/x/pkgx"
 	"github.com/saitofun/qlib/util/qnaming"
 	"golang.org/x/tools/go/packages"
+
+	gen "github.com/saitofun/qkit/gen/codegen"
+	"github.com/saitofun/qkit/kit/statusx"
+	"github.com/saitofun/qkit/x/pkgx"
 )
 
 func New(pkg *pkgx.Pkg) *Generator {
@@ -66,7 +67,7 @@ func (g *Generator) Output(cwd string) {
 
 type StatusError struct {
 	TypeName *types.TypeName
-	Errors   []*statuserror.StatusErr
+	Errors   []*statusx.StatusErr
 }
 
 func (s *StatusError) Name() string { return s.TypeName.Name() }

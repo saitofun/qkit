@@ -3,8 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/saitofun/qkit/gen/cmd/toolkit/cmd"
 	"github.com/spf13/cobra"
+
+	"github.com/saitofun/qkit/gen/cmd/toolkit/cmd"
 )
 
 var command = &cobra.Command{

@@ -8,6 +8,7 @@ import (
 )
 
 func Set(dft, tar interface{}) error {
+	// TODO should traverse all filed if struct
 	// make sure tar can set
 	rvTar := reflectx.Indirect(reflect.ValueOf(tar))
 	rtTar := reflect.TypeOf(tar)
