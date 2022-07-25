@@ -12,7 +12,9 @@ func (t *ReflectType) Unwrap() any { return t.Type }
 
 // func(t*ReflectType)	Name() string
 // func(t*ReflectType)	PkgPath() string
-// func(t*ReflectType)	String() string
+
+func (t *ReflectType) String() string { return TypeString(t) }
+
 // func(t*ReflectType)	Kind() reflect.Kind
 
 func (t *ReflectType) Implements(u Type) bool {

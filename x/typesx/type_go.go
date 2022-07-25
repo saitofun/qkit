@@ -9,35 +9,28 @@ import (
 
 type GoType struct {
 	Type       types.Type
+	scanned    bool
 	methods    []*types.Func
 	ptrMethods []*types.Func
 }
 
+var _ Type = (*GoType)(nil)
+
 func FromGoType(t types.Type) (gt *GoType) {
 	if p, ok := t.(*types.TypeParam); ok {
-		gt = &GoType{Type: p.Constraint()}
-	} else {
-		gt = &GoType{Type: t}
+		return &GoType{Type: p.Constraint()}
 	}
-
-	methods := MethodsOfGoType(gt.Type)
-	for _, m := range methods {
-		if !m.Ptr {
-			gt.methods = append(gt.methods, m.Func)
-		}
-		gt.ptrMethods = append(gt.ptrMethods, m.Func)
-	}
-	return
+	return &GoType{Type: t}
 }
 
 func (t *GoType) Unwrap() any { return t.Type }
 
 func (t *GoType) Name() string {
-	switch typ := t.Type.(type) {
+	switch x := t.Type.(type) {
 	case *types.Named:
 		b := strings.Builder{}
-		b.WriteString(typ.Obj().Name())
-		params := typ.TypeParams()
+		b.WriteString(x.Obj().Name())
+		params := x.TypeParams()
 		if n := params.Len(); n > 0 {
 			b.WriteString("[")
 			for i := 0; i < n; i++ {
@@ -55,7 +48,7 @@ func (t *GoType) Name() string {
 		}
 		return b.String()
 	case *types.Basic:
-		return typ.Name()
+		return x.Name()
 	}
 	return ""
 }
@@ -104,43 +97,8 @@ func (t *GoType) Kind() reflect.Kind {
 	case *types.Signature:
 		return reflect.Func
 	case *types.Basic:
-		switch x.Kind() {
-		case types.UntypedBool, types.Bool:
-			return reflect.Bool
-		case types.UntypedInt, types.Int:
-			return reflect.Int
-		case types.Int8:
-			return reflect.Int8
-		case types.Int16:
-			return reflect.Int16
-		case types.Int32, types.UntypedRune /*types.Rune*/ :
-			return reflect.Int32
-		case types.Int64:
-			return reflect.Int64
-		case types.Uint:
-			return reflect.Uint
-		case types.Uint8 /*types.Byte*/ :
-			return reflect.Uint8
-		case types.Uint16:
-			return reflect.Uint16
-		case types.Uint32:
-			return reflect.Uint32
-		case types.Uint64:
-			return reflect.Uint64
-		case types.Uintptr:
-			return reflect.Uintptr
-		case types.Float32, types.UntypedFloat:
-			return reflect.Float32
-		case types.Float64:
-			return reflect.Float64
-		case types.Complex64, types.UntypedComplex:
-			return reflect.Complex64
-		case types.Complex128:
-			return reflect.Complex128
-		case types.String, types.UntypedString:
-			return reflect.String
-		case types.UnsafePointer:
-			return reflect.UnsafePointer
+		if k, ok := TypesKindToReflectKind[x.Kind()]; ok {
+			return k
 		}
 	}
 	return reflect.Invalid
@@ -243,12 +201,37 @@ func (t *GoType) Field(i int) StructField {
 	return nil
 }
 
-func (t *GoType) FieldByName(string) (StructField, bool) {
+func (t *GoType) FieldByName(name string) (StructField, bool) {
+	return t.FieldByNameFunc(func(s string) bool { return name == s })
+}
+
+func (t *GoType) FieldByNameFunc(match func(string) bool) (StructField, bool) {
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		if match(f.Name()) {
+			return f, true
+		}
+		if f.Anonymous() {
+			if _f, ok := f.Type().FieldByNameFunc(match); ok {
+				return _f, ok
+			}
+		}
+	}
 	return nil, false
 }
 
-func (t *GoType) FieldByNameFunc(func(string) bool) (StructField, bool) {
-	return nil, false
+func (t *GoType) scanMethods() {
+	if t.scanned {
+		return
+	}
+	t.scanned = true
+	methods := MethodsOfGoType(t.Type)
+	for _, m := range methods {
+		if !m.Ptr {
+			t.methods = append(t.methods, m.Func)
+		}
+		t.ptrMethods = append(t.ptrMethods, m.Func)
+	}
 }
 
 func (t *GoType) NumMethod() int {
@@ -260,6 +243,8 @@ func (t *GoType) NumMethod() int {
 			return x.NumMethods()
 		}
 	}
+
+	t.scanMethods()
 
 	switch t.Type.(type) {
 	case *types.Pointer:
@@ -278,6 +263,9 @@ func (t *GoType) Method(i int) Method {
 			return &GoMethod{Func: x.Method(i)}
 		}
 	}
+
+	t.scanMethods()
+
 	switch t.Type.(type) {
 	case *types.Pointer:
 		if t.ptrMethods != nil {
@@ -431,6 +419,40 @@ func (f *GoStructField) Tag() reflect.StructTag { return reflect.StructTag(f.Tag
 func (f *GoStructField) Type() Type { return FromGoType(f.Var.Type()) }
 
 func ConstraintUnderlying(params *types.TypeParamList, underlying types.Type) types.Type {
-	// TODO
-	return nil
+	if params.Len() == 0 {
+		return underlying
+	}
+	switch t := underlying.(type) {
+	case *types.TypeParam:
+		a := params.At(t.Index()).Constraint().(*types.Interface)
+		if a.NumEmbeddeds() > 0 {
+			return a.EmbeddedType(0)
+		}
+		return a
+	case *types.Map:
+		return types.NewMap(
+			ConstraintUnderlying(params, t.Key()),
+			ConstraintUnderlying(params, t.Elem()),
+		)
+	case *types.Slice:
+		return types.NewSlice(ConstraintUnderlying(params, t.Elem()))
+	case *types.Array:
+		return types.NewArray(ConstraintUnderlying(params, t.Elem()), t.Len())
+	case *types.Struct:
+		n := t.NumFields()
+		tags, fields := make([]string, n), make([]*types.Var, n)
+		for i := 0; i < n; i++ {
+			tags[i] = t.Tag(i)
+			f := t.Field(i)
+			fields[i] = types.NewField(
+				f.Pos(),
+				f.Pkg(),
+				f.Name(),
+				ConstraintUnderlying(params, f.Type()),
+				f.Embedded(),
+			)
+		}
+		return types.NewStruct(fields, tags)
+	}
+	return underlying
 }

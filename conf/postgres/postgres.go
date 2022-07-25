@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-courier/sqlx/v2"
-	"github.com/go-courier/sqlx/v2/postgresqlconnector"
 	"github.com/saitofun/qkit/base/types"
+	"github.com/saitofun/qkit/kit/sqlx"
+	"github.com/saitofun/qkit/kit/sqlx/driver/postgres"
 	"github.com/saitofun/qkit/x/misc/must"
 	"github.com/saitofun/qkit/x/misc/retry"
 )
@@ -80,7 +80,7 @@ func (e *Endpoint) conn(master, readonly bool) error {
 	if !master {
 		url = e.slaveURL()
 	}
-	connector := &postgresqlconnector.PostgreSQLConnector{
+	connector := &postgres.Connector{
 		Host:  url,
 		Extra: e.Master.Param.Encode(),
 	}
@@ -100,7 +100,7 @@ func (e *Endpoint) conn(master, readonly bool) error {
 			e.slave = db
 		}
 	}
-	return nil
+	return err
 }
 
 func (e *Endpoint) Init() {

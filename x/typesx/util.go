@@ -7,14 +7,14 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"sync"
 
+	"github.com/saitofun/qkit/x/mapx"
 	"golang.org/x/tools/go/packages"
 )
 
 var (
-	typs   = sync.Map{}
-	pkgs   = sync.Map{}
+	typs   = mapx.New[string, types.Type]()
+	pkgs   = mapx.New[string, *types.Package]()
 	basics = map[string]types.Type{}
 
 	LoadFiles   = packages.NeedName | packages.NeedFiles | packages.NeedCompiledGoFiles
@@ -34,9 +34,16 @@ func init() {
 
 func NewGoTypeFromReflectType(t reflect.Type) types.Type {
 	underlying := func() types.Type {
-		switch k := t.Kind(); k {
+		k := t.Kind()
+		if IsBasicReflectKind(k) {
+			return types.Typ[ReflectKindToTypesKind[k]]
+		}
+		switch k {
 		case reflect.Array:
-			return types.NewArray(NewGoTypeFromReflectType(t.Elem()), int64(t.Len()))
+			return types.NewArray(
+				NewGoTypeFromReflectType(t.Elem()),
+				int64(t.Len()),
+			)
 		case reflect.Slice:
 			return types.NewSlice(NewGoTypeFromReflectType(t.Elem()))
 		case reflect.Map:
@@ -95,49 +102,13 @@ func NewGoTypeFromReflectType(t reflect.Type) types.Type {
 				tags[i] = string(f.Tag)
 			}
 			return types.NewStruct(fields, tags)
-		case reflect.Bool:
-			return types.Typ[types.Bool]
-		case reflect.Int:
-			return types.Typ[types.Int]
-		case reflect.Int8:
-			return types.Typ[types.Int8]
-		case reflect.Int16:
-			return types.Typ[types.Int16]
-		case reflect.Int32:
-			return types.Typ[types.Int32]
-		case reflect.Int64:
-			return types.Typ[types.Int64]
-		case reflect.Uint:
-			return types.Typ[types.Uint]
-		case reflect.Uint8:
-			return types.Typ[types.Uint8]
-		case reflect.Uint16:
-			return types.Typ[types.Uint16]
-		case reflect.Uint32:
-			return types.Typ[types.Uint32]
-		case reflect.Uint64:
-			return types.Typ[types.Uint64]
-		case reflect.Uintptr:
-			return types.Typ[types.Uintptr]
-		case reflect.Float32:
-			return types.Typ[types.Float32]
-		case reflect.Float64:
-			return types.Typ[types.Float64]
-		case reflect.Complex64:
-			return types.Typ[types.Complex64]
-		case reflect.Complex128:
-			return types.Typ[types.Complex128]
-		case reflect.String:
-			return types.Typ[types.String]
-		case reflect.UnsafePointer:
-			return types.Typ[types.UnsafePointer]
 		}
 		return nil
 	}
 
 	stars := 0
 
-	indirected := func(t types.Type) types.Type {
+	indirect := func(t types.Type) types.Type {
 		for stars > 0 {
 			t = types.NewPointer(t)
 			stars--
@@ -156,9 +127,9 @@ func NewGoTypeFromReflectType(t reflect.Type) types.Type {
 	}
 
 	if path != "" {
-		return indirected(TypeFor(path + "." + name))
+		return indirect(TypeFor(path + "." + name))
 	}
-	return indirected(underlying())
+	return indirect(underlying())
 }
 
 func NewPackage(path string) *types.Package {
@@ -166,7 +137,7 @@ func NewPackage(path string) *types.Package {
 		return nil
 	}
 	if v, ok := pkgs.Load(path); ok {
-		return v.(*types.Package)
+		return v
 	}
 	cfg := packages.Config{
 		Overlay: make(map[string][]byte),
@@ -202,18 +173,20 @@ func TypeString(t Type) string {
 	if pkg := t.PkgPath(); pkg != "" {
 		return pkg + "." + t.Name()
 	}
-
-	switch k := t.Kind(); k {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
-		reflect.Bool, reflect.Float32, reflect.Float64:
+	k := t.Kind()
+	if IsBasicReflectKind(k) {
 		return k.String()
+	}
+
+	switch k {
 	case reflect.Slice:
 		return "[]" + t.Elem().String()
 	case reflect.Array:
 		return fmt.Sprintf("[%d]%s", t.Len(), t.Elem().String())
 	case reflect.Chan:
 		return "chan " + t.Elem().String()
+	case reflect.Map:
+		return fmt.Sprintf("map[%s]%s", t.Key().String(), t.Elem().String())
 	case reflect.Struct:
 		b := bytes.NewBuffer(nil)
 		b.WriteString("struct {")
@@ -330,79 +303,128 @@ func TypeFor(id string) (t types.Type) {
 	}
 
 	// map[x]
-	{
-		l := strings.Index(id, "map[")
-		if l == 0 {
-			r := strings.Index(id, "]")
-			t = types.NewMap(TypeFor(id[4:r]), TypeFor(id[r+1:]))
+	l := strings.Index(id, "map[")
+	if l == 0 {
+		r := strings.Index(id, "]")
+		t = types.NewMap(TypeFor(id[4:r]), TypeFor(id[r+1:]))
+		return
+	}
+
+	// []x [n]x
+	l = strings.Index(id, "[")
+	if l == 0 {
+		r := strings.Index(id, "]")
+		if l == r-1 {
+			t = types.NewSlice(TypeFor(id[r+1:]))
 			return
 		}
-	}
-	// []x [n]x
-	{
-		l := strings.Index(id, "[")
-		if l == 0 {
-			r := strings.Index(id, "]")
-			if l == r-1 {
-				t = types.NewSlice(TypeFor(id[r+1:]))
-				return
-			}
-			n, err := strconv.ParseInt(id[1:r], 10, 64)
-			if err != nil {
-				// panic(err)
-				return // invalid
-			}
-			t = types.NewArray(TypeFor(id[r+1:]), n)
+		n, err := strconv.ParseInt(id[1:r], 10, 64)
+		if err != nil {
+			// panic(err)
+			return // invalid
+		}
+		t = types.NewArray(TypeFor(id[r+1:]), n)
+		return
+	} else if l == -1 {
+		i := strings.LastIndex(id, ".")
+		if i <= 0 {
+			return // invalid
+		}
+		path := id[0:i]
+		name := id[i+1:]
+		pkg := NewPackage(path)
+		if pkg == nil {
 			return
-		} else if l == -1 {
-			i := strings.LastIndex(id, ".")
-			if i <= 0 {
-				return // invalid
-			}
-			path := id[0:i]
-			name := id[i+1:]
-			pkg := NewPackage(path)
-			if pkg == nil {
-				return
-			}
-			if found := pkg.Scope().Lookup(name); found != nil {
-				t = found.Type()
-				return
-			}
-			return
-		} else {
-			r := strings.Index(id, "]")
-			path := id[0:l]
-			dot := strings.LastIndex(path, ".")
-			if dot <= 0 {
-				return // invalid
-			}
-			name := path[dot+1:]
-			path = path[0:dot]
-			typeParamsNames := strings.Split(id[l+1:r], ",")
-
-			pkg := NewPackage(path)
-			if pkg == nil {
-				return
-			}
-			found := pkg.Scope().Lookup(name)
-			if found == nil {
-				return
-			}
-			named := *(found.(*types.TypeName).Type().(*types.Named))
-			typeParams := named.TypeParams()
-			if n := typeParams.Len(); n > 0 {
-				params := make([]*types.TypeParam, n)
-				for i := 0; i < n; i++ {
-					params[i] = types.NewTypeParam(
-						typeParams.At(i).Obj(), TypeFor(typeParamsNames[i]),
-					)
-				}
-				named.SetTypeParams(params)
-			}
-
+		}
+		if found := pkg.Scope().Lookup(name); found != nil {
 			t = found.Type()
 			return
 		}
+		return
+	} else {
+		r := strings.Index(id, "]")
+		full := id[0:l]
+		paramNames := strings.Split(id[l+1:r], ",") // github.com/x/y/z.AnyStruct[int,string]
+		if dot := strings.LastIndex(full, "."); dot > 0 {
+			path, name := full[0:dot], full[dot+1:]
+			if p := NewPackage(path); p != nil {
+				if found := p.Scope().Lookup(name); found != nil {
+					named := &(*found.(*types.TypeName).Type().(*types.Named))
+					paramTypes := named.TypeParams()
+					if n := paramTypes.Len(); n > 0 {
+						params := make([]*types.TypeParam, n)
+						for i := 0; i < n; i++ {
+							params[i] = types.NewTypeParam(
+								paramTypes.At(i).Obj(),
+								TypeFor(paramNames[i]),
+							)
+						}
+						named.SetTypeParams(params)
+					}
+					return found.Type()
+				}
+			}
+		}
 	}
+	return types.Typ[types.Invalid]
+}
+
+var ReflectKindToTypesKind = map[reflect.Kind]types.BasicKind{
+	reflect.Bool:          types.Bool,
+	reflect.Int:           types.Int,
+	reflect.Int8:          types.Int8,
+	reflect.Int16:         types.Int16,
+	reflect.Int32:         types.Int32,
+	reflect.Int64:         types.Int64,
+	reflect.Uint:          types.Uint,
+	reflect.Uint8:         types.Uint8,
+	reflect.Uint16:        types.Uint16,
+	reflect.Uint32:        types.Uint32,
+	reflect.Uint64:        types.Uint64,
+	reflect.Uintptr:       types.Uintptr,
+	reflect.Float32:       types.Float32,
+	reflect.Float64:       types.Float64,
+	reflect.Complex64:     types.Complex64,
+	reflect.Complex128:    types.Complex128,
+	reflect.String:        types.String,
+	reflect.UnsafePointer: types.UnsafePointer,
+}
+
+var TypesKindToReflectKind = map[types.BasicKind]reflect.Kind{
+	types.Bool:           reflect.Bool,
+	types.Int:            reflect.Int,
+	types.Int8:           reflect.Int8,
+	types.Int16:          reflect.Int16,
+	types.Int32:          reflect.Int32,
+	types.Int64:          reflect.Int64,
+	types.Uint:           reflect.Uint,
+	types.Uint8:          reflect.Uint8,
+	types.Uint16:         reflect.Uint16,
+	types.Uint32:         reflect.Uint32,
+	types.Uint64:         reflect.Uint64,
+	types.Uintptr:        reflect.Uintptr,
+	types.Float32:        reflect.Float32,
+	types.Float64:        reflect.Float64,
+	types.Complex64:      reflect.Complex64,
+	types.Complex128:     reflect.Complex128,
+	types.String:         reflect.String,
+	types.UnsafePointer:  reflect.UnsafePointer,
+	types.UntypedBool:    reflect.Bool,
+	types.UntypedInt:     reflect.Int,
+	types.UntypedRune:    reflect.Int32,
+	types.UntypedFloat:   reflect.Float32,
+	types.UntypedComplex: reflect.Complex64,
+	types.UntypedString:  reflect.String,
+}
+
+func IsBasicReflectKind(k reflect.Kind) bool {
+	switch k {
+	case reflect.Bool,
+		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+		reflect.Uintptr, reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128,
+		reflect.String, reflect.UnsafePointer:
+		return true
+	}
+	return false
 }

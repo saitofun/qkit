@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/go-courier/sqlx/v2"
 	. "github.com/onsi/gomega"
 	"github.com/saitofun/qkit/conf/postgres"
+	"github.com/saitofun/qkit/kit/sqlx"
 )
 
 var (
@@ -19,8 +19,17 @@ var (
 
 func init() {
 	dbName = os.Getenv("PG_TEST_DB_NAME")
+	if dbName == "" {
+		dbName = "test"
+	}
 	dbUser = os.Getenv("PG_TEST_DB_USER")
+	if dbUser == "" {
+		dbUser = "test_user"
+	}
 	dbPasswd = os.Getenv("PG_TEST_DB_PASSWD")
+	if dbPasswd == "" {
+		dbPasswd = "test_passwd"
+	}
 }
 
 func TestEndpoint(t *testing.T) {

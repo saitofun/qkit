@@ -57,7 +57,8 @@ func (p *Pkg) Const(name string) *types.Const {
 
 func (p *Pkg) TypeName(name string) *types.TypeName {
 	for ident, def := range p.TypesInfo.Defs {
-		if t, ok := def.(*types.TypeName); ok && ident.Name == name {
+		t, ok := def.(*types.TypeName)
+		if ok && ident.Name == name {
 			return t
 		}
 	}

@@ -110,3 +110,30 @@ func NatureType(v interface{}) (rt reflect.Type) {
 	}
 	return rt
 }
+
+func IsBytes(v interface{}) bool {
+	if _, ok := v.([]byte); ok {
+		return true
+	}
+	t := BasicAssertReflectType(v)
+	return IsBytesType(t)
+}
+
+func IsBytesType(t reflect.Type) bool {
+	return t.Kind() == reflect.Slice &&
+		t.Elem().Kind() == reflect.Uint8 &&
+		t.Elem().PkgPath() == ""
+}
+
+func BasicAssertReflectType(v interface{}) reflect.Type {
+	var t reflect.Type
+	switch x := v.(type) {
+	case reflect.Type:
+		t = x
+	case interface{ Type() reflect.Type }:
+		t = x.Type()
+	default:
+		t = reflect.TypeOf(v)
+	}
+	return t
+}
