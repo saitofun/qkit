@@ -423,7 +423,7 @@ func (m *Model) SetUpdatedSnippetForFVs(f *g.File, fvs *g.SnippetIdent) g.Snippe
 	if !m.HasUpdatedAt {
 		return nil
 	}
-	return g.Exprer(`
+	return f.Expr(`
 if _, ok := ?[?]; !ok {
 ?[?] = ?{Time: ?()}
 }`,
@@ -702,17 +702,18 @@ tbl,
 				),
 		)
 
-		mthNameSoftDeleteBy := "SoftDeleteBy" + xxx
-		deletes = append(deletes,
-			g.Func(g.Var(g.Type(f.Use(SQLxPkg, `DBExecutor`)), `db`)).
-				Named(mthNameSoftDeleteBy).MethodOf(g.Var(m.PtrType(), `m`)).
-				Return(g.Var(g.Error)).
-				Do(
-					g.Exprer(`tbl := db.T(m)
+		if m.HasDeletedAt {
+			mthNameSoftDeleteBy := "SoftDeleteBy" + xxx
+			deletes = append(deletes,
+				g.Func(g.Var(g.Type(f.Use(SQLxPkg, `DBExecutor`)), `db`)).
+					Named(mthNameSoftDeleteBy).MethodOf(g.Var(m.PtrType(), `m`)).
+					Return(g.Var(g.Error)).
+					Do(
+						g.Exprer(`tbl := db.T(m)
 fvs := `+f.Use(BuilderPkg, `FieldValues`)+`{}`),
-					m.SetDeletedSnippetForFVs(f, g.Ident(`fvs`)),
-					m.SetUpdatedSnippetForFVs(f, g.Ident(`fvs`)),
-					g.Exprer(`_, err := db.Exec(
+						m.SetDeletedSnippetForFVs(f, g.Ident(`fvs`)),
+						m.SetUpdatedSnippetForFVs(f, g.Ident(`fvs`)),
+						g.Exprer(`_, err := db.Exec(
 `+f.Use(BuilderPkg, `Update`)+`(db.T(m)).
 Where(
 `+IndexCond(f, fns...)+`
@@ -721,9 +722,10 @@ Where(
 Set(tbl.AssignmentsByFieldValues(fvs)...),
 )
 return err`,
-						f.Value(m.StructName+"."+mthNameSoftDeleteBy)),
-				),
-		)
+							f.Value(m.StructName+"."+mthNameSoftDeleteBy)),
+					),
+			)
+		}
 	})
 	return append(fetches, append(updates, deletes...)...)
 }
