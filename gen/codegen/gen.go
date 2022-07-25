@@ -75,7 +75,9 @@ func (f *File) bytes(withLeaderComment, doFormat bool) []byte {
 	return buf.Bytes()
 }
 
-func (f *File) Bytes() []byte { return f.bytes(true, true) }
+func (f *File) Bytes(withWarnComments bool) []byte {
+	return f.bytes(withWarnComments, true)
+}
 
 // Raw test only
 func (f File) Raw() []byte { return f.bytes(false, false) }
@@ -132,7 +134,7 @@ func (f *File) WriteSnippet(ss ...Snippet) {
 	}
 }
 
-func (f *File) Write() (int, error) {
+func (f *File) Write(withWarnComments bool) (int, error) {
 	if dir := filepath.Dir(f.Name); dir != "" {
 		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 			return -1, err
@@ -145,7 +147,7 @@ func (f *File) Write() (int, error) {
 	}
 	defer fl.Close()
 
-	size, err := fl.Write(f.Bytes())
+	size, err := fl.Write(f.Bytes(withWarnComments))
 	if err != nil {
 		return -1, err
 	}

@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"log"
 	"net/url"
 	"strconv"
@@ -60,6 +61,14 @@ func (e Endpoint) Host() string {
 		return e.Hostname
 	}
 	return e.Hostname + ":" + strconv.FormatUint(uint64(e.Port), 10)
+}
+
+func (e Endpoint) SchemeHost() string {
+	host := e.Host()
+	if e.Scheme == "" {
+		return host
+	}
+	return fmt.Sprintf("%s://%s", e.Scheme, host)
 }
 
 func (e Endpoint) MarshalText() ([]byte, error) {

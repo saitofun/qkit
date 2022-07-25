@@ -9,6 +9,7 @@ import (
 type (
 	SecurityString interface{ SecurityString() string }
 	String         interface{ String() string }
+	Named          interface{ Name() string }
 
 	DefaultSetter        interface{ SetDefault() }
 	Initializer          interface{ Init() }
@@ -42,6 +43,7 @@ type (
 var (
 	RTypeString               = reflect.TypeOf((*String)(nil)).Elem()
 	RTypeSecurityString       = reflect.TypeOf((*SecurityString)(nil)).Elem()
+	RTypeNamed                = reflect.TypeOf((*Named)(nil)).Elem()
 	RTypeTextMarshaler        = reflect.TypeOf((*TextMarshaler)(nil)).Elem()
 	RTypeTextUnmarshaler      = reflect.TypeOf((*TextUnmarshaler)(nil)).Elem()
 	RTypeDefaultSetter        = reflect.TypeOf((*DefaultSetter)(nil)).Elem()

@@ -16,6 +16,8 @@ func Var(t SnippetType, names ...string) *SnippetField {
 
 func Type(name string) *NamedType { return &NamedType{Name: Ident(name)} }
 
+func Interface(methods ...IfCanBeIfMethod) *InterfaceType { return &InterfaceType{Methods: methods} }
+
 func Literal(s string) *SnippetLiteral {
 	ret := SnippetLiteral(s)
 	return &ret
@@ -122,13 +124,15 @@ func Select(clauses ...*SnippetCaseClause) *SnippetSelectStmt {
 
 func Star(typ SnippetType) *SnippetStarExpr { return &SnippetStarExpr{T: typ} }
 
+func AccessValue(v SnippetCanAddr) *SnippetAccessValueExpr { return &SnippetAccessValueExpr{V: v} }
+
 func Addr(val SnippetCanAddr) *SnippetAddrExpr { return &SnippetAddrExpr{V: val} }
 
 func Paren(s Snippet) *SnippetParenExpr { return &SnippetParenExpr{V: s} }
 
 func Arrow(ch Snippet) *SnippetArrowExpr { return &SnippetArrowExpr{Chan: ch} }
 
-func Casting(ori SnippetType, tar Snippet) *SnippetCallExpr { return CallWith(ori, tar) }
+func Casting(ori Snippet, tar Snippet) *SnippetCallExpr { return CallWith(ori, tar) }
 
 func Call(name string, args ...Snippet) *SnippetCallExpr {
 	var callee Snippet

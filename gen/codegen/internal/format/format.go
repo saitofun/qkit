@@ -21,13 +21,13 @@ func Format(file string, src []byte, procs ...Proc) ([]byte, error) {
 		if proc == nil {
 			continue
 		}
-		if err := proc(fset, f, file); err != nil {
+		if err = proc(fset, f, file); err != nil {
 			return nil, err
 		}
 	}
 
 	buf := bytes.NewBuffer(nil)
-	if err := format.Node(buf, fset, f); err != nil {
+	if err = format.Node(buf, fset, f); err != nil {
 		return nil, fmt.Errorf("[FORMAT] %s: %v", file, err)
 	}
 	return buf.Bytes(), nil

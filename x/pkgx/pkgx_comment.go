@@ -1,4 +1,4 @@
-package pkg
+package pkgx
 
 import (
 	"go/ast"
@@ -52,13 +52,13 @@ func (c *CommentScanner) CommentGroupsOf(n ast.Node) (cgs []*ast.CommentGroup) {
 			pos    token.Pos = -1
 			parent ast.Node
 		)
-		ast.Inspect(c.File, func(iter ast.Node) bool {
-			switch iter.(type) {
+		ast.Inspect(c.File, func(node ast.Node) bool {
+			switch node.(type) {
 			case *ast.Field, ast.Stmt, ast.Decl, ast.Spec:
-				if n.Pos() >= iter.Pos() && n.End() <= iter.End() {
-					next := n.Pos() - iter.Pos()
+				if n.Pos() >= node.Pos() && n.End() <= node.End() {
+					next := n.Pos() - node.Pos()
 					if pos == -1 || next <= pos {
-						pos, parent = next, iter
+						pos, parent = next, node
 					}
 				}
 			}

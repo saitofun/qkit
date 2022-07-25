@@ -10,8 +10,10 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/saitofun/qkit/base/types"
 	"github.com/saitofun/qkit/conf/deploy"
 	"github.com/saitofun/qkit/conf/env"
+	"github.com/saitofun/qkit/x/misc/must"
 	"github.com/saitofun/qkit/x/reflectx"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -19,13 +21,12 @@ import (
 
 type Ctx struct {
 	cmd       *cobra.Command
-	name      string
-	feat      string
-	version   string
-	output    string
-	root      string
-	vars      []*env.Vars
-	conf      []reflect.Value
+	name      string          // name app name
+	feat      string          // feat git feature
+	version   string          // version git version|git tag
+	root      string          // root app root
+	vars      []*env.Vars     // vars default env vars
+	conf      []reflect.Value // conf config reflect.Value
 	deployers map[string]deploy.Deployer
 }
 
@@ -43,6 +44,7 @@ func New(setters ...OptSetter) *Ctx {
 }
 
 func (c *Ctx) Conf(vs ...interface{}) {
+	// XXX try to parse local.yml
 	local, err := ioutil.ReadFile(filepath.Join(c.root, "./config/local.yml"))
 	if err == nil {
 		kv := make(map[string]string)
@@ -52,13 +54,14 @@ func (c *Ctx) Conf(vs ...interface{}) {
 			}
 		}
 	}
+	// XXX init all config elements
 	for _, v := range vs {
 		rv := reflect.ValueOf(v)
 		if rv.Kind() != reflect.Ptr {
 			panic("should pass pointer for setting value")
 		}
-		c.Scan(rv)
-		c.Marshal(rv)
+		must.NoError(c.scan(rv))
+		must.NoError(c.marshal(rv))
 		c.conf = append(c.conf, rv)
 		rv = reflectx.Indirect(rv)
 		for i := 0; i < rv.NumField(); i++ {
@@ -76,7 +79,7 @@ func (c *Ctx) Conf(vs ...interface{}) {
 			}
 		}
 	}
-	if err = c.MarshalDefault(); err != nil {
+	if err = c.marshalDefault(); err != nil {
 		panic(err)
 	}
 }
@@ -120,6 +123,7 @@ func (c *Ctx) Execute(fn func(...string), commands ...func(*cobra.Command)) {
 		}
 		fn(args...)
 	}
+	// TODO
 	// for name, dpl := range c.deployers {
 	// 	c.AddCommand(name, func(...string) {
 	// 		if setter, ok := dpl.(types.DefaultSetter); ok {
@@ -138,34 +142,28 @@ func (c *Ctx) Execute(fn func(...string), commands ...func(*cobra.Command)) {
 	}
 }
 
-func (c *Ctx) Scan(rv reflect.Value) {
-	vars := env.NewVars(c.ConfName(rv))
+func (c *Ctx) scan(rv reflect.Value) error {
+	vars := env.NewVars(c.group(rv))
 
 	if err := env.NewDecoder(vars).Decode(rv); err != nil {
-		panic(err)
+		return err
 	}
 	c.vars = append(c.vars, vars)
 	if _, err := env.NewEncoder(vars).Encode(rv); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
-func (c *Ctx) Marshal(rv reflect.Value) {
-	vars := env.LoadVarsFromEnviron(c.ConfName(rv), os.Environ())
+func (c *Ctx) marshal(rv reflect.Value) error {
+	vars := env.LoadVarsFromEnviron(c.group(rv), os.Environ())
 	if err := env.NewDecoder(vars).Decode(rv); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
-func (c *Ctx) log(rv reflect.Value) {
-	vars := env.NewVars(c.ConfName(rv))
-	if _, err := env.NewEncoder(vars).Encode(rv); err != nil {
-		panic(err)
-	}
-	fmt.Printf("%s", string(vars.MaskBytes()))
-}
-
-func (c *Ctx) MarshalDefault() error {
+func (c *Ctx) marshalDefault() error {
 	m := map[string]string{}
 	m["GOENV"] = "DEV"
 
@@ -180,6 +178,18 @@ func (c *Ctx) MarshalDefault() error {
 	return WriteYamlFile(path.Join(c.root, "./config/default.yml"), m)
 }
 
+func (c *Ctx) log(rv reflect.Value) {
+	vars := env.NewVars(c.group(rv))
+	if _, err := env.NewEncoder(vars).Encode(rv); err != nil {
+		panic(err)
+	}
+	fmt.Printf("%s", string(vars.MaskBytes()))
+}
+
+func (c *Ctx) MarshalLocal() error {
+	return nil
+}
+
 type Marshaller func(v interface{}) ([]byte, error)
 
 const (
@@ -187,7 +197,11 @@ const (
 	envProjectFeat = "PRJ_FEAT"
 )
 
-func (c *Ctx) ConfName(rv reflect.Value) string {
-	name := c.name + "__" + rv.Elem().Type().Name()
-	return strings.ToUpper(strings.Replace(name, "-", "_", -1))
+// group returns config group name
+func (c *Ctx) group(rv reflect.Value) string {
+	group := rv.Elem().Type().Name()
+	if rv.Elem().Type().Implements(types.RTypeNamed) {
+		group = rv.Elem().Interface().(types.Named).Name()
+	}
+	return strings.ToUpper(strings.Replace(c.name+"__"+group, "-", "_", -1))
 }

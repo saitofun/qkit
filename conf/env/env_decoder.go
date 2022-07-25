@@ -23,6 +23,7 @@ func (d *Decoder) Decode(v interface{}) error {
 	return d.scan(w, rv)
 }
 
+// scan scan and set value
 func (d *Decoder) scan(w *PathWalker, rv reflect.Value) error {
 	kind := rv.Kind()
 
@@ -38,12 +39,13 @@ func (d *Decoder) scan(w *PathWalker, rv reflect.Value) error {
 			rv.Set(reflectx.New(rv.Type()))
 		}
 		return d.scan(w, rv.Elem())
-	case reflect.Func, reflect.Interface, reflect.Chan, reflect.Map: // skip
+	case reflect.Func, reflect.Interface, reflect.Chan, reflect.Map:
+		// skip
 	default:
 		rt := rv.Type()
 		if rt.Implements(types.RTypeTextUnmarshaler) ||
 			reflect.PtrTo(rt).Implements(types.RTypeTextUnmarshaler) {
-			if v := d.vars.Get(w.String()); v != nil {
+			if v := d.vars.Get(w.String()); v != nil && v.Value != "" {
 				return qtext.UnmarshalText(rv, []byte(v.Value))
 			}
 			return nil
@@ -80,7 +82,7 @@ func (d *Decoder) scan(w *PathWalker, rv reflect.Value) error {
 					flags = _flags
 				}
 				inline := flags == nil && ft.Anonymous &&
-					reflectx.Deref(ft.Type).Kind() == reflect.Struct
+					reflectx.DeRef(ft.Type).Kind() == reflect.Struct
 				if !inline {
 					w.Enter(name)
 				}
@@ -92,8 +94,7 @@ func (d *Decoder) scan(w *PathWalker, rv reflect.Value) error {
 				}
 			}
 		default:
-			v := d.vars.Get(w.String())
-			if v != nil {
+			if v := d.vars.Get(w.String()); v != nil && v.Value != "" {
 				return qtext.UnmarshalText(rv, []byte(v.Value))
 			}
 		}

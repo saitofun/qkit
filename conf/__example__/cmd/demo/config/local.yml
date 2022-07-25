@@ -1,0 +1,7 @@
+DEMO__PG__ConnMaxLifetime: 1h
+DEMO__PG__Master: //127.0.0.1:5432
+DEMO__PG__PoolSize: "10"
+DEMO__PG__Retry_Interval: 3s
+DEMO__PG__Retry_Repeats: "3"
+DEMO__PG__Slave: ""
+GOENV: DEV

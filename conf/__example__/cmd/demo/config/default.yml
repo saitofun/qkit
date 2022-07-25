@@ -1,0 +1,7 @@
+DEMO__PGCLI__ConnMaxLifetime: 1h
+DEMO__PGCLI__Master: //127.0.0.1:5432
+DEMO__PGCLI__PoolSize: "10"
+DEMO__PGCLI__Retry_Interval: 3s
+DEMO__PGCLI__Retry_Repeats: "3"
+DEMO__PGCLI__Slave: ""
+GOENV: DEV

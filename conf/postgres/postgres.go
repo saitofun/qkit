@@ -7,16 +7,16 @@ import (
 
 	"github.com/go-courier/sqlx/v2"
 	"github.com/go-courier/sqlx/v2/postgresqlconnector"
-	"github.com/saitofun/qkit/base/retry"
 	"github.com/saitofun/qkit/base/types"
-	"github.com/saitofun/qkit/x/must"
+	"github.com/saitofun/qkit/x/misc/must"
+	"github.com/saitofun/qkit/x/misc/retry"
 )
 
 type Endpoint struct {
 	Master   types.Endpoint
 	Slave    types.Endpoint
 	Database *sqlx.Database `env:"-"`
-	*retry.Retry
+	Retry    *retry.Retry
 
 	Extensions      []string
 	PoolSize        int
@@ -109,10 +109,10 @@ func (e *Endpoint) Init() {
 		e.Database.Name = e.Master.Base
 	}
 	// must try master
-	must.Must(e.Retry.Do(func() error { return e.conn(true, false) }))
+	must.NoError(e.Retry.Do(func() error { return e.conn(true, false) }))
 	// try slave if config
 	if !e.Slave.IsZero() {
-		must.Must(e.Retry.Do(func() error { return e.conn(false, false) }))
+		must.NoError(e.Retry.Do(func() error { return e.conn(false, false) }))
 	}
 }
 
@@ -131,6 +131,8 @@ func (e Endpoint) slaveURL() string {
 	}
 	return fmt.Sprintf("postgres://%s%s@%s", e.Master.Username, passwd, e.Slave.Host())
 }
+
+func (e Endpoint) Name() string { return "pgcli" }
 
 func SwitchSlave(db sqlx.DBExecutor) sqlx.DBExecutor {
 	if slave, ok := db.(CanSlave); ok {

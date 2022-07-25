@@ -1,4 +1,4 @@
-package pkg
+package pkgx
 
 import (
 	"go/ast"
@@ -8,10 +8,16 @@ import (
 	. "golang.org/x/tools/go/packages"
 )
 
+// .
+// Package
+// Set
+// Load
+// Config
+// LoadMode
+
 type Pkg struct {
 	*Package
-	lst []*Package
-	set *Set
+	imports []*Package
 }
 
 type Pos interface{ Pos() token.Pos }
@@ -30,16 +36,15 @@ func LoadFrom(pattern string) (*Pkg, error) {
 }
 
 func New(pkg *Package) *Pkg {
-	set := &Set{}
-	set.Append(pkg)
+	imports := &Set{}
+	imports.Append(pkg)
 	return &Pkg{
 		Package: pkg,
-		lst:     set.List(),
-		set:     set,
+		imports: imports.List(),
 	}
 }
 
-func (p *Pkg) Imports() []*Package { return p.lst }
+func (p *Pkg) Imports() []*Package { return p.imports }
 
 func (p *Pkg) Const(name string) *types.Const {
 	for ident, def := range p.TypesInfo.Defs {
@@ -77,8 +82,8 @@ func (p *Pkg) Func(name string) *types.Func {
 	return nil
 }
 
-func (p *Pkg) Pkg(path string) *Package {
-	for _, pkg := range p.lst {
+func (p *Pkg) PkgByPath(path string) *Package {
+	for _, pkg := range p.imports {
 		if path == pkg.PkgPath {
 			return pkg
 		}
@@ -86,30 +91,35 @@ func (p *Pkg) Pkg(path string) *Package {
 	return nil
 }
 
-func (p *Pkg) PkgOf(n Pos) *types.Package {
-	for _, pkg := range p.lst {
+func (p *Pkg) PkgByPos(n Pos) *Package {
+	for _, pkg := range p.imports {
 		for _, file := range pkg.Syntax {
 			if file.Pos() <= n.Pos() && file.End() > n.Pos() {
-				return pkg.Types
+				return pkg
 			}
 		}
+	}
+	return nil
+}
+
+func (p *Pkg) PkgOf(n Pos) *types.Package {
+	pkg := p.PkgByPos(n)
+	if pkg != nil {
+		return pkg.Types
 	}
 	return nil
 }
 
 func (p *Pkg) PkgInfoOf(n Pos) *types.Info {
-	for _, pkg := range p.lst {
-		for _, file := range pkg.Syntax {
-			if file.Pos() <= n.Pos() && file.End() > n.Pos() {
-				return pkg.TypesInfo
-			}
-		}
+	pkg := p.PkgByPos(n)
+	if pkg != nil {
+		return pkg.TypesInfo
 	}
 	return nil
 }
 
 func (p *Pkg) FileOf(n Pos) *ast.File {
-	for _, pkg := range p.lst {
+	for _, pkg := range p.imports {
 		for _, file := range pkg.Syntax {
 			if file.Pos() <= n.Pos() && file.End() > n.Pos() {
 				return file
@@ -120,7 +130,7 @@ func (p *Pkg) FileOf(n Pos) *ast.File {
 }
 
 func (p *Pkg) IdentOf(obj types.Object) *ast.Ident {
-	info := p.Pkg(obj.Pkg().Path())
+	info := p.PkgByPath(obj.Pkg().Path())
 
 	for ident, def := range info.TypesInfo.Defs {
 		if def == obj {
@@ -150,7 +160,7 @@ func (p *Pkg) FuncDeclOf(fn *types.Func) (decl *ast.FuncDecl) {
 		if !ok {
 			return true
 		}
-		if fd.Pos() <= fn.Pos() && fd.Body != nil && fn.Pos() < fd.Body.Pos() {
+		if fd.Body != nil && fd.Pos() <= fn.Pos() && fn.Pos() < fd.Body.Pos() {
 			decl = fd
 			return false
 		}
@@ -159,7 +169,7 @@ func (p *Pkg) FuncDeclOf(fn *types.Func) (decl *ast.FuncDecl) {
 	return
 }
 
-func (p *Pkg) ResultsOf(callee *ast.CallExpr) (Results, int) {
+func (p *Pkg) ResultsOf(callee *ast.CallExpr) Results {
 	typ := p.PkgInfoOf(callee).TypeOf(callee)
 	res := Results{}
 
@@ -178,18 +188,13 @@ func (p *Pkg) ResultsOf(callee *ast.CallExpr) (Results, int) {
 		})
 	}
 
-	return res, len(res)
+	return res
 }
 
 func (p *Pkg) AssignedValueOf(ident *ast.Ident, pos token.Pos) []TypeAndValueExpr {
-	var (
-		ass  *ast.AssignStmt
-		blk  *ast.BlockStmt
-		idx  = 0
-		file = p.FileOf(ident)
-	)
+	var blk *ast.BlockStmt
 
-	ast.Inspect(file, func(node ast.Node) bool {
+	ast.Inspect(p.FileOf(ident), func(node ast.Node) bool {
 		switch fn := node.(type) {
 		case *ast.FuncLit:
 			if fn.Pos() <= ident.Pos() && ident.Pos() <= fn.End() {
@@ -209,7 +214,11 @@ func (p *Pkg) AssignedValueOf(ident *ast.Ident, pos token.Pos) []TypeAndValueExp
 		return nil
 	}
 
-	func(n ast.Node) {
+	var (
+		ass *ast.AssignStmt
+		idx = 0
+	)
+	scan := func(n ast.Node) {
 		nodes := []ast.Node{n}
 		for len(nodes) > 0 {
 			n, nodes = nodes[0], nodes[1:]
@@ -219,13 +228,13 @@ func (p *Pkg) AssignedValueOf(ident *ast.Ident, pos token.Pos) []TypeAndValueExp
 				}
 				switch stmt := node.(type) {
 				case *ast.CaseClause:
-					return IsContainsReturn(stmt) ||
+					return !IsBlockContainsReturn(stmt) ||
 						stmt.Pos() <= pos && pos < stmt.End()
 				case *ast.IfStmt:
 					if stmt.Else != nil {
 						nodes = append(nodes, stmt.Else)
 					}
-					return IsContainsReturn(stmt) ||
+					return !IsBlockContainsReturn(stmt) ||
 						stmt.Body.Pos() <= pos && pos < stmt.Body.End()
 				case *ast.AssignStmt:
 					for i := range stmt.Lhs {
@@ -238,13 +247,13 @@ func (p *Pkg) AssignedValueOf(ident *ast.Ident, pos token.Pos) []TypeAndValueExp
 				return true
 			})
 		}
-	}(blk)
+	}
 
-	if ass == nil {
+	if scan(blk); ass == nil {
 		return nil
 	}
 	res := Results{}
-	p.SetResultsBy(res, ass.Rhs...)
+	p.SetResultsByExpr(res, ass.Rhs...)
 	return res[idx]
 }
 
@@ -263,16 +272,16 @@ func (p *Pkg) AppendResult(res Results, i int, tve TypeAndValueExpr) {
 	}
 }
 
-func (p *Pkg) SetResultsBy(res Results, exprs ...ast.Expr) {
-	for i := range exprs {
-		switch e := exprs[i].(type) {
+func (p *Pkg) SetResultsByExpr(res Results, rhs ...ast.Expr) {
+	for i := range rhs {
+		switch e := rhs[i].(type) {
 		case *ast.CallExpr:
-			_res, _len := p.ResultsOf(e)
-			for j := 0; j < _len; j++ {
+			results := p.ResultsOf(e)
+			for j := 0; j < len(results); j++ {
 				if j > 0 {
 					i++
 				}
-				for _, tve := range _res[j] {
+				for _, tve := range results[j] {
 					res[i] = append(res[i], TypeAndValueExpr{
 						TypeAndValue: tve.TypeAndValue,
 						Expr:         tve.Expr,
@@ -294,6 +303,7 @@ func (p *Pkg) FuncResultsOf(fn *types.Func) (Results, int) {
 	if decl == nil {
 		return nil, 0
 	}
+	// TODO location interface?
 	return p.FuncResultsOfSignature(
 		fn.Type().(*types.Signature),
 		decl.Body,
@@ -301,43 +311,51 @@ func (p *Pkg) FuncResultsOf(fn *types.Func) (Results, int) {
 	)
 }
 
-func (p *Pkg) FuncResultsOfSignature(sig *types.Signature, body *ast.BlockStmt, typ *ast.FuncType) (Results, int) {
-	results := sig.Results()
-	if results.Len() == 0 {
+func (p *Pkg) FuncResultsOfSignature(sig *types.Signature, body *ast.BlockStmt, ft *ast.FuncType) (Results, int) {
+	tuple := sig.Results()
+	if tuple.Len() == 0 {
 		return nil, 0
 	}
 
-	named := make([]*ast.Ident, 0)
+	idents := make([]*ast.Ident, 0) // return named idents
 
-	for _, field := range typ.Results.List {
-		named = append(named, field.Names...)
+	for _, field := range ft.Results.List {
+		for _, name := range field.Names {
+			idents = append(idents, name)
+		}
 	}
 
-	returns := func() []*ast.ReturnStmt {
-		lst := make([]*ast.ReturnStmt, 0)
+	// all return statements
+	scan := func() []*ast.ReturnStmt {
+		stmts := make([]*ast.ReturnStmt, 0)
 		ast.Inspect(body, func(node ast.Node) bool {
-			switch node := node.(type) {
+			switch stmt := node.(type) {
 			case *ast.FuncLit:
 				return false // inline declaration
 			case *ast.ReturnStmt:
-				lst = append(lst, node)
+				stmts = append(stmts, stmt)
 			}
 			return true
 		})
-		return lst
-	}()
+		return stmts
+	}
 
 	finals := Results{}
+	returns := scan() // return statements
 
-	for _, stmt := range returns {
-		if stmt.Results != nil {
-			p.SetResultsBy(finals, stmt.Results...)
+	for i := range returns {
+		if len(returns[i].Results) != 0 {
+			p.SetResultsByExpr(finals, returns[i].Results...)
 			continue
 		}
-		for i := 0; i < results.Len(); i++ {
-			// named return
-			for _, tve := range p.AssignedValueOf(named[i], stmt.Pos()) {
-				p.AppendResult(finals, i, tve)
+		for j := 0; j < tuple.Len(); j++ {
+			// named returns
+			tves := p.AssignedValueOf(idents[j], returns[i].Pos())
+			if tves == nil {
+				_ = 0
+			}
+			for _, tve := range tves {
+				p.AppendResult(finals, j, tve)
 			}
 		}
 	}
@@ -345,7 +363,7 @@ func (p *Pkg) FuncResultsOfSignature(sig *types.Signature, body *ast.BlockStmt, 
 	for i := range finals {
 		for j := range finals[i] {
 			tve := finals[i][j]
-			switch t := results.At(i).Type().(type) {
+			switch t := tuple.At(i).Type().(type) {
 			case *types.Interface:
 				// nothing
 			case *types.Named:
@@ -359,5 +377,24 @@ func (p *Pkg) FuncResultsOfSignature(sig *types.Signature, body *ast.BlockStmt, 
 		}
 	}
 
-	return finals, results.Len()
+	return finals, tuple.Len()
+}
+
+// Set package set, mapping imported package id and package info
+type Set map[string]*Package
+
+func (s Set) Append(pkg *Package) {
+	s[pkg.ID] = pkg
+	for i := range pkg.Imports {
+		if _, ok := s[i]; !ok {
+			s.Append(pkg.Imports[i])
+		}
+	}
+}
+
+func (s Set) List() (ret []*Package) {
+	for id := range s {
+		ret = append(ret, s[id])
+	}
+	return ret
 }

@@ -116,7 +116,7 @@ func (e *Encoder) scan(w *PathWalker, rv reflect.Value) error {
 					flags = _flags
 				}
 				inline := flags == nil && ft.Anonymous &&
-					reflectx.Deref(ft.Type).Kind() == reflect.Struct
+					reflectx.DeRef(ft.Type).Kind() == reflect.Struct
 				if !inline {
 					w.Enter(name)
 				}

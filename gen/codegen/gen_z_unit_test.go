@@ -28,7 +28,7 @@ func Test_NewFile(t *testing.T) {
 
 	defer os.RemoveAll("examples")
 
-	if _, err := f.Write(); err != nil {
+	if _, err := f.Write(false); err != nil {
 		panic(err)
 	}
 	if raw, err := os.ReadFile(f.Name); err != nil {

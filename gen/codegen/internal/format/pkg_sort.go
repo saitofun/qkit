@@ -7,7 +7,6 @@ import (
 	"go/format"
 	"go/token"
 	"io/ioutil"
-	"path"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -16,7 +15,7 @@ import (
 
 func SortImports(fset *token.FileSet, f *ast.File, file string) error {
 	ast.SortImports(fset, f)
-	dir := path.Dir(file)
+	dir := filepath.Dir(file)
 
 	for _, decl := range f.Decls {
 		d, ok := decl.(*ast.GenDecl)
@@ -39,8 +38,8 @@ func SortImports(fset *token.FileSet, f *ast.File, file string) error {
 			g.AppendVendor(path, s)
 		}
 		_fset, _f, err := Parse(file, bytes.Replace(
-			FormatNode(fset, f),
-			FormatNode(fset, d),
+			FmtNode(fset, f),
+			FmtNode(fset, d),
 			g.Bytes(),
 			1,
 		))
@@ -48,13 +47,14 @@ func SortImports(fset *token.FileSet, f *ast.File, file string) error {
 			fmt.Println(".....", err)
 			return err
 		}
+		// TODO assignment has lock value
 		*fset, *f = *_fset, *_f
 	}
 
 	return nil
 }
 
-func FormatNode(fset *token.FileSet, node ast.Node) []byte {
+func FmtNode(fset *token.FileSet, node ast.Node) []byte {
 	buf := bytes.NewBuffer(nil)
 	if err := format.Node(buf, fset, node); err != nil {
 		panic(err)
@@ -69,12 +69,12 @@ type dep struct {
 
 type GroupSet [4][]*dep
 
-func (g *GroupSet) Bytes() []byte {
+func (g GroupSet) Bytes() []byte {
 	buf := bytes.NewBuffer(nil)
 
 	buf.WriteString("import ")
 	buf.WriteRune('(')
-	for _, deps := range *g {
+	for _, deps := range g {
 		for _, d := range deps {
 			buf.WriteRune('\n')
 			if d.Spec.Doc != nil {
@@ -130,5 +130,5 @@ var Stds StdLibSet
 
 func init() {
 	Stds = make(StdLibSet)
-	Stds.WalkInit(path.Join(runtime.GOROOT(), "src"), "")
+	Stds.WalkInit(filepath.Join(runtime.GOROOT(), "src"), "")
 }

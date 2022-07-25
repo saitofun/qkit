@@ -253,6 +253,11 @@ func (s *SnippetTypeDecl) Bytes() []byte {
 	return buf.Bytes()
 }
 
+// SnippetField define a field or var
+// eg:
+// a int
+// a, b int
+// AliasString = string
 type SnippetField struct {
 	SnippetSpec
 	SnippetCanAddr
@@ -729,6 +734,20 @@ func (s *SnippetStarExpr) Bytes() []byte {
 	return buf.Bytes()
 }
 
+type SnippetAccessValueExpr struct {
+	V SnippetCanAddr
+	IfCanAddr
+}
+
+func (s *SnippetAccessValueExpr) Bytes() []byte {
+	buf := bytes.NewBuffer(nil)
+	buf.WriteString(token.MUL.String())
+	buf.WriteRune('(')
+	buf.Write(s.V.Bytes())
+	buf.WriteRune(')')
+	return buf.Bytes()
+}
+
 type SnippetAddrExpr struct {
 	V SnippetCanAddr
 }
@@ -1026,7 +1045,9 @@ func (f *FuncType) Bytes() []byte {
 	}
 	buf.WriteByte(')')
 
-	if len(f.Rets) > 1 {
+	quoteRet := len(f.Rets) > 1 || len(f.Rets[0].Names) > 0
+
+	if quoteRet {
 		buf.WriteRune(' ')
 		buf.WriteRune('(')
 	}
@@ -1039,7 +1060,7 @@ func (f *FuncType) Bytes() []byte {
 		buf.Write(f.Rets[i].WithoutTag().Bytes())
 	}
 
-	if len(f.Rets) > 1 {
+	if quoteRet {
 		buf.WriteRune(')')
 	}
 
@@ -1097,6 +1118,11 @@ func (s *InterfaceType) Bytes() []byte {
 	buf := bytes.NewBuffer(nil)
 
 	buf.WriteString(token.INTERFACE.String())
+	if len(s.Methods) == 0 {
+		buf.WriteRune('{')
+		buf.WriteRune('}')
+		return buf.Bytes()
+	}
 	buf.WriteRune(' ')
 	buf.WriteRune('{')
 	buf.WriteRune('\n')

@@ -1,4 +1,4 @@
-package pkg
+package pkgx
 
 import (
 	"bytes"
@@ -43,7 +43,7 @@ func Import(path string) string {
 func ImportPathAndExpose(s string) (string, string) {
 	args := strings.Split(s, ".")
 	if _len := len(args); _len > 1 {
-		return Import(strings.Join(args[0:_len-1], ",")), args[_len-1]
+		return Import(strings.Join(args[0:_len-1], ".")), args[_len-1]
 	}
 	return "", s
 }

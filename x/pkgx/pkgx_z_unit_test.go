@@ -1,4 +1,4 @@
-package pkg_test
+package pkgx_test
 
 import (
 	"fmt"
@@ -9,12 +9,34 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
 	. "github.com/onsi/gomega"
 	. "github.com/saitofun/qkit/x/pkgx"
 )
+
+func TestImportPathAndExpose(t *testing.T) {
+	cases := []struct {
+		imported string
+		expose   string
+		s        string
+	}{
+		{"", "B", "B"},
+		{"testing", "B", "testing.B"},
+		{"a.b.c.d/c", "B", "a.b.c.d/c.B"},
+		{"e", "B", "a.b.c.d/vendor/e.B"},
+	}
+
+	for i, c := range cases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			imported, expose := ImportPathAndExpose(c.s)
+			NewWithT(t).Expect(imported).To(Equal(c.imported))
+			NewWithT(t).Expect(expose).To(Equal(c.expose))
+		})
+	}
+}
 
 var root = "./__tests__"
 
@@ -111,7 +133,6 @@ func TestPkgFuncReturns(t *testing.T) {
 			},
 		},
 		{
-			// TODO
 			"FuncWithSwitch",
 			[][]string{
 				{

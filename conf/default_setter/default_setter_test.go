@@ -17,6 +17,6 @@ func TestStruct(t *testing.T) {
 	}
 	dft := A{1, 2, ptrx.String("abc"), "def"}
 	tar := A{}
-	NewWithT(t).Expect(default_setter.Struct(dft, &tar)).To(BeNil())
+	NewWithT(t).Expect(default_setter.Set(dft, &tar)).To(BeNil())
 	NewWithT(t).Expect(dft).To(Equal(tar))
 }

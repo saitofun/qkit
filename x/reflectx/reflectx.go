@@ -76,7 +76,7 @@ func TypeName(rt reflect.Type) string {
 	return buf.String()
 }
 
-func Deref(t reflect.Type) reflect.Type {
+func DeRef(t reflect.Type) reflect.Type {
 	for t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}

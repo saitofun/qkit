@@ -14,5 +14,5 @@ type Bar interface {
 
 // main方法
 func main() {
-	a := 1
+	_ = 1
 }

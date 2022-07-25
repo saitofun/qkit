@@ -32,7 +32,7 @@ func ExampleFormat() {
 
 	defer os.Remove(filepath.Dir(f.Name))
 
-	_, err := f.Write()
+	_, err := f.Write(false)
 	if err != nil {
 		fmt.Println(err)
 		return
