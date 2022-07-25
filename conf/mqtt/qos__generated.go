@@ -1,45 +1,24 @@
+// This is a generated source file. DO NOT EDIT
+// Version: 0.0.1
+// Source: mqtt/qos__generated.go
+// Date: Jul 26 01:01:20
+
 package mqtt
 
 import (
-	bytes "bytes"
-	database_sql_driver "database/sql/driver"
-	errors "errors"
+	"bytes"
+	"database/sql/driver"
+	"errors"
 
-	github_com_go_courier_enumeration "github.com/go-courier/enumeration"
+	"github.com/saitofun/qkit/kit/enum"
 )
 
 var InvalidQOS = errors.New("invalid QOS type")
 
-func ParseQOSFromLabelString(s string) (QOS, error) {
-	switch s {
-	case "":
-		return QOS_UNKNOWN, nil
-	case "0":
-		return QOS__ONCE, nil
-	case "1":
-		return QOS__AT_LEAST_ONCE, nil
-	case "2":
-		return QOS__ONLY_ONCE, nil
-	}
-	return QOS_UNKNOWN, InvalidQOS
-}
-
-func (v QOS) String() string {
-	switch v {
-	case QOS_UNKNOWN:
-		return ""
-	case QOS__ONCE:
-		return "ONCE"
-	case QOS__AT_LEAST_ONCE:
-		return "AT_LEAST_ONCE"
-	case QOS__ONLY_ONCE:
-		return "ONLY_ONCE"
-	}
-	return "UNKNOWN"
-}
-
 func ParseQOSFromString(s string) (QOS, error) {
 	switch s {
+	default:
+		return QOS_UNKNOWN, InvalidQOS
 	case "":
 		return QOS_UNKNOWN, nil
 	case "ONCE":
@@ -49,11 +28,46 @@ func ParseQOSFromString(s string) (QOS, error) {
 	case "ONLY_ONCE":
 		return QOS__ONLY_ONCE, nil
 	}
-	return QOS_UNKNOWN, InvalidQOS
+}
+
+func ParseQOSFromLabel(s string) (QOS, error) {
+	switch s {
+	default:
+		return QOS_UNKNOWN, InvalidQOS
+	case "":
+		return QOS_UNKNOWN, nil
+	case "0":
+		return QOS__ONCE, nil
+	case "1":
+		return QOS__AT_LEAST_ONCE, nil
+	case "2":
+		return QOS__ONLY_ONCE, nil
+	}
+}
+
+func (v QOS) Int() int {
+	return int(v)
+}
+
+func (v QOS) String() string {
+	switch v {
+	default:
+		return "UNKNOWN"
+	case QOS_UNKNOWN:
+		return ""
+	case QOS__ONCE:
+		return "ONCE"
+	case QOS__AT_LEAST_ONCE:
+		return "AT_LEAST_ONCE"
+	case QOS__ONLY_ONCE:
+		return "ONLY_ONCE"
+	}
 }
 
 func (v QOS) Label() string {
 	switch v {
+	default:
+		return "UNKNOWN"
 	case QOS_UNKNOWN:
 		return ""
 	case QOS__ONCE:
@@ -63,52 +77,53 @@ func (v QOS) Label() string {
 	case QOS__ONLY_ONCE:
 		return "2"
 	}
-	return "UNKNOWN"
 }
 
-func (v QOS) Int() int {
-	return int(v)
-}
-
-func (QOS) TypeName() string {
+func (v QOS) TypeName() string {
 	return "github.com/saitofun/qkit/conf/mqtt.QOS"
 }
 
-func (QOS) ConstValues() []github_com_go_courier_enumeration.IntStringerEnum {
-	return []github_com_go_courier_enumeration.IntStringerEnum{QOS__ONCE, QOS__AT_LEAST_ONCE, QOS__ONLY_ONCE}
+func (v QOS) ConstValues() []enum.IntStringerEnum {
+	return []enum.IntStringerEnum{QOS__ONCE, QOS__AT_LEAST_ONCE, QOS__ONLY_ONCE}
 }
 
 func (v QOS) MarshalText() ([]byte, error) {
-	str := v.String()
-	if str == "UNKNOWN" {
+	s := v.String()
+	if s == "UNKNOWN" {
 		return nil, InvalidQOS
 	}
-	return []byte(str), nil
+	return []byte(s), nil
 }
 
-func (v *QOS) UnmarshalText(data []byte) (err error) {
-	*v, err = ParseQOSFromString(string(bytes.ToUpper(data)))
-	return
-}
-
-func (v QOS) Value() (database_sql_driver.Value, error) {
-	offset := 0
-	if o, ok := (interface{})(v).(github_com_go_courier_enumeration.DriverValueOffset); ok {
-		offset = o.Offset()
+func (v *QOS) UnmarshalText(data []byte) error {
+	s := string(bytes.ToUpper(data))
+	val, err := ParseQOSFromString(s)
+	if err != nil {
+		return err
 	}
-	return int64(v) + int64(offset), nil
+	*(v) = val
+	return nil
 }
 
 func (v *QOS) Scan(src interface{}) error {
 	offset := 0
-	if o, ok := (interface{})(v).(github_com_go_courier_enumeration.DriverValueOffset); ok {
+	o, ok := interface{}(v).(enum.ValueOffset)
+	if ok {
 		offset = o.Offset()
 	}
-
-	i, err := github_com_go_courier_enumeration.ScanIntEnumStringer(src, offset)
+	i, err := enum.ScanIntEnumStringer(src, offset)
 	if err != nil {
 		return err
 	}
-	*v = QOS(i)
+	*(v) = QOS(i)
 	return nil
+}
+
+func (v QOS) Value() (driver.Value, error) {
+	offset := 0
+	o, ok := interface{}(v).(enum.ValueOffset)
+	if ok {
+		offset = o.Offset()
+	}
+	return int64(v) + int64(offset), nil
 }

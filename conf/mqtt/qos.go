@@ -1,6 +1,6 @@
 package mqtt
 
-//go:generate tools gen enum QOS
+//go:generate toolkit gen enum QOS
 type QOS int8
 
 const (
