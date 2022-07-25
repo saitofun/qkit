@@ -1,0 +1,82 @@
+package modelgen
+
+import (
+	"go/types"
+	"path"
+	"path/filepath"
+
+	"github.com/saitofun/qkit/gen/codegen"
+	"github.com/saitofun/qkit/x/pkgx"
+	"github.com/saitofun/qlib/util/qnaming"
+)
+
+type Generator struct {
+	Config
+	pkg *pkgx.Pkg
+	mod *Model
+}
+
+func New(pkg *pkgx.Pkg) *Generator { return &Generator{pkg: pkg} }
+
+func (g *Generator) Scan() {
+	for ident, obj := range g.pkg.TypesInfo.Defs {
+		if tn, ok := obj.(*types.TypeName); ok && tn.Name() == g.StructName {
+			if _, ok := tn.Type().Underlying().(*types.Struct); ok {
+				g.mod = NewModel(g.pkg, tn, g.pkg.CommentsOf(ident), &g.Config)
+			}
+		}
+	}
+}
+
+func (g *Generator) Output(cwd string) {
+	if g.mod == nil {
+		return
+	}
+	dir, _ := filepath.Rel(cwd, filepath.Dir(g.pkg.GoFiles[0]))
+	filename := codegen.GenerateFileSuffix(path.Join(dir, qnaming.LowerSnakeCase(g.StructName)+".go"))
+	f := codegen.NewFile(g.pkg.Name, filename)
+	g.mod.WriteTo(f)
+	_, _ = f.Write(true)
+}
+
+// model test only
+func model(g *Generator, name string) *Model {
+	if g.StructName == name {
+		return g.mod
+	}
+	return nil
+}
+
+type Config struct {
+	StructName string
+	TableName  string
+	Database   string
+
+	WithComments        bool
+	WithTableName       bool
+	WithTableInterfaces bool
+	WithMethods         bool
+
+	FieldPrimaryKey   string
+	FieldKeyDeletedAt string
+	FieldKeyCreatedAt string
+	FieldKeyUpdatedAt string
+}
+
+func (g *Config) SetDefaults() {
+	if g.FieldKeyDeletedAt == "" {
+		g.FieldKeyDeletedAt = "DeletedAt"
+	}
+
+	if g.FieldKeyCreatedAt == "" {
+		g.FieldKeyCreatedAt = "CreatedAt"
+	}
+
+	if g.FieldKeyUpdatedAt == "" {
+		g.FieldKeyUpdatedAt = "UpdatedAt"
+	}
+
+	if g.TableName == "" {
+		g.TableName = "t_" + qnaming.LowerSnakeCase(g.StructName)
+	}
+}
