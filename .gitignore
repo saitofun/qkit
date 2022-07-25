@@ -1,5 +1,5 @@
 .session.vim
 _*
 conf/postgres/data
-gen/cmd/cmd
+gen/cmd/toolkit/toolkit
 
