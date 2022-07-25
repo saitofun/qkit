@@ -1,8 +1,8 @@
 package gen
 
 import (
-	"github.com/go-courier/packagesx"
-	"github.com/go-courier/sqlx/v2/generator"
+	"github.com/saitofun/qkit/kit/modelgen"
+	"github.com/saitofun/qkit/x/pkgx"
 	"github.com/spf13/cobra"
 )
 
@@ -15,8 +15,8 @@ func init() {
 				panic("database required")
 			}
 			for _, arg := range args {
-				Run("model", func(pkg *packagesx.Package) Generator {
-					g := generator.NewSqlFuncGenerator(pkg)
+				run("model", func(pkg *pkgx.Pkg) Generator {
+					g := modelgen.New(pkg)
 					g.WithComments = true
 					g.WithTableInterfaces = true
 					g.StructName = arg

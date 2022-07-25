@@ -428,6 +428,9 @@ func ExampleValuer() {
 	// },
 	// },
 	// F_slice: []int{
+	// 1,
+	// 2,
+	// 3,
 	// },
 	// Anonymous: 3,
 	// }
@@ -440,6 +443,9 @@ func ExampleValuer() {
 	// },
 	// },
 	// F_slice: []int{
+	// 1,
+	// 2,
+	// 3,
 	// },
 	// Anonymous: 3,
 	// })

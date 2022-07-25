@@ -117,11 +117,15 @@ func (s StdLibSet) WalkInit(root, prefix string) {
 		if !d.IsDir() {
 			continue
 		}
-		pkg := d.Name()
+		name := d.Name()
+		if name == "vendor" || name == "internal" || name == "testdata" {
+			continue
+		}
+		pkg := name
 		if prefix != "" {
 			pkg = filepath.Join(prefix, pkg)
 		}
-		s.WalkInit(filepath.Join(root, pkg), pkg)
+		s.WalkInit(filepath.Join(root, name), pkg)
 		s[pkg] = true
 	}
 }
@@ -131,4 +135,24 @@ var Stds StdLibSet
 func init() {
 	Stds = make(StdLibSet)
 	Stds.WalkInit(filepath.Join(runtime.GOROOT(), "src"), "")
+	// root := filepath.Join(runtime.GOROOT(), "src")
+	// err := filepath.Walk(
+	// 	root,
+	// 	func(path string, info fs.FileInfo, err error) error {
+	// 		if path == root {
+	// 			return nil
+	// 		}
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 		if !info.IsDir() {
+	// 			return nil
+	// 		}
+	// 		Stds[path] = true
+	// 		return nil
+	// 	},
+	// )
+	// if err != nil {
+	// 	panic(err)
+	// }
 }

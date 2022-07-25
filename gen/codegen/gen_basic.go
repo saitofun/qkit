@@ -1045,7 +1045,7 @@ func (f *FuncType) Bytes() []byte {
 	}
 	buf.WriteByte(')')
 
-	quoteRet := len(f.Rets) > 1 || len(f.Rets[0].Names) > 0
+	quoteRet := len(f.Rets) > 0 && len(f.Rets[0].Names) > 0 || len(f.Rets) > 1
 
 	if quoteRet {
 		buf.WriteRune(' ')

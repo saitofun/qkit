@@ -129,8 +129,10 @@ func (f *File) Value(v interface{}) Snippet { return ValueWithAlias(f._import)(v
 
 func (f *File) WriteSnippet(ss ...Snippet) {
 	for _, s := range ss {
-		f.Buffer.Write(s.Bytes())
-		f.Buffer.WriteString("\n\n")
+		if s != nil {
+			f.Buffer.Write(s.Bytes())
+			f.Buffer.WriteString("\n\n")
+		}
 	}
 }
 

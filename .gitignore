@@ -1,4 +1,5 @@
 .session.vim
-_README.*
-
+_*
+conf/postgres/data
+gen/cmd/cmd
 

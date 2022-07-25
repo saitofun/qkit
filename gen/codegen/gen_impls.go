@@ -224,16 +224,18 @@ func ValueWithAlias(alias FnAlaise) func(interface{}) Snippet {
 					val(rv.MapIndex(key).Interface())),
 				)
 			}
+			// to make sure snippet map is ordered
 			sort.Slice(values, func(i, j int) bool {
-				iv := string(values[i].(*SnippetKVExpr).K.Bytes())
-				jv := string(values[j].(*SnippetKVExpr).V.Bytes())
-				return iv < jv
+				ik := string(values[i].(*SnippetKVExpr).K.Bytes())
+				jk := string(values[j].(*SnippetKVExpr).K.Bytes())
+				return ik < jk
 			})
 			return Compose(typ(rt), values...)
 
 		case reflect.Slice, reflect.Array:
 			values := make([]Snippet, 0)
 			for i := 0; i < rv.Len(); i++ {
+				values = append(values, val(rv.Index(i).Interface()))
 			}
 			return Compose(typ(rt), values...)
 
