@@ -68,6 +68,18 @@ func (c *Ctx) Conf(vs ...interface{}) {
 		must.NoError(c.marshal(rv))
 		c.conf = append(c.conf, rv)
 		rv = reflectx.Indirect(rv)
+
+		if rv.CanInterface() {
+			switch conf := rv.Interface().(type) {
+			case interface{ Init() }:
+				conf.Init()
+			case interface{ Init() error }:
+				if err = conf.Init(); err != nil {
+					panic(errors.Errorf("conf init: %v", err))
+				}
+			}
+		}
+
 		if rv.Kind() == reflect.Struct {
 			for i := 0; i < rv.NumField(); i++ {
 				value := rv.Field(i)
@@ -81,18 +93,6 @@ func (c *Ctx) Conf(vs ...interface{}) {
 					if err = conf.Init(); err != nil {
 						panic(errors.Errorf("conf init: %v", err))
 					}
-				}
-			}
-		} else {
-			if rv.CanInterface() {
-				continue
-			}
-			switch conf := rv.Interface().(type) {
-			case interface{ Init() }:
-				conf.Init()
-			case interface{ Init() error }:
-				if err = conf.Init(); err != nil {
-					panic(errors.Errorf("conf init: %v", err))
 				}
 			}
 		}
