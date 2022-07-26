@@ -33,7 +33,7 @@ type Ctx struct {
 }
 
 func New(setters ...OptSetter) *Ctx {
-	c := &Ctx{}
+	c := &Ctx{ctx: context.Background()}
 	for _, setter := range setters {
 		setter(c)
 	}
