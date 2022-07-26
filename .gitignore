@@ -2,4 +2,5 @@
 _*
 conf/postgres/data
 gen/cmd/toolkit/toolkit
+__examples/cmd/demo/demo
 

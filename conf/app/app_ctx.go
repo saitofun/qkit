@@ -2,7 +2,6 @@ package app
 
 import (
 	"fmt"
-	"go/ast"
 	"io/ioutil"
 	"os"
 	"path"
@@ -10,6 +9,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/saitofun/qkit/base/types"
 	"github.com/saitofun/qkit/conf/deploy"
 	"github.com/saitofun/qkit/conf/env"
@@ -64,17 +64,31 @@ func (c *Ctx) Conf(vs ...interface{}) {
 		must.NoError(c.marshal(rv))
 		c.conf = append(c.conf, rv)
 		rv = reflectx.Indirect(rv)
-		for i := 0; i < rv.NumField(); i++ {
-			value := rv.Field(i)
-			if !ast.IsExported(value.Type().Name()) {
+		if rv.Kind() == reflect.Struct {
+			for i := 0; i < rv.NumField(); i++ {
+				value := rv.Field(i)
+				if !value.CanInterface() {
+					continue
+				}
+				switch conf := value.Interface().(type) {
+				case interface{ Init() }:
+					conf.Init()
+				case interface{ Init() error }:
+					if err = conf.Init(); err != nil {
+						panic(errors.Errorf("conf init: %v", err))
+					}
+				}
+			}
+		} else {
+			if rv.CanInterface() {
 				continue
 			}
-			if conf, ok := value.Interface().(interface{ Init() }); ok {
+			switch conf := rv.Interface().(type) {
+			case interface{ Init() }:
 				conf.Init()
-			}
-			if conf, ok := value.Interface().(interface{ Init() error }); ok {
+			case interface{ Init() error }:
 				if err = conf.Init(); err != nil {
-					panic(err)
+					panic(errors.Errorf("conf init: %v", err))
 				}
 			}
 		}
