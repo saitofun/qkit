@@ -1,6 +1,6 @@
 package enums
 
-//go:generate toolkit gen enum QOS
+//go:generate toolkit gen enum MqttQOS
 type MqttQOS int8
 
 const (

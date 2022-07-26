@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/saitofun/qkit/__examples__/cmd/demo/global"
+	"github.com/saitofun/qkit/demo/cmd/demo/global"
 	"github.com/spf13/cobra"
 )
 

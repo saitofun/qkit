@@ -1,3 +1,4 @@
+DEMO____Port: "0"
 DEMO__BROKER__Retry_Interval: 3s
 DEMO__BROKER__Retry_Repeats: "3"
 DEMO__BROKER__Server: ""
@@ -8,4 +9,3 @@ DEMO__PGCLI__PoolSize: "10"
 DEMO__PGCLI__Retry_Interval: 3s
 DEMO__PGCLI__Retry_Repeats: "3"
 DEMO__PGCLI__Slave: ""
-GOENV: DEV

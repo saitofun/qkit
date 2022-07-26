@@ -7,11 +7,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/saitofun/qkit/__examples__/pkg/models"
 	"github.com/saitofun/qkit/conf/app"
 	"github.com/saitofun/qkit/conf/log"
 	"github.com/saitofun/qkit/conf/mqtt"
 	"github.com/saitofun/qkit/conf/postgres"
+	"github.com/saitofun/qkit/demo/pkg/models"
 )
 
 // global vars
@@ -31,7 +31,7 @@ func init() {
 		app.WithVersion("0.0.1"),
 		app.WithLogger(log.Std()),
 	)
-	App.Conf(Postgres, MQTT, Server)
+	App.Conf(Postgres, MQTT, &Server)
 
 }
 

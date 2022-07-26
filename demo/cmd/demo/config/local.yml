@@ -1,6 +1,6 @@
 DEMO__BROKER__Retry_Interval: 3s
 DEMO__BROKER__Retry_Repeats: "3"
-DEMO__BROKER__Server: ""
+DEMO__BROKER__Server: 8888
 DEMO__BROKER__Timeout: 3s
 DEMO__PGCLI__ConnMaxLifetime: 1h
 DEMO__PGCLI__Master: //127.0.0.1:5432
