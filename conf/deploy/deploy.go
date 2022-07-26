@@ -2,5 +2,5 @@ package deploy
 
 type Deployer interface {
 	Name() string
-	Write(filename string) error
+	Write(cwd string) error
 }

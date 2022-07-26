@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -28,6 +29,7 @@ type Ctx struct {
 	vars      []*env.Vars     // vars default env vars
 	conf      []reflect.Value // conf config reflect.Value
 	deployers map[string]deploy.Deployer
+	ctx       context.Context
 }
 
 func New(setters ...OptSetter) *Ctx {
@@ -42,6 +44,8 @@ func New(setters ...OptSetter) *Ctx {
 	_ = os.Setenv(envProjectName, c.String())
 	return c
 }
+
+func (c *Ctx) Context() context.Context { return c.ctx }
 
 func (c *Ctx) Conf(vs ...interface{}) {
 	// XXX try to parse local.yml
@@ -93,7 +97,7 @@ func (c *Ctx) Conf(vs ...interface{}) {
 			}
 		}
 	}
-	if err = c.marshalDefault(); err != nil {
+	if err = c.MarshalDefault(); err != nil {
 		panic(err)
 	}
 }
@@ -177,9 +181,9 @@ func (c *Ctx) marshal(rv reflect.Value) error {
 	return nil
 }
 
-func (c *Ctx) marshalDefault() error {
+func (c *Ctx) MarshalDefault() error {
 	m := map[string]string{}
-	m["GOENV"] = "DEV"
+	// TODO parse git info m["GOENV"] = "DEV"
 
 	for _, vars := range c.vars {
 		for _, v := range vars.Values {
@@ -198,10 +202,6 @@ func (c *Ctx) log(rv reflect.Value) {
 		panic(err)
 	}
 	fmt.Printf("%s", string(vars.MaskBytes()))
-}
-
-func (c *Ctx) MarshalLocal() error {
-	return nil
 }
 
 type Marshaller func(v interface{}) ([]byte, error)

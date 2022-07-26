@@ -6,6 +6,7 @@ import (
 	"runtime"
 
 	"github.com/saitofun/qkit/conf/deploy"
+	"github.com/saitofun/qkit/conf/log"
 	"gopkg.in/yaml.v2"
 )
 
@@ -21,6 +22,8 @@ func WithRoot(root string) OptSetter {
 	_, filename, _, _ := runtime.Caller(1)
 	return func(c *Ctx) { c.root = filepath.Join(filepath.Dir(filename), root) }
 }
+
+func WithLogger(l log.Logger) OptSetter { return func(c *Ctx) { c.ctx = log.WithLogger(c.ctx, l) } }
 
 func WithDeployer(deployers ...deploy.Deployer) OptSetter {
 	return func(c *Ctx) {
