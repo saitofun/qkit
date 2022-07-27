@@ -20,7 +20,7 @@ type Generator interface {
 	Output(cwd string)
 }
 
-func run(cmd string, g func(*pkgx.Pkg) Generator) {
+func run(cmd string, g func(*pkgx.Pkg) Generator, args ...string) {
 	cwd, _ := os.Getwd()
 	cost := timer.Start()
 
@@ -30,15 +30,24 @@ func run(cmd string, g func(*pkgx.Pkg) Generator) {
 	}
 
 	defer func() {
-		fmt.Println(cwd)
 		r := color.New(color.FgHiRed).SprintfFunc()
 		g := color.New(color.FgHiGreen).SprintfFunc()
 		b := color.New(color.FgHiBlue).SprintfFunc()
-		fmt.Printf("%s : %s %s: cost %s",
-			r(cmd),
-			g(pkg.Name),
-			b("%6dms", cost().Milliseconds()),
-		)
+		y := color.New(color.FgYellow).SprintfFunc()
+		if len(args) == 0 {
+			fmt.Printf("%s [%s]\n%s\n",
+				r("%-8s", cmd),
+				g("%dms", cost().Milliseconds()),
+				b("%s", pkg.ID),
+			)
+		} else {
+			fmt.Printf("%s [%s]\n%s %s\n",
+				r("%-8s", cmd),
+				g("%dms", cost().Milliseconds()),
+				b("%s", pkg.ID),
+				y("%v", args),
+			)
+		}
 	}()
 
 	g(pkg).Output(cwd)

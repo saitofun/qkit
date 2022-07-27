@@ -16,7 +16,7 @@ func init() {
 				g := enumgen.New(pkg)
 				g.Scan(args...)
 				return g
-			})
+			}, args...)
 		},
 	})
 }

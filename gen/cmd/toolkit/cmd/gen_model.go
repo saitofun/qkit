@@ -27,7 +27,7 @@ func init() {
 
 					g.Scan()
 					return g
-				})
+				}, arg)
 			}
 		},
 	}

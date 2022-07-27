@@ -15,7 +15,7 @@ func init() {
 				g := statusxgen.New(pkg)
 				g.Scan(args...)
 				return g
-			})
+			}, args...)
 		},
 	}
 
