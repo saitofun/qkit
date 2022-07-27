@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	g "github.com/onsi/gomega"
+	. "github.com/saitofun/qkit/testutil/buildertestutil"
 
 	. "github.com/saitofun/qkit/kit/sqlx/builder"
-	. "github.com/saitofun/qkit/kit/testutil/buildertestutil"
 )
 
 func TestCondition(t *testing.T) {
