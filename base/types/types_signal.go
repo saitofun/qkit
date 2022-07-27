@@ -24,7 +24,7 @@ func (s *Signal) UnmarshalText(data []byte) error {
 	return fmt.Errorf("unknown signal")
 }
 
-func (s Signal) Error() string { return errors[s] }
+func (s Signal) Error() string { return asErrors[s] }
 
 const (
 	SIGHUP    = Signal(syscall.SIGHUP)
@@ -60,7 +60,7 @@ const (
 	SIGUSR2   = Signal(syscall.SIGUSR2)
 )
 
-var errors = [...]string{
+var asErrors = [...]string{
 	SIGHUP:    "hangup",
 	SIGINT:    "interrupt",
 	SIGQUIT:   "quit",

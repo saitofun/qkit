@@ -171,7 +171,7 @@ func TestEndpoint(t *testing.T) {
 		ep  *Endpoint
 		url string
 	}{
-		"stmps": {
+		"STMPs": {
 			ep: &Endpoint{
 				Scheme:   "stmps",
 				Hostname: "stmps.mail.xxx.com",
@@ -179,7 +179,7 @@ func TestEndpoint(t *testing.T) {
 			},
 			url: "stmps://stmps.mail.xxx.com:465",
 		},
-		"postgres": {
+		"Postgres": {
 			ep: &Endpoint{
 				Scheme:   "postgres",
 				Hostname: "hostname",
@@ -191,14 +191,32 @@ func TestEndpoint(t *testing.T) {
 			},
 			url: "postgres://username:password@hostname:5432/database_name?sslmode=disable",
 		},
+		"NoScheme": {
+			ep: &Endpoint{
+				Scheme:   "",
+				Hostname: "hostname",
+				Username: "username",
+				Password: "password",
+				Port:     5432,
+				Base:     "database_name",
+				Param:    url.Values{"sslmode": {"disable"}},
+			},
+			url: "//username:password@hostname:5432/database_name?sslmode=disable",
+		},
 	}
 
 	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
-			NewWithT(t).Expect(c.ep.String()).To(Equal(c.url))
+			if c.ep != nil {
+				NewWithT(t).Expect(c.ep.String()).To(Equal(c.url))
+			}
 			parsed, err := ParseEndpoint(c.url)
-			NewWithT(t).Expect(err).To(BeNil())
-			NewWithT(t).Expect(*parsed).To(Equal(*c.ep))
+			if c.ep != nil {
+				NewWithT(t).Expect(err).To(BeNil())
+				NewWithT(t).Expect(*parsed).To(Equal(*c.ep))
+			} else {
+				NewWithT(t).Expect(err).NotTo(BeNil())
+			}
 		})
 	}
 }

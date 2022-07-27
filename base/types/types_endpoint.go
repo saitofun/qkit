@@ -85,7 +85,7 @@ func (e *Endpoint) UnmarshalText(text []byte) error {
 }
 
 func ParseEndpoint(text string) (*Endpoint, error) {
-	u, err := url.ParseRequestURI(text)
+	u, err := url.Parse(text)
 	if err != nil {
 		return nil, err
 	}
