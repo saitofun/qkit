@@ -14,7 +14,7 @@ func Indirect(v reflect.Value) reflect.Value {
 	return v
 }
 
-// New new a reflect.Value with reflect.Type
+// New a `reflect.Value` with reflect.Type
 func New(t reflect.Type) reflect.Value {
 	v := reflect.New(t).Elem()
 	if t.Kind() == reflect.Ptr {

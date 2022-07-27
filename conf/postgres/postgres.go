@@ -60,6 +60,7 @@ func (e *Endpoint) SetDefault() {
 	if e.Master.IsZero() {
 		e.Master.Hostname, e.Master.Port = "127.0.0.1", 5432
 	}
+	e.Master.Scheme = "postgres"
 	if e.Database.Name == "" && len(e.Master.Base) > 0 {
 		e.Database.Name = e.Master.Base
 	}

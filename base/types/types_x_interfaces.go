@@ -1,6 +1,8 @@
 package types
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"encoding"
 	"reflect"
 	"time"
@@ -40,6 +42,25 @@ type (
 	ZeroChecker interface{ IsZero() bool }
 )
 
+// Assertion
+
+// SqlValue can convert between sql value and describe sql datatype
+type SqlValue interface {
+	driver.Value
+	sql.Scanner
+	DataType(engine string) string
+}
+
+var (
+	_ SqlValue = (*Address)(nil)
+	_ SqlValue = (*Datetime)(nil)
+	_ SqlValue = (*Timestamp)(nil)
+	// TODO _ SqlValue = (*Password)(nil)
+	// TODO _ SqlValue = (*UID)(nil)
+	// TODO _ SqlValue = (UIDs)(nil)
+)
+
+// Types
 var (
 	RTypeString               = reflect.TypeOf((*String)(nil)).Elem()
 	RTypeSecurityString       = reflect.TypeOf((*SecurityString)(nil)).Elem()

@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"log"
+	"fmt"
 	"os"
 
-
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	"github.com/saitofun/qkit/x/misc/timer"
@@ -30,7 +30,15 @@ func run(cmd string, g func(*pkgx.Pkg) Generator) {
 	}
 
 	defer func() {
-		log.Printf("%s %s: cost %s", cmd, pkg.ID, cost().String())
+		fmt.Println(cwd)
+		r := color.New(color.FgHiRed).SprintfFunc()
+		g := color.New(color.FgHiGreen).SprintfFunc()
+		b := color.New(color.FgHiBlue).SprintfFunc()
+		fmt.Printf("%s : %s %s: cost %s",
+			r(cmd),
+			g(pkg.Name),
+			b("%6dms", cost().Milliseconds()),
+		)
 	}()
 
 	g(pkg).Output(cwd)

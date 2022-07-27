@@ -47,8 +47,9 @@ func New(setters ...OptSetter) *Ctx {
 
 func (c *Ctx) Context() context.Context { return c.ctx }
 
-func (c *Ctx) Conf(vs ...interface{}) {
-	// XXX try to parse local.yml
+// Conf init all configs from yml file, and do initialization for each config.
+// config dir include `local.yml` `default.yml` and `master.yml`
+func (c *Ctx) Conf(configs ...interface{}) {
 	local, err := ioutil.ReadFile(filepath.Join(c.root, "./config/local.yml"))
 	if err == nil {
 		kv := make(map[string]string)
@@ -58,28 +59,35 @@ func (c *Ctx) Conf(vs ...interface{}) {
 			}
 		}
 	}
-	// XXX init all config elements
-	for _, v := range vs {
+
+	for _, v := range configs {
 		rv := reflect.ValueOf(v)
 		if rv.Kind() != reflect.Ptr {
 			panic("should pass pointer for setting value")
 		}
+
 		must.NoError(c.scan(rv))
 		must.NoError(c.marshal(rv))
-		c.conf = append(c.conf, rv)
-		rv = reflectx.Indirect(rv)
+	}
 
-		if rv.CanInterface() {
-			switch conf := rv.Interface().(type) {
-			case interface{ Init() }:
-				conf.Init()
-			case interface{ Init() error }:
-				if err = conf.Init(); err != nil {
-					panic(errors.Errorf("conf init: %v", err))
-				}
+	if err = c.MarshalDefault(); err != nil {
+		panic(err)
+	}
+
+	for _, v := range configs {
+		rv := reflect.ValueOf(v)
+		c.conf = append(c.conf, rv)
+
+		switch conf := v.(type) {
+		case interface{ Init() }:
+			conf.Init()
+		case interface{ Init() error }:
+			if err = conf.Init(); err != nil {
+				panic(errors.Errorf("conf init: %v", err))
 			}
 		}
 
+		rv = reflectx.Indirect(rv)
 		if rv.Kind() == reflect.Struct {
 			for i := 0; i < rv.NumField(); i++ {
 				value := rv.Field(i)
@@ -96,9 +104,6 @@ func (c *Ctx) Conf(vs ...interface{}) {
 				}
 			}
 		}
-	}
-	if err = c.MarshalDefault(); err != nil {
-		panic(err)
 	}
 }
 

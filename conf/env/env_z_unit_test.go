@@ -12,31 +12,31 @@ import (
 )
 
 func TestPathWalker(t *testing.T) {
-	p := NewPathWalker()
+	pw := NewPathWalker()
 
-	p.Enter("parent")
-	NewWithT(t).Expect(p.Paths()).To(Equal([]interface{}{"parent"}))
-	NewWithT(t).Expect(p.String()).To(Equal("parent"))
+	pw.Enter("parent")
+	NewWithT(t).Expect(pw.Paths()).To(Equal([]interface{}{"parent"}))
+	NewWithT(t).Expect(pw.String()).To(Equal("parent"))
 
-	p.Enter("child")
-	NewWithT(t).Expect(p.Paths()).To(Equal([]interface{}{"parent", "child"}))
-	NewWithT(t).Expect(p.String()).To(Equal("parent_child"))
+	pw.Enter("child")
+	NewWithT(t).Expect(pw.Paths()).To(Equal([]interface{}{"parent", "child"}))
+	NewWithT(t).Expect(pw.String()).To(Equal("parent_child"))
 
-	p.Enter("prop")
-	NewWithT(t).Expect(p.Paths()).To(Equal([]interface{}{"parent", "child", "prop"}))
-	NewWithT(t).Expect(p.String()).To(Equal("parent_child_prop"))
+	pw.Enter("prop")
+	NewWithT(t).Expect(pw.Paths()).To(Equal([]interface{}{"parent", "child", "prop"}))
+	NewWithT(t).Expect(pw.String()).To(Equal("parent_child_prop"))
 
-	p.Enter(100)
-	NewWithT(t).Expect(p.Paths()).To(Equal([]interface{}{"parent", "child", "prop", 100}))
-	NewWithT(t).Expect(p.String()).To(Equal("parent_child_prop_100"))
+	pw.Enter(100)
+	NewWithT(t).Expect(pw.Paths()).To(Equal([]interface{}{"parent", "child", "prop", 100}))
+	NewWithT(t).Expect(pw.String()).To(Equal("parent_child_prop_100"))
 
-	p.Exit()
-	NewWithT(t).Expect(p.Paths()).To(Equal([]interface{}{"parent", "child", "prop"}))
-	NewWithT(t).Expect(p.String()).To(Equal("parent_child_prop"))
+	pw.Exit()
+	NewWithT(t).Expect(pw.Paths()).To(Equal([]interface{}{"parent", "child", "prop"}))
+	NewWithT(t).Expect(pw.String()).To(Equal("parent_child_prop"))
 
-	p.Exit()
-	NewWithT(t).Expect(p.Paths()).To(Equal([]interface{}{"parent", "child"}))
-	NewWithT(t).Expect(p.String()).To(Equal("parent_child"))
+	pw.Exit()
+	NewWithT(t).Expect(pw.Paths()).To(Equal([]interface{}{"parent", "child"}))
+	NewWithT(t).Expect(pw.String()).To(Equal("parent_child"))
 }
 
 type SubConfig struct {
