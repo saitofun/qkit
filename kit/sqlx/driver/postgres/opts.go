@@ -14,7 +14,7 @@ func ParseOption(s string) Opts {
 			opts[pair[0]] = pair[1]
 		}
 	}
-	return nil
+	return opts
 }
 
 type Opts map[string]string
