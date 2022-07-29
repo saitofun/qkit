@@ -123,7 +123,7 @@ func (c *Column) In(args ...interface{}) SqlCondition {
 	}
 	if n == 1 {
 		_ = n
-		// TODO
+		// TODO WithConditionFor this column
 	}
 	e := Expr("? IN ")
 	e.Grow(n + 1)

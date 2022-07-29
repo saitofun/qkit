@@ -20,5 +20,5 @@ func (v *Var) Key(prefix string) string {
 }
 
 func (v *Var) SetMeta(flags map[string]bool) {
-	// TODO
+	// TODO config meta
 }

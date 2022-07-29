@@ -78,5 +78,5 @@ func AnalyzeColumnType(t typesx.Type, tag string) *ColumnType {
 
 type DeprecatedActs struct {
 	RenameTo string `name:"rename"`
-	// TODO drop column or other....
+	// TODO drop column or other action
 }

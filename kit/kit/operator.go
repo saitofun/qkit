@@ -49,9 +49,11 @@ type oldContextProvider interface {
 	ContextKey() string
 }
 
+// TODO remove ContextKey?
+
 type OperatorFactory struct {
 	Type       reflect.Type
-	ContextKey interface{} // TODO remove it
+	ContextKey interface{}
 	NoOutput   bool
 	Params     url.Values
 	IsLast     bool

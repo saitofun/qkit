@@ -17,11 +17,14 @@ func TestAnalyzeColumnType(t *testing.T) {
 		tag  string
 		val  *ColumnType
 	}{
-		// {
-		// 	"Deprecated",
-		// 	`,deprecated=f_rename_to`,
-		// 	nil, // TODO unimplemented
-		// },
+		{
+			"Deprecated",
+			`,deprecated=deprecated_f_old_name`,
+			&ColumnType{
+				Type:           typesx.FromReflectType(reflect.TypeOf(1)),
+				DeprecatedActs: &DeprecatedActs{RenameTo: "deprecated_f_old_name"},
+			},
+		},
 		{
 			"AutoIncrement",
 			`,autoincrement`,

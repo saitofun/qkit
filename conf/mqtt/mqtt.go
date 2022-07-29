@@ -71,7 +71,7 @@ func (b Broker) conn(client mqtt.Client) func() error {
 	}
 }
 
-// tls TODO
+// TODO mqtt tls
 func (b *Broker) tls() *tls.Config { return nil }
 
 func (b *Broker) RegisterMessageHandler(hdl mqtt.MessageHandler) {

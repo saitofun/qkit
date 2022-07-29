@@ -146,7 +146,7 @@ func (c *Ctx) Execute(fn func(...string), commands ...func(*cobra.Command)) {
 		}
 		fn(args...)
 	}
-	// TODO
+	// TODO implement app deploy config generator
 	// for name, dpl := range c.deployers {
 	// 	c.AddCommand(name, func(...string) {
 	// 		if setter, ok := dpl.(types.DefaultSetter); ok {
