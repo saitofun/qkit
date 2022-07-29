@@ -42,6 +42,6 @@ func init() {
 	app.New(
 		app.WithName("test"),
 		app.WithLogger(log.Std()),
-		app.WithRoot(".."),
+		app.WithRoot("."),
 	).Conf(Endpoint)
 }
