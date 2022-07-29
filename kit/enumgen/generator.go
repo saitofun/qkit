@@ -51,7 +51,7 @@ func (g Generator) Output(cwd string) {
 		f := codegen.NewFile(tn.Pkg().Name(), filename)
 		enum.WriteToFile(f)
 
-		if _, err := f.Write(true); err != nil {
+		if _, err := f.Write(); err != nil {
 			log.Printf("%s generate failed: %v", filename, err)
 		}
 	}

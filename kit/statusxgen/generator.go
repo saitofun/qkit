@@ -205,6 +205,6 @@ func (s *StatusError) WriteToFile(f *gen.File) error {
 		s.SnippetMsg(f),
 		s.SnippetCanBeTalk(f),
 	)
-	_, err := f.Write(true)
+	_, err := f.Write()
 	return err
 }

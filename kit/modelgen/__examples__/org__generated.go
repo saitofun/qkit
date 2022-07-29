@@ -1,7 +1,5 @@
 // This is a generated source file. DO NOT EDIT
-// Version: 0.0.1
 // Source: example/org__generated.go
-// Date: Jul 26 01:20:44
 
 package example
 
@@ -212,22 +210,6 @@ func (m *Org) DeleteByID(db sqlx.DBExecutor) error {
 				),
 				builder.Comment("Org.DeleteByID"),
 			),
-	)
-	return err
-}
-
-func (m *Org) SoftDeleteByID(db sqlx.DBExecutor) error {
-	tbl := db.T(m)
-	fvs := builder.FieldValues{}
-	_, err := db.Exec(
-		builder.Update(db.T(m)).
-			Where(
-				builder.And(
-					tbl.ColByFieldName("ID").Eq(m.ID),
-				),
-				builder.Comment("Org.SoftDeleteByID"),
-			).
-			Set(tbl.AssignmentsByFieldValues(fvs)...),
 	)
 	return err
 }

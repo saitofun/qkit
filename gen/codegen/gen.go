@@ -21,21 +21,33 @@ type File struct {
 	Imps        map[string]string
 	Pkgs        map[string][]string
 	OrderedImps [][2]string
+	opts        WriteOption
 	bytes.Buffer
 }
 
-func NewFile(pkg, name string) *File { return &File{Pkg: pkg, Name: name} }
+func NewFile(pkg, name string) *File {
+	return &File{
+		Pkg:  pkg,
+		Name: name,
+		opts: WriteOption{WithCommit: true, MustFormat: true},
+	}
+}
 
-func (f *File) bytes(withLeaderComment, doFormat bool) []byte {
+func (f *File) bytes() []byte {
 	buf := bytes.NewBuffer(nil)
 
-	if withLeaderComment {
+	if f.opts.WithCommit {
 		cmt := Comments(
 			`This is a generated source file. DO NOT EDIT`,
-			`Version: `+Version,
 			`Source: `+path.Join(f.Pkg, path.Base(f.Name)),
-			`Date: `+time.Now().Format(time.Stamp),
 		)
+		if f.opts.WithToolVersion {
+			cmt.Append(`Version: ` + Version)
+		}
+		if f.opts.WithTimestamp {
+			cmt.Append(`Date: ` + time.Now().Format(time.Stamp))
+		}
+
 		buf.Write(cmt.Bytes())
 		buf.WriteRune('\n')
 	}
@@ -70,21 +82,21 @@ func (f *File) bytes(withLeaderComment, doFormat bool) []byte {
 
 	buf.Write(f.Buffer.Bytes())
 
-	if doFormat {
+	if f.opts.MustFormat {
 		return format.MustFormat(f.Name, buf.Bytes(), format.SortImports)
 	}
 	return buf.Bytes()
 }
 
-func (f *File) Bytes(withWarnComments bool) []byte {
-	return f.bytes(withWarnComments, true)
+func (f *File) Bytes() []byte {
+	return f.bytes()
 }
 
 // Raw test only
-func (f File) Raw() []byte { return f.bytes(false, false) }
+func (f File) Raw() []byte { return f.bytes() }
 
 // Formatted test only
-func (f File) Formatted() []byte { return f.bytes(false, true) }
+func (f File) Formatted() []byte { return f.bytes() }
 
 func (f *File) _import(pkg string) string {
 	if f.Imps == nil {
@@ -137,7 +149,11 @@ func (f *File) WriteSnippet(ss ...Snippet) {
 	}
 }
 
-func (f *File) Write(withWarnComments bool) (int, error) {
+func (f *File) Write(opts ...WriterOptionSetter) (int, error) {
+	for _, setter := range opts {
+		setter(&f.opts)
+	}
+
 	if dir := filepath.Dir(f.Name); dir != "" {
 		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 			return -1, err
@@ -150,7 +166,7 @@ func (f *File) Write(withWarnComments bool) (int, error) {
 	}
 	defer fl.Close()
 
-	size, err := fl.Write(f.Bytes(withWarnComments))
+	size, err := fl.Write(f.Bytes())
 	if err != nil {
 		return -1, err
 	}
@@ -160,3 +176,17 @@ func (f *File) Write(withWarnComments bool) (int, error) {
 	}
 	return size, nil
 }
+
+type WriteOption struct {
+	WithCommit      bool
+	WithTimestamp   bool
+	WithToolVersion bool
+	MustFormat      bool
+}
+
+func WriteOptionWithCommit(v *WriteOption)      { v.WithCommit = true }
+func WriteOptionWithTimestamp(v *WriteOption)   { v.WithCommit, v.WithTimestamp = true, true }
+func WriteOptionWithToolVersion(v *WriteOption) { v.WithCommit, v.WithToolVersion = true, true }
+func WriteOptionMustFormat(v *WriteOption)      { v.MustFormat = true }
+
+type WriterOptionSetter func(v *WriteOption)

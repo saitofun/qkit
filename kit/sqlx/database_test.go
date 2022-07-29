@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	. "github.com/onsi/gomega"
+	"github.com/saitofun/qkit/testutil/postgrestestutil"
 
 	"github.com/saitofun/qkit/base/types"
 	"github.com/saitofun/qkit/conf/log"
@@ -24,32 +25,24 @@ var connectors map[string]driver.Connector
 
 func init() {
 	connectors = make(map[string]driver.Connector)
+	// TODO add other database connector for testing
 	// mysqlConnector = &mysql.MysqlConnector{
 	// 	Host:  "root@tcp(0.0.0.0:3306)",
 	// 	Extra: "charset=utf8mb4&parseTime=true&interpolateParams=true&autocommit=true&loc=Local",
 	// }
 
-	pgDbName := os.Getenv("PG_TEST_DB_NAME")
-	if pgDbName == "" {
-		pgDbName = "test"
+	// postgres
+	{
+		ep := postgrestestutil.Endpoint
+		connectors["postgres"] = &postgres.Connector{
+			Extra:      "sslmode=disable",
+			Extensions: []string{"postgis"},
+			Host: fmt.Sprintf(
+				"postgresql://%s:%s@127.0.0.1:5432",
+				ep.Master.Username, ep.Master.Password,
+			),
+		}
 	}
-	pgDbUser := os.Getenv("PG_TEST_DB_USER")
-	if pgDbUser == "" {
-		pgDbUser = "test_user"
-	}
-	pgDbPasswd := os.Getenv("PG_TEST_DB_PASSWD")
-	if pgDbPasswd == "" {
-		pgDbPasswd = "test_passwd"
-	}
-
-	host := fmt.Sprintf("postgresql://%s:%s@127.0.0.1:5432", pgDbUser, pgDbPasswd)
-	pg := &postgres.Connector{
-		Host:       host,
-		Extra:      "sslmode=disable",
-		Extensions: []string{"postgis"},
-	}
-
-	connectors["postgres"] = pg
 }
 
 func Background() context.Context {

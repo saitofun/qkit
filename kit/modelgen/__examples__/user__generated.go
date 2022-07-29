@@ -1,7 +1,5 @@
 // This is a generated source file. DO NOT EDIT
-// Version: 0.0.1
 // Source: example/user__generated.go
-// Date: Jul 26 01:21:16
 
 package example
 

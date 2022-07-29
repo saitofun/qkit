@@ -36,7 +36,7 @@ func (g *Generator) Output(cwd string) {
 	filename := codegen.GenerateFileSuffix(path.Join(dir, qnaming.LowerSnakeCase(g.StructName)+".go"))
 	f := codegen.NewFile(g.pkg.Name, filename)
 	g.mod.WriteTo(f)
-	_, _ = f.Write(true)
+	_, _ = f.Write()
 }
 
 // model test only
