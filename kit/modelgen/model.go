@@ -9,6 +9,7 @@ import (
 
 	g "github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/kit/sqlx/builder"
+	"github.com/saitofun/qkit/x/mapx"
 	"github.com/saitofun/qkit/x/pkgx"
 	"github.com/saitofun/qlib/util/qnaming"
 )
@@ -570,7 +571,7 @@ func IndexCond(f *g.File, fns ...string) string {
 // func (m *`Model`) DeleteByXXX(DBExecutor) error     // XXX is UniqueIndexNames
 // SoftDeleteByXXX to update `DeleteAt` flag as current time
 // func (m *`Model`) SoftDeleteByXXX(DBExecutor) error // XXX is UniqueIndexNames
-func (m *Model) SnippetCRUDByUniqueKeys(f *g.File) []g.Snippet {
+func (m *Model) SnippetCRUDByUniqueKeys(f *g.File, keys ...string) []g.Snippet {
 	if !m.WithMethods {
 		return nil
 	}
@@ -595,16 +596,24 @@ db.T(m),
 			),
 	}
 
+	set := mapx.Set[string]{}
+	if len(keys) > 0 {
+		set, _ = mapx.ToSet(keys, strings.ToLower)
+	}
+
 	m.Table.Keys.Range(func(k *builder.Key, _ int) {
+		if !k.IsUnique {
+			return
+		}
+		if len(set) != 0 && !set[strings.ToLower(k.Name)] {
+			return
+		}
 		fns := k.Def.FieldNames
 		kns := filterStrings(fns, func(s string, _ int) bool {
 			return m.HasDeletedAt && s != m.FieldKeyDeletedAt || !m.HasDeletedAt
 		})
 		if m.HasDeletedAt && k.IsPrimary() {
 			fns = append(fns, m.FieldKeyDeletedAt)
-		}
-		if !k.IsUnique {
-			return
 		}
 		xxx := strings.Join(kns, "And")
 		mthNameFetchBy := "FetchBy" + xxx
