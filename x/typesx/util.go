@@ -429,3 +429,35 @@ func IsBasicReflectKind(k reflect.Kind) bool {
 	}
 	return false
 }
+
+func IsNumericReflectKind(k reflect.Kind) bool {
+	return IsIntegerReflectKind(k) || IsFloatReflectKind(k)
+}
+
+func IsIntegerReflectKind(k reflect.Kind) bool {
+	return IsSignedIntReflectKind(k) || IsUnsignedIntReflectKind(k)
+}
+
+func IsSignedIntReflectKind(k reflect.Kind) bool {
+	switch k {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return true
+	}
+	return false
+}
+
+func IsUnsignedIntReflectKind(k reflect.Kind) bool {
+	switch k {
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return true
+	}
+	return false
+}
+
+func IsFloatReflectKind(k reflect.Kind) bool {
+	switch k {
+	case reflect.Float32, reflect.Float64:
+		return true
+	}
+	return false
+}

@@ -68,7 +68,7 @@ var RtTextMarshaler = FromReflectType(reflect.TypeOf((*encoding.TextMarshaler)(n
 func EncodingTextMarshalerTypeReplacer(u Type) (Type, bool) {
 	switch x := u.(type) {
 	case *GoType:
-		return FromGoType(types.Typ[types.String]), x.Implements((RtTextMarshaler))
+		return FromGoType(types.Typ[types.String]), x.Implements(RtTextMarshaler)
 	case *ReflectType:
 		return FromReflectType(reflect.TypeOf("")), x.Implements(RtTextMarshaler)
 	}
@@ -102,20 +102,21 @@ func FullTypeName(t Type) string {
 	return b.String()
 }
 
-func FieldDisplayName(tag reflect.StructTag, key string, name string) (val string, omitempty, exists bool) {
-	val, exists = tag.Lookup(key)
+func FieldDisplayName(tag reflect.StructTag, key string, name string) (keyTag string, omitempty, exists bool) {
+	keyTag, exists = tag.Lookup(key)
 	if !exists {
+		keyTag = name
 		return
 	}
-	omitempty = strings.Index(val, "omitempty") > 0
-	commaIdx := strings.IndexRune(val, ',')
-	if val == "" || commaIdx == 0 {
+	omitempty = strings.Index(keyTag, "omitempty") > 0
+	commaIdx := strings.IndexRune(keyTag, ',')
+	if keyTag == "" || commaIdx == 0 {
 		return name, omitempty, true
 	}
 	if commaIdx == -1 {
 		return
 	}
-	val = val[0:commaIdx]
+	keyTag = keyTag[0:commaIdx]
 	return
 }
 
