@@ -3,11 +3,11 @@ package builder
 import "strings"
 
 type Key struct {
-	Table  *Table
-	Name   string
+	Table    *Table
+	Name     string
 	IsUnique bool
-	Method string
-	Def    IndexDef
+	Method   string
+	Def      IndexDef
 }
 
 func (k Key) On(t *Table) *Key { k.Table = t; return &k }

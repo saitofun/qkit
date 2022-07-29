@@ -71,3 +71,5 @@ test_and_clean: test
 	@docker-compose -f docker-compose-pg.yaml down
 	@rm -rf data
 
+fmt:
+	go fmt ../...

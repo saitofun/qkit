@@ -53,5 +53,3 @@ func (ks *Keys) Bind(tbl *builder.Table) {
 		}
 	}
 }
-
-
