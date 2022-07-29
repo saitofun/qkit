@@ -2,10 +2,15 @@ package types
 
 import (
 	"fmt"
+	"go/ast"
 	"log"
 	"net/url"
+	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/saitofun/qkit/x/reflectx"
+	"github.com/saitofun/qlib/encoding/qtext"
 )
 
 type Endpoint struct {
@@ -117,41 +122,41 @@ func ParseEndpoint(text string) (*Endpoint, error) {
 	return ep, nil
 }
 
-// TODO
-// func UnmarshalExtra(ext url.Values, v interface{}) error {
-// 	rv := reflect.ValueOf(v)
-// 	if rv.Kind() != reflect.Ptr {
-// 		return fmt.Errorf("non-pointor value %s is not supported", rv.Type())
-// 	}
-// 	rv = rv.Elem()
-// 	if rv.Kind() != reflect.Struct {
-// 		return nil
-// 	}
-//
-// 	rt := rv.Type()
-// 	for i := 0; i < rv.NumField(); i++ {
-// 		ft := rt.Field(i)
-// 		fn := ft.Name
-//
-// 		if !ast.IsExported(fn) {
-// 			continue
-// 		}
-// 		if tag, ok := ft.Tag.Lookup("name"); ok {
-// 			n, _ := reflectx.TagValueAndFlags(tag)
-// 			if n == "-" {
-// 				continue
-// 			}
-// 			if n != "" {
-// 				fn = n
-// 			}
-// 		}
-// 		fv := rv.Field(i)
-//
-// 		value := ext.Get(name)
-// 		if value == "" {
-// 			value = ft.Tag.Get("default")
-// 		}
-//
-// 	}
-// 	return nil
-// }
+func UnmarshalExtra(ext url.Values, v interface{}) error {
+	rv := reflect.ValueOf(v)
+	if rv.Kind() != reflect.Ptr {
+		return fmt.Errorf("non-pointor value %s is not supported", rv.Type())
+	}
+	rv = rv.Elem()
+	if rv.Kind() != reflect.Struct {
+		return nil
+	}
+
+	rt := rv.Type()
+	for i := 0; i < rv.NumField(); i++ {
+		ft := rt.Field(i)
+		fn := ft.Name
+
+		if !ast.IsExported(fn) {
+			continue
+		}
+		if tag, ok := ft.Tag.Lookup("name"); ok {
+			n, _ := reflectx.TagValueAndFlags(tag)
+			if n == "-" {
+				continue
+			}
+			if n != "" {
+				fn = n
+			}
+		}
+		fv := rv.Field(i)
+		value := ext.Get(fn)
+		if value == "" {
+			value = ft.Tag.Get("default")
+		}
+		if err := qtext.UnmarshalText(fv, []byte(value)); err != nil {
+			return err
+		}
+	}
+	return nil
+}

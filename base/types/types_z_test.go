@@ -219,6 +219,22 @@ func TestEndpoint(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("UnmarshalExtra", func(t *testing.T) {
+		opt := struct {
+			ConnectTimeout Duration `name:"connectTimeout" default:"10s"`
+			ReadTimeout    Duration `name:"readTimeout" default:"10s"`
+			WriteTimeout   Duration `name:"writeTimeout" default:"10s"`
+			IdleTimeout    Duration `name:"idleTimeout" default:"240s"`
+			MaxActive      int      `name:"maxActive" default:"5"`
+			MaxIdle        int      `name:"maxIdle" default:"3"`
+			DB             int      `name:"db" default:"10"`
+		}{}
+
+		err := UnmarshalExtra(url.Values{}, &opt)
+		NewWithT(t).Expect(err).To(BeNil())
+		// spew.Dump(opt)
+	})
 }
 
 func TestSignal(t *testing.T) {
