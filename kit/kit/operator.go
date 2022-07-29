@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"reflect"
 
+	"github.com/saitofun/qkit/base/types"
 	"github.com/saitofun/qkit/x/reflectx"
 )
 
@@ -19,7 +20,7 @@ func NewOperatorFactory(op Operator, last bool) *OperatorFactory {
 
 	meta.Operator = op
 
-	if _, isOperatorWithoutOutput := op.(OperatorWithoutOutput); isOperatorWithoutOutput {
+	if _, ok := op.(OperatorWithoutOutput); ok {
 		meta.NoOutput = true
 	}
 
@@ -48,16 +49,9 @@ type oldContextProvider interface {
 	ContextKey() string
 }
 
-func typeOfOperator(tpe reflect.Type) reflect.Type {
-	for tpe.Kind() == reflect.Ptr {
-		return typeOfOperator(tpe.Elem())
-	}
-	return tpe
-}
-
 type OperatorFactory struct {
 	Type       reflect.Type
-	ContextKey interface{}
+	ContextKey interface{} // TODO remove it
 	NoOutput   bool
 	Params     url.Values
 	IsLast     bool
@@ -74,18 +68,18 @@ func (o *OperatorFactory) String() string {
 func (o *OperatorFactory) New() Operator {
 	var op Operator
 
-	if operatorNewer, ok := o.Operator.(OperatorNewer); ok {
-		op = operatorNewer.New()
+	if newer, ok := o.Operator.(OperatorNewer); ok {
+		op = newer.New()
 	} else {
 		op = reflect.New(o.Type).Interface().(Operator)
 	}
 
-	if operatorInit, ok := op.(OperatorInit); ok {
-		operatorInit.InitFrom(o.Operator)
+	if init, ok := op.(OperatorInit); ok {
+		init.InitFrom(o.Operator)
 	}
 
-	if defaultsSetter, ok := op.(DefaultsSetter); ok {
-		defaultsSetter.SetDefaults()
+	if setter, ok := op.(types.DefaultSetter); ok {
+		setter.SetDefault()
 	}
 
 	return op

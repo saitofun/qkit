@@ -7,13 +7,19 @@ import (
 	"strings"
 )
 
+type Router struct {
+	parent    *Router
+	operators []Operator
+	children  map[*Router]bool
+}
+
 func NewRouter(operators ...Operator) *Router {
 	ops := make([]Operator, 0)
 	for i := range operators {
 		op := operators[i]
 
-		if withMiddleOperators, ok := op.(WithMiddleOperators); ok {
-			ops = append(ops, withMiddleOperators.MiddleOperators()...)
+		if with, ok := op.(WithMiddleOperators); ok {
+			ops = append(ops, with.MiddleOperators()...)
 		}
 
 		ops = append(ops, op)
@@ -24,28 +30,20 @@ func NewRouter(operators ...Operator) *Router {
 	}
 }
 
-// Router
-type Router struct {
-	parent    *Router
-	operators []Operator
-	children  map[*Router]bool
+func (r *Router) Register(x *Router) {
+	if r.children == nil {
+		r.children = map[*Router]bool{}
+	}
+	if x.parent != nil {
+		panic(fmt.Errorf("router %v already registered to router %v", x, x.parent))
+	}
+	x.parent = r
+	r.children[x] = true
 }
 
-// Register child Router
-func (router *Router) Register(r *Router) {
-	if router.children == nil {
-		router.children = map[*Router]bool{}
-	}
-	if r.parent != nil {
-		panic(fmt.Errorf("router %v already registered to router %v", r, r.parent))
-	}
-	r.parent = router
-	router.children[r] = true
-}
-
-func (router *Router) route() *Route {
-	parent := router.parent
-	operators := router.operators
+func (r *Router) route() *Route {
+	parent := r.parent
+	operators := r.operators
 
 	for parent != nil {
 		operators = append(parent.operators, operators...)
@@ -54,11 +52,11 @@ func (router *Router) route() *Route {
 
 	return &Route{
 		Operators: operators,
-		last:      len(router.children) == 0,
+		last:      len(r.children) == 0,
 	}
 }
 
-func (router *Router) Routes() (routes Routes) {
+func (r *Router) Routes() (routes Routes) {
 	maybeAppendRoute := func(router *Router) {
 		route := router.route()
 
@@ -71,13 +69,13 @@ func (router *Router) Routes() (routes Routes) {
 		}
 	}
 
-	if len(router.children) == 0 {
-		maybeAppendRoute(router)
+	if len(r.children) == 0 {
+		maybeAppendRoute(r)
 		return
 	}
 
-	for childRouter := range router.children {
-		maybeAppendRoute(childRouter)
+	for child := range r.children {
+		maybeAppendRoute(child)
 	}
 
 	return
@@ -85,10 +83,10 @@ func (router *Router) Routes() (routes Routes) {
 
 type Routes []*Route
 
-func (routes Routes) String() string {
-	keys := make([]string, len(routes))
-	for i, route := range routes {
-		keys[i] = route.String()
+func (rs Routes) String() string {
+	keys := make([]string, len(rs))
+	for i, r := range rs {
+		keys[i] = r.String()
 	}
 	sort.Strings(keys)
 	return strings.Join(keys, "\n")
@@ -99,18 +97,18 @@ type Route struct {
 	last      bool
 }
 
-func (route *Route) OperatorFactories() (operatorFactories []*OperatorFactory) {
-	lenOfOps := len(route.Operators)
-	for i, op := range route.Operators {
-		operatorFactories = append(operatorFactories, NewOperatorFactory(op, i == lenOfOps-1))
+func (rs *Route) OperatorFactories() (factories []*OperatorFactory) {
+	length := len(rs.Operators)
+	for i, op := range rs.Operators {
+		factories = append(factories, NewOperatorFactory(op, i == length-1))
 	}
 	return
 }
 
-func (route *Route) String() string {
+func (rs *Route) String() string {
 	buf := &bytes.Buffer{}
-	operatorFactories := route.OperatorFactories()
-	for i, operatorFactory := range operatorFactories {
+	factories := rs.OperatorFactories()
+	for i, operatorFactory := range factories {
 		if i > 0 {
 			buf.WriteString(" |> ")
 		}

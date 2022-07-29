@@ -4,10 +4,10 @@ import "context"
 
 type ContextWith = func(ctx context.Context) context.Context
 
-func ComposeContextWith(contextWiths ...ContextWith) ContextWith {
+func ComposeContextWith(withs ...ContextWith) ContextWith {
 	return func(ctx context.Context) context.Context {
-		for i := range contextWiths {
-			ctx = contextWiths[i](ctx)
+		for i := range withs {
+			ctx = withs[i](ctx)
 		}
 		return ctx
 	}
