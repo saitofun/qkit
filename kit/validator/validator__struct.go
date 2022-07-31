@@ -52,7 +52,7 @@ func (vs *Struct) Validate(v interface{}) error {
 }
 
 func (vs *Struct) ValidateReflectValue(rv reflect.Value) error {
-	errs := errors.NewErrorSet("")
+	errs := errors.NewErrorSet()
 	vs.validate(rv, errs)
 	return errs.Err()
 }
@@ -113,7 +113,7 @@ func (vs *Struct) New(ctx context.Context, r *Rule) (Validator, error) {
 
 	var (
 		ret      = NewStructValidator(tag)
-		errs     = errors.NewErrorSet("")
+		errs     = errors.NewErrorSet()
 		compiler = FactoryFromContext(ctx)
 	)
 	ctx = ContextWithTagKey(ctx, ret.tag)

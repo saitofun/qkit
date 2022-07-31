@@ -57,7 +57,7 @@ func (vm *Map) ValidateReflectValue(rv reflect.Value) error {
 	}
 
 	if vm.KeyValidator != nil || vm.ElemValidator != nil {
-		errs := errors.NewErrorSet("")
+		errs := errors.NewErrorSet()
 		for _, key := range rv.MapKeys() {
 			vk := key.Interface()
 			if vm.KeyValidator != nil {

@@ -276,8 +276,8 @@ func (l *Loader) validate(v interface{}) error {
 			v = rv.Interface()
 		}
 
-		if textMarshaller, ok := v.(encoding.TextMarshaler); ok {
-			data, err := textMarshaller.MarshalText()
+		if marshaller, ok := v.(encoding.TextMarshaler); ok {
+			data, err := marshaller.MarshalText()
 			if err != nil {
 				return err
 			}

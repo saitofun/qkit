@@ -5,9 +5,9 @@ import (
 	"fmt"
 )
 
-func NewErrorSet(root string) *ErrorSet {
-	return &ErrorSet{root: root}
-}
+func NewErrorSetWithRoot(root string) *ErrorSet { return &ErrorSet{root: root} }
+
+func NewErrorSet() *ErrorSet { return &ErrorSet{root: ""} }
 
 type ErrorSet struct {
 	root   string
@@ -28,7 +28,7 @@ func (set *ErrorSet) Each(cb func(*FieldError)) {
 }
 
 func (set *ErrorSet) Flatten() *ErrorSet {
-	ret := NewErrorSet(set.root)
+	ret := NewErrorSetWithRoot(set.root)
 
 	set.Each(
 		func(f *FieldError) {

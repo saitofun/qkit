@@ -52,7 +52,7 @@ func (vs *Slice) ValidateReflectValue(rv reflect.Value) error {
 	}
 
 	if vs.ElemValidator != nil {
-		errs := errors.NewErrorSet("")
+		errs := errors.NewErrorSet()
 		for i := 0; i < rv.Len(); i++ {
 			err := vs.ElemValidator.Validate(rv.Index(i))
 			if err != nil {
