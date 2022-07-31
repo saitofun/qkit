@@ -10,21 +10,21 @@ import (
 	"github.com/saitofun/qkit/x/typesx"
 )
 
-func NewStructValidator(namedTagKey string) *Struct {
+func NewStructValidator(tagKey string) *Struct {
 	return &Struct{
-		tag:        namedTagKey,
+		tag:        tagKey,
 		validators: map[string]Validator{},
 	}
 }
 
-type ckStructNamedTagKey struct{}
+type ckStructTagKey struct{}
 
-func ContextWithNamedTagKey(ctx context.Context, namedTagKey string) context.Context {
-	return context.WithValue(ctx, ckStructNamedTagKey{}, namedTagKey)
+func ContextWithTagKey(ctx context.Context, namedTagKey string) context.Context {
+	return context.WithValue(ctx, ckStructTagKey{}, namedTagKey)
 }
 
-func NamedKeyFromContext(ctx context.Context) string {
-	v := ctx.Value(ckStructNamedTagKey{})
+func TagKeyFromContext(ctx context.Context) string {
+	v := ctx.Value(ckStructTagKey{})
 	if v != nil {
 		if namedTagKey, ok := v.(string); ok {
 			return namedTagKey
@@ -58,9 +58,8 @@ func (vs *Struct) ValidateReflectValue(rv reflect.Value) error {
 }
 
 func (vs *Struct) validate(rv reflect.Value, errs *errors.ErrorSet) {
-	typ := rv.Type()
 	for i := 0; i < rv.NumField(); i++ {
-		f := typ.Field(i)
+		f := rv.Type().Field(i)
 		fv := rv.Field(i)
 		name, _, exists := typesx.FieldDisplayName(f.Tag, vs.tag, f.Name)
 
@@ -68,11 +67,12 @@ func (vs *Struct) validate(rv reflect.Value, errs *errors.ErrorSet) {
 			continue
 		}
 
-		ft := reflectx.DeRef(f.Type)
+		ft_ := reflectx.DeRef(f.Type)
+		isSub := ft_.Kind() == reflect.Struct
 
-		if f.Anonymous && ft.Kind() == reflect.Struct && !exists {
+		if f.Anonymous && isSub && !exists {
 			if fv.Kind() == reflect.Ptr && fv.IsNil() {
-				fv = reflectx.New(ft)
+				fv = reflectx.New(ft_)
 			}
 			vs.validate(fv, errs)
 			continue
@@ -85,12 +85,6 @@ func (vs *Struct) validate(rv reflect.Value, errs *errors.ErrorSet) {
 	}
 }
 
-const (
-	TagValidate = "validate"
-	TagDefault  = "default"
-	TagErrMsg   = "errMsg"
-)
-
 func (vs *Struct) TypeCheck(r *Rule) error {
 	if r.Type.Kind() != reflect.Struct {
 		return errors.NewUnsupportedTypeError(r.String(), vs.String())
@@ -98,12 +92,18 @@ func (vs *Struct) TypeCheck(r *Rule) error {
 	return nil
 }
 
+const (
+	TagValidate = "validate"
+	TagDefault  = "default"
+	TagErrMsg   = "errMsg"
+)
+
 func (vs *Struct) New(ctx context.Context, r *Rule) (Validator, error) {
 	if err := vs.TypeCheck(r); err != nil {
 		return nil, err
 	}
 
-	tag := NamedKeyFromContext(ctx)
+	tag := TagKeyFromContext(ctx)
 	if r.Rule != nil && len(r.Params) > 0 {
 		tag = string(r.Params[0].Bytes())
 	}
@@ -111,15 +111,17 @@ func (vs *Struct) New(ctx context.Context, r *Rule) (Validator, error) {
 		tag = vs.tag
 	}
 
-	ret := NewStructValidator(tag)
-	errs := errors.NewErrorSet("")
-	ctx = ContextWithNamedTagKey(ctx, ret.tag)
-	compiler := CompilerFromContext(ctx)
+	var (
+		ret      = NewStructValidator(tag)
+		errs     = errors.NewErrorSet("")
+		compiler = CompilerFromContext(ctx)
+	)
+	ctx = ContextWithTagKey(ctx, ret.tag)
 
 	typesx.EachField(
 		r.Type,
 		ret.tag,
-		func(field typesx.StructField, fieldDisplayName string, omitempty bool) bool {
+		func(field typesx.StructField, display string, omitempty bool) bool {
 			tagv := field.Tag().Get(TagValidate)
 
 			if tagv == "" && typesx.DeRef(field.Type()).Kind() == reflect.Struct {
@@ -130,7 +132,7 @@ func (vs *Struct) New(ctx context.Context, r *Rule) (Validator, error) {
 			}
 
 			sub, err := compiler.Compile(
-				ContextWithNamedTagKey(ctx, tag),
+				ContextWithTagKey(ctx, tag),
 				[]byte(tagv),
 				field.Type(),
 				func(rule Modifier) {

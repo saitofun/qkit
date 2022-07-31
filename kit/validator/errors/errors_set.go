@@ -2,76 +2,69 @@ package errors
 
 import (
 	"bytes"
-	"container/list"
 	"fmt"
 )
 
 func NewErrorSet(root string) *ErrorSet {
-	return &ErrorSet{
-		root:   root,
-		errors: list.New(),
-	}
+	return &ErrorSet{root: root}
 }
 
 type ErrorSet struct {
 	root   string
-	errors *list.List
+	errors []*FieldError
 }
 
-func (errs *ErrorSet) AddErr(err error, keyPathNodes ...interface{}) {
+func (set *ErrorSet) AddErr(err error, keyPathNodes ...interface{}) {
 	if err == nil {
 		return
 	}
-	errs.errors.PushBack(&FieldError{
-		Field: keyPathNodes,
-		Error: err,
-	})
+	set.errors = append(set.errors, &FieldError{KeyPath(keyPathNodes), err})
 }
 
-func (errs *ErrorSet) Each(cb func(fieldErr *FieldError)) {
-	l := errs.errors
-	for e := l.Front(); e != nil; e = e.Next() {
-		if fieldErr, ok := e.Value.(*FieldError); ok {
-			cb(fieldErr)
-		}
+func (set *ErrorSet) Each(cb func(*FieldError)) {
+	for _, fe := range set.errors {
+		cb(fe)
 	}
 }
 
-func (errs *ErrorSet) Flatten() *ErrorSet {
-	set := NewErrorSet(errs.root)
+func (set *ErrorSet) Flatten() *ErrorSet {
+	ret := NewErrorSet(set.root)
 
-	errs.Each(func(fieldErr *FieldError) {
-		if subSet, ok := fieldErr.Error.(*ErrorSet); ok {
-			subSet.Flatten().Each(func(subSetFieldErr *FieldError) {
-				set.AddErr(subSetFieldErr.Error, append(fieldErr.Field, subSetFieldErr.Field...)...)
-			})
-		} else {
-			set.AddErr(fieldErr.Error, fieldErr.Field...)
-		}
-	})
+	set.Each(
+		func(f *FieldError) {
+			if sub, ok := f.Error.(*ErrorSet); ok {
+				sub.Flatten().Each(
+					func(ff *FieldError) {
+						ret.AddErr(ff.Error, append(f.Field, ff.Field...)...)
+					},
+				)
+			} else {
+				ret.AddErr(f.Error, f.Field...)
+			}
+		},
+	)
 
+	return ret
+}
+func (set *ErrorSet) Len() int { return len(set.Flatten().errors) }
+
+func (set *ErrorSet) Err() error {
+	if len(set.errors) == 0 {
+		return nil
+	}
 	return set
 }
 
-func (errs *ErrorSet) Len() int {
-	return errs.Flatten().errors.Len()
-}
-
-func (errs *ErrorSet) Err() error {
-	if errs.errors.Len() == 0 {
-		return nil
-	}
-	return errs
-}
-
-func (errs *ErrorSet) Error() string {
-	set := errs.Flatten()
+func (set *ErrorSet) Error() string {
+	errs := set.Flatten()
 
 	buf := bytes.Buffer{}
-	set.Each(func(fieldErr *FieldError) {
-		buf.WriteString(fmt.Sprintf("%s %s", fieldErr.Field, fieldErr.Error))
-		buf.WriteRune('\n')
-	})
+	errs.Each(
+		func(f *FieldError) {
+			buf.WriteString(fmt.Sprintf("%s %s", f.Field, f.Error))
+			buf.WriteRune('\n')
+		},
+	)
 
 	return buf.String()
 }

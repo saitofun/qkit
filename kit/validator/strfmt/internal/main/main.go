@@ -27,14 +27,10 @@ func main() {
 		var (
 			name           = strings.Replace(key, "regexpString", "", 1)
 			validatorName  = strings.Replace(qnaming.LowerSnakeCase(name), "_", "-", -1)
-			validatorAlias = qnaming.LowerCamelCase(name)
 			args           = []g.Snippet{g.Ident(key), g.Valuer(validatorName)}
 			prefix         = qnaming.UpperCamelCase(name)
 			snippet        g.Snippet
 		)
-		if validatorName != validatorAlias {
-			args = append(args, g.Valuer(validatorAlias))
-		}
 		snippet = g.Func().Named("init").Do(
 			g.Ref(
 				g.Ident(file.Use(pkg, "DefaultFactory")),
@@ -53,7 +49,7 @@ func main() {
 
 	}
 	file.WriteSnippet(snippets...)
-	_, _ = file.Write(true)
+	_, _ = file.Write()
 }
 
 var pkg = "github.com/saitofun/qkit/kit/validator"
