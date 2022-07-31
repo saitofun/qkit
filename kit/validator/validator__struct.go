@@ -114,7 +114,7 @@ func (vs *Struct) New(ctx context.Context, r *Rule) (Validator, error) {
 	var (
 		ret      = NewStructValidator(tag)
 		errs     = errors.NewErrorSet("")
-		compiler = CompilerFromContext(ctx)
+		compiler = FactoryFromContext(ctx)
 	)
 	ctx = ContextWithTagKey(ctx, ret.tag)
 

@@ -19,7 +19,7 @@ func MapRuleParam(ctx context.Context, r *Rule) (key, elem Validator, err error)
 		return
 	}
 
-	compiler := CompilerFromContext(ctx)
+	compiler := FactoryFromContext(ctx)
 
 	for i, param := range r.Params {
 		switch rule := param.(type) {

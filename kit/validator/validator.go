@@ -80,15 +80,29 @@ func (r *Rule) String() string {
 	return typesx.FullTypeName(r.Type) + string(r.Rule.Bytes())
 }
 
-type Factory struct {
+type Factory interface {
+	Compile(context.Context, []byte, typesx.Type, ...Processor) (Validator, error)
+}
+
+type ckCompiler struct{}
+
+func ContextWithFactory(ctx context.Context, c Factory) context.Context {
+	return contextx.WithValue(ctx, ckCompiler{}, c)
+}
+
+func FactoryFromContext(ctx context.Context) Factory {
+	return ctx.Value(ckCompiler{}).(Factory)
+}
+
+type factory struct {
 	set map[string]Creator
 }
 
 var DefaultFactory = NewFactory()
 
-func NewFactory() *Factory { return &Factory{set: make(map[string]Creator)} }
+func NewFactory() *factory { return &factory{set: make(map[string]Creator)} }
 
-func (f *Factory) Register(creators ...Creator) {
+func (f *factory) Register(creators ...Creator) {
 	for i := range creators {
 		for _, name := range creators[i].Names() {
 			f.set[name] = creators[i]
@@ -96,7 +110,7 @@ func (f *Factory) Register(creators ...Creator) {
 	}
 }
 
-func (f *Factory) MustCompile(ctx context.Context, rule []byte, t typesx.Type, processors ...Processor) Validator {
+func (f *factory) MustCompile(ctx context.Context, rule []byte, t typesx.Type, processors ...Processor) Validator {
 	v, err := f.Compile(ctx, rule, t, processors...)
 	if err != nil {
 		panic(err)
@@ -104,7 +118,7 @@ func (f *Factory) MustCompile(ctx context.Context, rule []byte, t typesx.Type, p
 	return v
 }
 
-func (f *Factory) Compile(ctx context.Context, rule []byte, t typesx.Type, processors ...Processor) (Validator, error) {
+func (f *factory) Compile(ctx context.Context, rule []byte, t typesx.Type, processors ...Processor) (Validator, error) {
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -133,7 +147,7 @@ func (f *Factory) Compile(ctx context.Context, rule []byte, t typesx.Type, proce
 	if !ok && len(rule) > 0 {
 		return nil, fmt.Errorf("%s not match any validator", r.Name)
 	}
-	return NewLoader(creator).New(ContextWithCompiler(ctx, f), r)
+	return NewLoader(creator).New(ContextWithFactory(ctx, f), r)
 }
 
 type PreprocessStage int
@@ -276,18 +290,4 @@ func (l *Loader) validate(v interface{}) error {
 	}
 
 	return l.Validator.Validate(reflectx.Indirect(rv))
-}
-
-type Compiler interface {
-	Compile(context.Context, []byte, typesx.Type, ...Processor) (Validator, error)
-}
-
-type ckCompiler struct{}
-
-func ContextWithCompiler(ctx context.Context, c Compiler) context.Context {
-	return contextx.WithValue(ctx, ckCompiler{}, c)
-}
-
-func CompilerFromContext(ctx context.Context) Compiler {
-	return ctx.Value(ckCompiler{}).(Compiler)
 }

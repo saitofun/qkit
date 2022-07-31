@@ -23,7 +23,7 @@ func SliceElementRule(ctx context.Context, r *Rule) (Validator, error) {
 		raw = rule.RAW
 	}
 
-	compiler := CompilerFromContext(ctx)
+	compiler := FactoryFromContext(ctx)
 
 	v, err := compiler.Compile(ctx, raw, r.Type.Elem(), nil)
 	if err != nil {

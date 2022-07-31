@@ -45,7 +45,7 @@ var (
 	rttString                   = typesx.FromReflectType(rtString)
 
 	bg  = context.Background()
-	ctx = validator.ContextWithCompiler(bg, validator.DefaultFactory)
+	ctx = validator.ContextWithFactory(bg, validator.DefaultFactory)
 )
 
 type StringType string

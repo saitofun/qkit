@@ -88,7 +88,7 @@ func TestInt_New(t *testing.T) {
 		c.expect.SetDefault()
 		name := fmt.Sprintf("%s%s%s|%s", c.name, c.typ, c.rule, c.expect.String())
 		t.Run(name, func(t *testing.T) {
-			ctx := validator.ContextWithCompiler(bg, validator.DefaultFactory)
+			ctx := validator.ContextWithFactory(bg, validator.DefaultFactory)
 			r, err := validator.ParseRuleByType([]byte(c.rule), typesx.FromReflectType(c.typ))
 			NewWithT(t).Expect(err).To(BeNil())
 			v, err := c.expect.New(ctx, r)
@@ -128,7 +128,7 @@ func TestInt_NewFailed(t *testing.T) {
 		name := fmt.Sprintf("%s|%s|%s", c.name, c.typ, r.Bytes())
 		t.Run(name, func(t *testing.T) {
 			v := &validator.Int{}
-			ctx := validator.ContextWithCompiler(bg, validator.DefaultFactory)
+			ctx := validator.ContextWithFactory(bg, validator.DefaultFactory)
 			_, err := v.New(ctx, r)
 			NewWithT(t).Expect(err).NotTo(BeNil())
 			// t.Logf("\n%v", err)
