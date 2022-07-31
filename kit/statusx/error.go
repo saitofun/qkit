@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 type Error interface {
@@ -42,6 +44,41 @@ func FromErr(err error) *StatusErr {
 	return NewUnknownErr().WithDesc(err.Error())
 }
 
+func Wrap(err error, code int, key string, msgs ...string) *StatusErr {
+	if err == nil {
+		return nil
+	}
+
+	if len(strconv.Itoa(code)) == 3 {
+		code = code * 1e6
+	}
+
+	msg := key
+
+	if len(msgs) > 0 {
+		msg = msgs[0]
+	}
+
+	desc := ""
+
+	if len(msgs) > 1 {
+		desc = strings.Join(msgs[1:], "\n")
+	} else {
+		desc = err.Error()
+	}
+
+	// err = errors.WithMessage(err, "asdfasdfasdfasdfass")
+	s := &StatusErr{
+		Key:   key,
+		Code:  code,
+		Msg:   msg,
+		Desc:  desc,
+		error: errors.WithStack(err),
+	}
+
+	return s
+}
+
 func NewUnknownErr() *StatusErr {
 	return NewStatusErr("UnknownError", http.StatusInternalServerError*1e6, "unknown error")
 }
@@ -63,6 +100,7 @@ type StatusErr struct {
 	ID        string      `json:"id"        xml:"id"`        // request ID or other request context
 	Sources   []string    `json:"sources"   xml:"sources"`   // error tracing
 	Fields    ErrorFields `json:"fields"    xml:"fields"`    // error in where fields
+	error     error
 }
 
 // @err[UnknownError][500000000][unknown error]
