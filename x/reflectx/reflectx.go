@@ -55,7 +55,7 @@ func IsEmptyValue(v interface{}) bool {
 	case reflect.Ptr, reflect.Interface:
 		return IsEmptyValue(rv.Elem())
 	}
-	return true
+	return false
 }
 
 func TypeName(rt reflect.Type) string {
