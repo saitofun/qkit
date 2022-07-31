@@ -11,7 +11,7 @@ require (
 	github.com/lib/pq v1.10.6
 	github.com/onsi/gomega v1.20.0
 	github.com/pkg/errors v0.9.1
-	github.com/saitofun/qlib v0.0.0-20220726015731-b410030c07d6
+	github.com/saitofun/qlib v0.0.0-20220731094833-0773222dd04d
 	github.com/spf13/cobra v1.5.0
 	golang.org/x/tools v0.1.11
 	gopkg.in/yaml.v2 v2.4.0
