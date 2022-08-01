@@ -3,6 +3,7 @@ package httptransport
 import (
 	"context"
 	"net/http"
+	"os"
 
 	"github.com/saitofun/qkit/kit/kit"
 	"github.com/saitofun/qkit/x/contextx"
@@ -13,37 +14,61 @@ type ServiceMeta struct {
 	Version string
 }
 
+func (s *ServiceMeta) SetDefault() {
+	if s.Name == "" {
+		s.Name = os.Getenv(EnvProjectName)
+	}
+	if s.Version == "" {
+		s.Version = os.Getenv(EnvProjectVersion)
+	}
+}
+
+func (s ServiceMeta) String() string {
+	if s.Version == "" {
+		return s.Name
+	}
+	return s.Name + "@" + s.Version
+}
+
+const (
+	EnvProjectName    = "PRJ_NAME"
+	EnvProjectFeat    = "PRJ_FEAT"
+	EnvProjectVersion = "PRJ_VERSION"
+)
+
 type (
-	ckHttpRequest     struct{}
-	ckServiceMeta     struct{}
-	ckOperatorID      struct{}
-	ckOperatorFactory struct{}
+	keyHttpRequest     struct{} // keyHttpRequest pass original *http.Request
+	keyServiceMeta     struct{} // keyServiceMeta pass service meta
+	keyRouteMetaID     struct{}
+	ckOperatorFactory  struct{}
+	ckQueryInBoyForGet struct{}
+	ckForRequestOut    struct{}
 )
 
 func ContextWithHttpRequest(ctx context.Context, req *http.Request) context.Context {
-	return contextx.WithValue(ctx, ckHttpRequest{}, req)
+	return contextx.WithValue(ctx, keyHttpRequest{}, req)
 }
 
 func HttpRequestFromContext(ctx context.Context) *http.Request {
-	r, _ := ctx.Value(ckHttpRequest{}).(*http.Request)
+	r, _ := ctx.Value(keyHttpRequest{}).(*http.Request)
 	return r
 }
 
-func ContextWithServiceMeta(ctx context.Context, meta *ServiceMeta) context.Context {
-	return contextx.WithValue(ctx, ckServiceMeta{}, meta)
+func ContextWithServiceMeta(ctx context.Context, meta ServiceMeta) context.Context {
+	return contextx.WithValue(ctx, keyServiceMeta{}, meta)
 }
 
-func ServiceMetaFromContext(ctx context.Context) *ServiceMeta {
-	r, _ := ctx.Value(ckServiceMeta{}).(*ServiceMeta)
+func ServiceMetaFromContext(ctx context.Context) ServiceMeta {
+	r, _ := ctx.Value(keyServiceMeta{}).(ServiceMeta)
 	return r
 }
 
-func ContextWithOperatorID(ctx context.Context, id string) context.Context {
-	return contextx.WithValue(ctx, ckOperatorID{}, id)
+func ContextWithRouteMetaID(ctx context.Context, id string) context.Context {
+	return contextx.WithValue(ctx, keyRouteMetaID{}, id)
 }
 
-func OperatorIDFromContext(ctx context.Context) string {
-	r, _ := ctx.Value(ckOperatorID{}).(string)
+func OperationIDFromContext(ctx context.Context) string {
+	r, _ := ctx.Value(keyRouteMetaID{}).(string)
 	return r
 }
 
@@ -54,4 +79,27 @@ func ContextWithOperatorFactory(ctx context.Context, factory *kit.OperatorFactor
 func OperatorFactoryFromContext(ctx context.Context) *kit.OperatorFactory {
 	r, _ := ctx.Value(ckOperatorFactory{}).(*kit.OperatorFactory)
 	return r
+}
+
+func EnableQueryInBodyForGet(ctx context.Context) context.Context {
+	return contextx.WithValue(ctx, ckQueryInBoyForGet{}, true)
+}
+
+func ShouldQueryInBodyForGet(ctx context.Context) bool {
+	v, ok := ctx.Value(ckQueryInBoyForGet{}).(bool)
+	return ok && v
+}
+
+func AsRequestOut(ctx context.Context) context.Context {
+	return contextx.WithValue(ctx, ckForRequestOut{}, true)
+}
+
+func IsRequestOut(ctx context.Context) bool {
+	if ctx == nil {
+		return false
+	}
+	if t, ok := ctx.Value(ckForRequestOut{}).(bool); ok {
+		return t
+	}
+	return false
 }
