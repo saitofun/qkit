@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	Cmd.AddCommand(&cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "enum",
 		Short: "generate interfaces of enumeration",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -18,5 +18,7 @@ func init() {
 				return g
 			}, args...)
 		},
-	})
+	}
+
+	Cmd.AddCommand(cmd)
 }

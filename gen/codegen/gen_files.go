@@ -6,7 +6,7 @@ import (
 )
 
 func IsGoFile(filename string) bool {
-	return filepath.Ext(filename) == "go"
+	return filepath.Ext(filename) == ".go"
 }
 
 func IsGoTestFile(filename string) bool {

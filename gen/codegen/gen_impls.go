@@ -319,17 +319,22 @@ func TypeWithAlias(aliase FnAlaise) func(reflect.Type) SnippetType {
 
 func ExprWithAlias(alias FnAlaise) func(string, ...interface{}) SnippetExpr {
 	val := ValueWithAlias(alias)
-	holder := regexp.MustCompile(`(\$\d+)|\?`)
+	regexpExprHolder := regexp.MustCompile(`(\$\d+)|\?`)
 
 	return func(f string, args ...interface{}) SnippetExpr {
 		idx := 0
-		return SnippetExpr(holder.ReplaceAllStringFunc(f, func(i string) string {
-			arg := args[idx]
-			idx++
-			if s, ok := arg.(Snippet); ok {
-				return Stringify(s)
-			}
-			return Stringify(val(arg))
-		}))
+		return SnippetExpr(
+			regexpExprHolder.ReplaceAllStringFunc(
+				f,
+				func(i string) string {
+					arg := args[idx]
+					idx++
+					if s, ok := arg.(Snippet); ok {
+						return Stringify(s)
+					}
+					return Stringify(val(arg))
+				},
+			),
+		)
 	}
 }

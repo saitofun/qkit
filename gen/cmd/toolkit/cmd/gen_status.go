@@ -8,8 +8,9 @@ import (
 
 func init() {
 	cmd := &cobra.Command{
-		Use:   "status",
-		Short: "generate interfaces of status error",
+		Use:     "status",
+		Aliases: []string{"status-error", "error"},
+		Short:   "generate interfaces of status error",
 		Run: func(cmd *cobra.Command, args []string) {
 			run("status", func(pkg *pkgx.Pkg) Generator {
 				g := statusxgen.New(pkg)
