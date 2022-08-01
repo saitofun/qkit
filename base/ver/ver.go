@@ -25,23 +25,22 @@ type Version struct {
 }
 
 var (
-	regexVerCore          = regexp.MustCompile(`(?P<major>0|[1-9]\d*)(\.(?P<minor>0|[1-9]\d*))?(\.(?P<patch>0|[1-9]\d*))?`)
-	regexVerPrerelease    = regexp.MustCompile(`(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)`)
-	regexVerBuildMetadata = regexp.MustCompile(`(?P<buildMetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)`)
+	regexpVerCore          = regexp.MustCompile(`(?P<major>0|[1-9]\d*)(\.(?P<minor>0|[1-9]\d*))?(\.(?P<patch>0|[1-9]\d*))?`)
+	regexpVerPrerelease    = regexp.MustCompile(`(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)`)
+	regexpVerBuildMetadata = regexp.MustCompile(`(?P<buildMetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)`)
+	regexpVersion          = regexp.MustCompile(`^v?` + regexpVerCore.String() + `(?:-` + regexpVerPrerelease.String() + `)?(?:\+` + regexpVerBuildMetadata.String() + `)?$`)
 )
 
-var regexVersion = regexp.MustCompile(`^v?` + regexVerCore.String() + `(?:-` + regexVerPrerelease.String() + `)?(?:\+` + regexVerBuildMetadata.String() + `)?$`)
-
 func ParseVersion(v string) (*Version, error) {
-	if !regexVersion.MatchString(v) {
+	if !regexpVersion.MatchString(v) {
 		return nil, ErrInvalidSemVer
 	}
 
-	matched := regexVersion.FindAllStringSubmatch(v, -1)[0]
+	matched := regexpVersion.FindAllStringSubmatch(v, -1)[0]
 
 	ver := Version{}
 
-	for i, name := range regexVersion.SubexpNames() {
+	for i, name := range regexpVersion.SubexpNames() {
 		v := matched[i]
 
 		switch name {
@@ -135,7 +134,7 @@ func (v Version) IncrMajor() *Version {
 
 func (v Version) WithPrerelease(prerelease string) (*Version, error) {
 	if len(prerelease) > 0 {
-		if !regexVerPrerelease.MatchString(prerelease) {
+		if !regexpVerPrerelease.MatchString(prerelease) {
 			return nil, ErrInvalidPrerelease
 		}
 		v.prerelease = prerelease
@@ -145,7 +144,7 @@ func (v Version) WithPrerelease(prerelease string) (*Version, error) {
 
 func (v Version) WithBuildMetadata(buildMetadata string) (*Version, error) {
 	if len(buildMetadata) > 0 {
-		if !regexVerBuildMetadata.MatchString(buildMetadata) {
+		if !regexpVerBuildMetadata.MatchString(buildMetadata) {
 			return nil, ErrInvalidMetadata
 		}
 		v.buildMetadata = buildMetadata

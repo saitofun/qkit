@@ -19,11 +19,11 @@ func NewConstraint(c string) (*Constraints, error) {
 	or := make([][]*constraint, len(ors))
 	for k, v := range ors {
 
-		if !validConstraintRegex.MatchString(v) {
+		if !regexpValidConstraint.MatchString(v) {
 			return nil, fmt.Errorf("improper constraint: %s", v)
 		}
 
-		cs := findConstraintRegex.FindAllString(v, -1)
+		cs := regexpFindConstraint.FindAllString(v, -1)
 		if cs == nil {
 			cs = append(cs, v)
 		}
@@ -113,13 +113,14 @@ func (cs Constraints) String() string {
 	return strings.Join(buf, " || ")
 }
 
-var constraintOps map[string]cfunc
-var constraintRegex *regexp.Regexp
-var constraintRangeRegex *regexp.Regexp
-var findConstraintRegex *regexp.Regexp
-var validConstraintRegex *regexp.Regexp
-
-var cvRegex = regexp.MustCompile(`v?([0-9|x|X|\*]+)(\.[0-9|x|X|\*]+)?(\.[0-9|x|X|\*]+)?(-([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?(\+([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?`)
+var (
+	constraintOps           map[string]cfunc
+	regexpConstraint        *regexp.Regexp
+	regexpConstraintRange   *regexp.Regexp
+	regexpFindConstraint    *regexp.Regexp
+	regexpValidConstraint   *regexp.Regexp
+	regexpConstraintVersion = regexp.MustCompile(`v?([0-9|x|X|\*]+)(\.[0-9|x|X|\*]+)?(\.[0-9|x|X|\*]+)?(-([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?(\+([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?`)
+)
 
 func init() {
 	constraintOps = map[string]cfunc{
@@ -142,10 +143,10 @@ func init() {
 		ops = append(ops, regexp.QuoteMeta(k))
 	}
 
-	constraintRegex = regexp.MustCompile(fmt.Sprintf(`^\s*(%s)\s*(%s)\s*$`, strings.Join(ops, "|"), cvRegex))
-	constraintRangeRegex = regexp.MustCompile(fmt.Sprintf(`\s*(%s)\s+-\s+(%s)\s*`, cvRegex, cvRegex))
-	findConstraintRegex = regexp.MustCompile(fmt.Sprintf(`(%s)\s*(%s)`, strings.Join(ops, "|"), cvRegex))
-	validConstraintRegex = regexp.MustCompile(fmt.Sprintf(`^(\s*(%s)\s*(%s)\s*\,?)+$`, strings.Join(ops, "|"), cvRegex))
+	regexpConstraint = regexp.MustCompile(fmt.Sprintf(`^\s*(%s)\s*(%s)\s*$`, strings.Join(ops, "|"), regexpConstraintVersion))
+	regexpConstraintRange = regexp.MustCompile(fmt.Sprintf(`\s*(%s)\s+-\s+(%s)\s*`, regexpConstraintVersion, regexpConstraintVersion))
+	regexpFindConstraint = regexp.MustCompile(fmt.Sprintf(`(%s)\s*(%s)`, strings.Join(ops, "|"), regexpConstraintVersion))
+	regexpValidConstraint = regexp.MustCompile(fmt.Sprintf(`^(\s*(%s)\s*(%s)\s*\,?)+$`, strings.Join(ops, "|"), regexpConstraintVersion))
 }
 
 type constraint struct {
@@ -172,7 +173,7 @@ type cfunc func(v *Version, c *constraint) (bool, error)
 
 func parseConstraint(c string) (*constraint, error) {
 	if len(c) > 0 {
-		m := constraintRegex.FindStringSubmatch(c)
+		m := regexpConstraint.FindStringSubmatch(c)
 		if m == nil {
 			return nil, fmt.Errorf("improper constraint: %s", c)
 		}
@@ -442,7 +443,7 @@ func isX(x string) bool {
 }
 
 func rewriteRange(i string) string {
-	m := constraintRangeRegex.FindAllStringSubmatch(i, -1)
+	m := regexpConstraintRange.FindAllStringSubmatch(i, -1)
 	if m == nil {
 		return i
 	}
