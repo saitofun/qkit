@@ -10,7 +10,7 @@ import (
 	"github.com/saitofun/qkit/x/misc/slice"
 )
 
-var reUsing = regexp.MustCompile(`USING ([^ ]+)`)
+var regexpUsing = regexp.MustCompile(`USING ([^ ]+)`)
 
 func databaseFromSchema(db sqlx.DBExecutor) (*sqlx.Database, error) {
 	d := db.D()
@@ -82,10 +82,10 @@ func databaseFromSchema(db sqlx.DBExecutor) (*sqlx.Database, error) {
 			table := d.Table(index.TABLE_NAME)
 			key := &builder.Key{
 				Name:     strings.ToLower(index.INDEX_NAME[len(table.Name)+1:]),
-				Method:   strings.ToUpper(reUsing.FindString(index.INDEX_DEF)[6:]),
+				Method:   strings.ToUpper(regexpUsing.FindString(index.INDEX_DEF)[6:]),
 				IsUnique: strings.Contains(index.INDEX_DEF, "UNIQUE"),
 				Def: builder.IndexDef{
-					Expr: strings.TrimSpace(reUsing.Split(index.INDEX_DEF, 2)[1]),
+					Expr: strings.TrimSpace(regexpUsing.Split(index.INDEX_DEF, 2)[1]),
 				},
 			}
 			table.AddKey(key)

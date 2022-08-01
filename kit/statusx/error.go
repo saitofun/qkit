@@ -104,14 +104,14 @@ type StatusErr struct {
 }
 
 // @err[UnknownError][500000000][unknown error]
-var reStatusErrSummary = regexp.MustCompile(`@StatusErr\[(.+)\]\[(.+)\]\[(.+)\](!)?`)
+var regexpStatusErrSummary = regexp.MustCompile(`@StatusErr\[(.+)\]\[(.+)\]\[(.+)\](!)?`)
 
 func ParseStatusErrSummary(s string) (*StatusErr, error) {
-	if !reStatusErrSummary.Match([]byte(s)) {
+	if !regexpStatusErrSummary.Match([]byte(s)) {
 		return nil, fmt.Errorf("unsupported status err summary: %s", s)
 	}
 
-	matched := reStatusErrSummary.FindStringSubmatch(s)
+	matched := regexpStatusErrSummary.FindStringSubmatch(s)
 
 	code, _ := strconv.ParseInt(matched[2], 10, 64)
 

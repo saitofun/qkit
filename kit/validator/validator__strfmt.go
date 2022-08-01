@@ -20,10 +20,14 @@ func NewStrfmtValidator(f ValidateFunc, name string, aliases ...string) *StrFmt 
 }
 
 func NewRegexpStrfmtValidator(expr string, name string, aliases ...string) *StrFmt {
-	e := regexp.MustCompile(expr)
+	regexpStrfmtPattern := regexp.MustCompile(expr)
 	f := func(v interface{}) error {
-		if !e.MatchString(v.(string)) {
-			return &errors.NotMatchError{Target: name, Current: v, Pattern: e}
+		if !regexpStrfmtPattern.MatchString(v.(string)) {
+			return &errors.NotMatchError{
+				Target:  name,
+				Current: v,
+				Pattern: regexpStrfmtPattern,
+			}
 		}
 		return nil
 	}
