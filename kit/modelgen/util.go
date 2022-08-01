@@ -28,7 +28,7 @@ func forEachStructField(st *types.Struct, each func(v *types.Var, name, tag stri
 	}
 }
 
-var relRegexp = regexp.MustCompile(`@rel ([^\n]+)`)
+var regexpRelAnnotate = regexp.MustCompile(`@rel ([^\n]+)`)
 
 func parseColRelFromDoc(doc string) (string, []string) {
 	others := make([]string, 0)
@@ -37,7 +37,7 @@ func parseColRelFromDoc(doc string) (string, []string) {
 		if len(line) == 0 {
 			continue
 		}
-		matches := relRegexp.FindAllStringSubmatch(line, 1)
+		matches := regexpRelAnnotate.FindAllStringSubmatch(line, 1)
 		if matches == nil {
 			others = append(others, line)
 			continue
@@ -49,7 +49,7 @@ func parseColRelFromDoc(doc string) (string, []string) {
 	return rel, others
 }
 
-var defRegexp = regexp.MustCompile(`@def ([^\n]+)`)
+var regexpDefAnnotate = regexp.MustCompile(`@def ([^\n]+)`)
 
 func parseKeysFromDoc(doc string) (*Keys, []string) {
 	keys := &Keys{}
@@ -60,7 +60,7 @@ func parseKeysFromDoc(doc string) (*Keys, []string) {
 			continue
 		}
 
-		matches := defRegexp.FindAllStringSubmatch(line, -1)
+		matches := regexpDefAnnotate.FindAllStringSubmatch(line, -1)
 
 		if matches == nil {
 			others = append(others, line)

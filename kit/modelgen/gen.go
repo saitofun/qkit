@@ -63,7 +63,7 @@ type Config struct {
 	FieldKeyUpdatedAt string
 }
 
-func (g *Config) SetDefaults() {
+func (g *Config) SetDefault() {
 	if g.FieldKeyDeletedAt == "" {
 		g.FieldKeyDeletedAt = "DeletedAt"
 	}

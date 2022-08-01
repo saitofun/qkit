@@ -15,7 +15,7 @@ import (
 )
 
 func NewModel(pkg *pkgx.Pkg, tn *types.TypeName, doc string, cfg *Config) *Model {
-	cfg.SetDefaults()
+	cfg.SetDefault()
 	m := Model{
 		TypeName: tn,
 		Config:   cfg,
