@@ -288,25 +288,6 @@ func (m *User) FetchByID(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *User) FetchByName(db sqlx.DBExecutor) error {
-	tbl := db.T(m)
-	err := db.QueryAndScan(
-		builder.Select(nil).
-			From(
-				tbl,
-				builder.Where(
-					builder.And(
-						tbl.ColByFieldName("Name").Eq(m.Name),
-						tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
-					),
-				),
-				builder.Comment("User.FetchByName"),
-			),
-		m,
-	)
-	return err
-}
-
 func (m *User) FetchByIDAndOrgID(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	err := db.QueryAndScan(
@@ -321,6 +302,25 @@ func (m *User) FetchByIDAndOrgID(db sqlx.DBExecutor) error {
 					),
 				),
 				builder.Comment("User.FetchByIDAndOrgID"),
+			),
+		m,
+	)
+	return err
+}
+
+func (m *User) FetchByName(db sqlx.DBExecutor) error {
+	tbl := db.T(m)
+	err := db.QueryAndScan(
+		builder.Select(nil).
+			From(
+				tbl,
+				builder.Where(
+					builder.And(
+						tbl.ColByFieldName("Name").Eq(m.Name),
+						tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
+					),
+				),
+				builder.Comment("User.FetchByName"),
 			),
 		m,
 	)
@@ -358,37 +358,6 @@ func (m *User) UpdateByID(db sqlx.DBExecutor, zeros ...string) error {
 	return m.UpdateByIDWithFVs(db, fvs)
 }
 
-func (m *User) UpdateByNameWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
-
-	if _, ok := fvs["UpdatedAt"]; !ok {
-		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
-	}
-	tbl := db.T(m)
-	res, err := db.Exec(
-		builder.Update(tbl).
-			Where(
-				builder.And(
-					tbl.ColByFieldName("Name").Eq(m.Name),
-					tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
-				),
-				builder.Comment("User.UpdateByNameWithFVs"),
-			).
-			Set(tbl.AssignmentsByFieldValues(fvs)...),
-	)
-	if err != nil {
-		return err
-	}
-	if affected, _ := res.RowsAffected(); affected == 0 {
-		return m.FetchByName(db)
-	}
-	return nil
-}
-
-func (m *User) UpdateByName(db sqlx.DBExecutor, zeros ...string) error {
-	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
-	return m.UpdateByNameWithFVs(db, fvs)
-}
-
 func (m *User) UpdateByIDAndOrgIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
 
 	if _, ok := fvs["UpdatedAt"]; !ok {
@@ -419,6 +388,37 @@ func (m *User) UpdateByIDAndOrgIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldVa
 func (m *User) UpdateByIDAndOrgID(db sqlx.DBExecutor, zeros ...string) error {
 	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
 	return m.UpdateByIDAndOrgIDWithFVs(db, fvs)
+}
+
+func (m *User) UpdateByNameWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
+
+	if _, ok := fvs["UpdatedAt"]; !ok {
+		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
+	}
+	tbl := db.T(m)
+	res, err := db.Exec(
+		builder.Update(tbl).
+			Where(
+				builder.And(
+					tbl.ColByFieldName("Name").Eq(m.Name),
+					tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
+				),
+				builder.Comment("User.UpdateByNameWithFVs"),
+			).
+			Set(tbl.AssignmentsByFieldValues(fvs)...),
+	)
+	if err != nil {
+		return err
+	}
+	if affected, _ := res.RowsAffected(); affected == 0 {
+		return m.FetchByName(db)
+	}
+	return nil
+}
+
+func (m *User) UpdateByName(db sqlx.DBExecutor, zeros ...string) error {
+	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
+	return m.UpdateByNameWithFVs(db, fvs)
 }
 
 func (m *User) Delete(db sqlx.DBExecutor) error {
@@ -476,49 +476,6 @@ func (m *User) SoftDeleteByID(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *User) DeleteByName(db sqlx.DBExecutor) error {
-	tbl := db.T(m)
-	_, err := db.Exec(
-		builder.Delete().
-			From(
-				tbl,
-				builder.Where(
-					builder.And(
-						tbl.ColByFieldName("Name").Eq(m.Name),
-						tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
-					),
-				),
-				builder.Comment("User.DeleteByName"),
-			),
-	)
-	return err
-}
-
-func (m *User) SoftDeleteByName(db sqlx.DBExecutor) error {
-	tbl := db.T(m)
-	fvs := builder.FieldValues{}
-
-	if _, ok := fvs["DeletedAt"]; !ok {
-		fvs["DeletedAt"] = types.Timestamp{Time: time.Now()}
-	}
-
-	if _, ok := fvs["UpdatedAt"]; !ok {
-		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
-	}
-	_, err := db.Exec(
-		builder.Update(db.T(m)).
-			Where(
-				builder.And(
-					tbl.ColByFieldName("Name").Eq(m.Name),
-					tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
-				),
-				builder.Comment("User.SoftDeleteByName"),
-			).
-			Set(tbl.AssignmentsByFieldValues(fvs)...),
-	)
-	return err
-}
-
 func (m *User) DeleteByIDAndOrgID(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	_, err := db.Exec(
@@ -558,6 +515,49 @@ func (m *User) SoftDeleteByIDAndOrgID(db sqlx.DBExecutor) error {
 					tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
 				),
 				builder.Comment("User.SoftDeleteByIDAndOrgID"),
+			).
+			Set(tbl.AssignmentsByFieldValues(fvs)...),
+	)
+	return err
+}
+
+func (m *User) DeleteByName(db sqlx.DBExecutor) error {
+	tbl := db.T(m)
+	_, err := db.Exec(
+		builder.Delete().
+			From(
+				tbl,
+				builder.Where(
+					builder.And(
+						tbl.ColByFieldName("Name").Eq(m.Name),
+						tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
+					),
+				),
+				builder.Comment("User.DeleteByName"),
+			),
+	)
+	return err
+}
+
+func (m *User) SoftDeleteByName(db sqlx.DBExecutor) error {
+	tbl := db.T(m)
+	fvs := builder.FieldValues{}
+
+	if _, ok := fvs["DeletedAt"]; !ok {
+		fvs["DeletedAt"] = types.Timestamp{Time: time.Now()}
+	}
+
+	if _, ok := fvs["UpdatedAt"]; !ok {
+		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
+	}
+	_, err := db.Exec(
+		builder.Update(db.T(m)).
+			Where(
+				builder.And(
+					tbl.ColByFieldName("Name").Eq(m.Name),
+					tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
+				),
+				builder.Comment("User.SoftDeleteByName"),
 			).
 			Set(tbl.AssignmentsByFieldValues(fvs)...),
 	)
