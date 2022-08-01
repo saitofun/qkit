@@ -3,6 +3,8 @@ package errors
 import (
 	"bytes"
 	"fmt"
+
+	"github.com/saitofun/qkit/kit/statusx"
 )
 
 func NewErrorSetWithRoot(root string) *ErrorSet { return &ErrorSet{root: root} }
@@ -67,6 +69,26 @@ func (set *ErrorSet) Error() string {
 	)
 
 	return buf.String()
+}
+
+type Location string
+
+func (set *ErrorSet) ToErrorFields() statusx.ErrorFields {
+	errorFields := make([]*statusx.ErrorField, 0)
+
+	set.Flatten().Each(func(fieldErr *FieldError) {
+		if len(fieldErr.Field) > 1 {
+			if l, ok := fieldErr.Field[0].(Location); ok {
+				errorFields = append(errorFields, &statusx.ErrorField{
+					In:    string(l),
+					Field: fieldErr.Field[1:].String(),
+					Msg:   fieldErr.Error.Error(),
+				})
+			}
+		}
+	})
+
+	return errorFields
 }
 
 type FieldError struct {

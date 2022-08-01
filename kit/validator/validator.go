@@ -20,6 +20,10 @@ type Validator interface {
 	String() string
 }
 
+type CanValidate interface {
+	Validate() error
+}
+
 // Creator interface can new a validator
 type Creator interface {
 	Names() []string
@@ -91,7 +95,10 @@ func ContextWithFactory(ctx context.Context, c Factory) context.Context {
 }
 
 func FactoryFromContext(ctx context.Context) Factory {
-	return ctx.Value(ckCompiler{}).(Factory)
+	if f, ok := ctx.Value(ckCompiler{}).(Factory); ok {
+		return f
+	}
+	return DefaultFactory
 }
 
 type factory struct {
