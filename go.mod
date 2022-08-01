@@ -8,6 +8,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/gomodule/redigo v1.8.9
 	github.com/google/uuid v1.3.0
+	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.10.6
 	github.com/onsi/gomega v1.20.0
 	github.com/pkg/errors v0.9.1
