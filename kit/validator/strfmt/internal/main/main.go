@@ -25,11 +25,11 @@ func main() {
 	snippets := make([]g.Snippet, 0)
 	for _, key := range regexps {
 		var (
-			name           = strings.Replace(key, "regexpString", "", 1)
-			validatorName  = strings.Replace(qnaming.LowerSnakeCase(name), "_", "-", -1)
-			args           = []g.Snippet{g.Ident(key), g.Valuer(validatorName)}
-			prefix         = qnaming.UpperCamelCase(name)
-			snippet        g.Snippet
+			name          = strings.Replace(key, "regexpString", "", 1)
+			validatorName = strings.Replace(qnaming.LowerSnakeCase(name), "_", "-", -1)
+			args          = []g.Snippet{g.Ident(key), g.Valuer(validatorName)}
+			prefix        = qnaming.UpperCamelCase(name)
+			snippet       g.Snippet
 		)
 		snippet = g.Func().Named("init").Do(
 			g.Ref(

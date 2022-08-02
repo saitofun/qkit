@@ -277,8 +277,8 @@ func ExampleNewRequestTsfmFactory() {
 	}
 
 	type Req struct {
-		Protocol types.Protocol `in:"query" name:"protocol,omitempty" default:"HTTP"`
-		QString  string         `in:"query" name:"string,omitempty"   default:"s"`
+		Protocol  types.Protocol `in:"query" name:"protocol,omitempty" default:"HTTP"`
+		QString   string         `in:"query" name:"string,omitempty"   default:"s"`
 		PlainBody PlainBody      `in:"body"  mime:"plain" validate:"@struct<json>"`
 	}
 
