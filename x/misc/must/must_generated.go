@@ -1,7 +1,5 @@
 // This is a generated source file. DO NOT EDIT
-// Version: 0.0.1
 // Source: must/must_generated.go
-// Date: Jul 15 13:12:46
 
 package must
 

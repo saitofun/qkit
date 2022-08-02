@@ -9,8 +9,8 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/saitofun/qkit/kit/httptransport"
 	"github.com/saitofun/qkit/kit/httptransport/mock"
-	"github.com/saitofun/qkit/kit/httptransport/testdata/server/cmd/app/routes"
 	"github.com/saitofun/qkit/kit/kit"
+	"github.com/saitofun/qkit/testutil/httptransporttestutil/server/cmd/app/routes"
 )
 
 var (

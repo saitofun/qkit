@@ -27,7 +27,7 @@ func main() {
 			file.WriteSnippet(
 				Comments("pls add your assert function here, or add type and re-generate"),
 			)
-			if _, err := file.Write(false); err != nil {
+			if _, err := file.Write(); err != nil {
 				log.Panic(err)
 			}
 		}
@@ -72,7 +72,7 @@ func main() {
 			)
 		}
 
-		if _, err := file.Write(true); err != nil {
+		if _, err := file.Write(); err != nil {
 			log.Panic(err)
 		}
 	}

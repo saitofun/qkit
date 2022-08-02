@@ -43,6 +43,18 @@ type AudioWebm struct{ bytes.Buffer }
 
 func (AudioWebm) ContentType() string { return "audio/webm" }
 
+func NewCSS() *CSS { return &CSS{} }
+
+type CSS struct{ bytes.Buffer }
+
+func (CSS) ContentType() string { return "text/css" }
+
+func NewHTML() *HTML { return &HTML{} }
+
+type HTML struct{ bytes.Buffer }
+
+func (HTML) ContentType() string { return "text/html" }
+
 func NewImageBmp() *ImageBmp { return &ImageBmp{} }
 
 type ImageBmp struct{ bytes.Buffer }
@@ -78,18 +90,6 @@ func NewImageWebp() *ImageWebp { return &ImageWebp{} }
 type ImageWebp struct{ bytes.Buffer }
 
 func (ImageWebp) ContentType() string { return "image/webp" }
-
-func NewCSS() *CSS { return &CSS{} }
-
-type CSS struct{ bytes.Buffer }
-
-func (CSS) ContentType() string { return "text/css" }
-
-func NewHTML() *HTML { return &HTML{} }
-
-type HTML struct{ bytes.Buffer }
-
-func (HTML) ContentType() string { return "text/html" }
 
 func NewPlain() *Plain { return &Plain{} }
 

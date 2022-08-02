@@ -7,19 +7,19 @@ import (
 	"net/url"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strconv"
 
-	"github.com/pkg/errors"
-	"golang.org/x/tools/go/packages"
-
 	g "github.com/saitofun/qkit/gen/codegen"
+	"github.com/saitofun/qkit/x/misc/must"
+	"github.com/saitofun/qkit/x/pkgx"
 )
 
 func main() {
 	fset := token.NewFileSet()
 	file, _ := parser.ParseFile(
 		fset,
-		path.Join(imported("net/http"), "status.go"),
+		path.Join(must.String(pkgx.PkgPathByPath("net/http")), "status.go"),
 		nil,
 		parser.ParseComments,
 	)
@@ -110,15 +110,10 @@ m := `+f.Use(pkg, `RedirectWith`+name)+`(?)
 	}
 }
 
-func imported(path string) string {
-	pkgs, err := packages.Load(&packages.Config{Mode: packages.LoadFiles}, path)
-	if err != nil {
-		panic(err)
-	}
-	if len(pkgs) == 0 {
-		panic(errors.Errorf("package `%s` not found", path))
-	}
-	return filepath.Dir(pkgs[0].GoFiles[0])
-}
+var pkg string
 
-var pkg = "github.com/saitofun/qkit/kit/httptransport/httpx"
+func init() {
+	_, current, _, _ := runtime.Caller(0)
+	dir := filepath.Join(filepath.Dir(current), "../../../httpx")
+	pkg = must.String(pkgx.PkgIdByPath(dir))
+}

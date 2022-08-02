@@ -18,10 +18,10 @@ import (
 	pkgerr "github.com/pkg/errors"
 	. "github.com/saitofun/qkit/kit/httptransport"
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
-	"github.com/saitofun/qkit/kit/httptransport/testdata/server/pkg/types"
 	"github.com/saitofun/qkit/kit/httptransport/transformer"
 	"github.com/saitofun/qkit/kit/statusx"
 	vldterr "github.com/saitofun/qkit/kit/validator/errors"
+	"github.com/saitofun/qkit/testutil/httptransporttestutil/server/pkg/types"
 	"github.com/saitofun/qkit/x/reflectx"
 )
 
@@ -277,8 +277,8 @@ func ExampleNewRequestTsfmFactory() {
 	}
 
 	type Req struct {
-		Protocol  types.Protocol `in:"query" name:"protocol,omitempty" default:"HTTP"`
-		QString   string         `in:"query" name:"string,omitempty"   default:"s"`
+		Protocol types.Protocol `in:"query" name:"protocol,omitempty" default:"HTTP"`
+		QString  string         `in:"query" name:"string,omitempty"   default:"s"`
 		PlainBody PlainBody      `in:"body"  mime:"plain" validate:"@struct<json>"`
 	}
 
