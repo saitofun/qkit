@@ -3,16 +3,27 @@ package typesx_test
 import (
 	"encoding"
 	"go/types"
+	"path/filepath"
 	"reflect"
+	"runtime"
 	"testing"
 	"unsafe"
 
 	. "github.com/onsi/gomega"
 	"github.com/saitofun/qkit/testutil/typesxtestutil/typ"
 	typ2 "github.com/saitofun/qkit/testutil/typesxtestutil/typ/typ"
+	"github.com/saitofun/qkit/x/misc/must"
+	"github.com/saitofun/qkit/x/pkgx"
 	"github.com/saitofun/qkit/x/ptrx"
 	. "github.com/saitofun/qkit/x/typesx"
 )
+
+var pkgid string
+
+func init() {
+	_, current, _, _ := runtime.Caller(0)
+	pkgid = must.String(pkgx.PkgIdByPath(filepath.Dir(current)))
+}
 
 func TestTypeFor(t *testing.T) {
 	cases := []struct {
@@ -24,8 +35,8 @@ func TestTypeFor(t *testing.T) {
 		{"[]int", "[]int"},
 		{"[2]int", "[2]int"},
 		{"error", "error"},
-		{"typesx.GoType", "github.com/saitofun/qkit/x/typesx.GoType"},
-		{"typesx.ReflectType", "github.com/saitofun/qkit/x/typesx.ReflectType"},
+		{"typesx.GoType", pkgid + ".GoType"},
+		{"typesx.ReflectType", pkgid + ".ReflectType"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
