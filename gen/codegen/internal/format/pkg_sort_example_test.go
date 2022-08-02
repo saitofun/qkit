@@ -30,9 +30,9 @@ func ExampleFormat() {
 
 	f := CreateDemoFile(filename)
 
-	defer os.Remove(filepath.Dir(f.Name))
+	defer os.RemoveAll(filepath.Dir(f.Name))
 
-	_, err := f.Write(false)
+	_, err := f.Write()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -41,6 +41,9 @@ func ExampleFormat() {
 	fmt.Println(string(f.Formatted()))
 
 	// Output:
+	// // This is a generated source file. DO NOT EDIT
+	// // Source: main/hello.go
+	//
 	// package main
 	//
 	// import (

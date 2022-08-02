@@ -499,6 +499,9 @@ func ExampleNewFile() {
 	fmt.Println(string(f.Formatted()))
 
 	// Output:
+	// // This is a generated source file. DO NOT EDIT
+	// // Source: main/hello.go
+	//
 	// package main
 	//
 	// import (
