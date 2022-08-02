@@ -8,7 +8,7 @@ import (
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
 	"github.com/saitofun/qkit/kit/kit"
 	"github.com/saitofun/qkit/testutil/httptransporttestutil/server/pkg/errors"
-	types2 "github.com/saitofun/qkit/testutil/httptransporttestutil/server/pkg/types"
+	"github.com/saitofun/qkit/testutil/httptransporttestutil/server/pkg/types"
 )
 
 var RestfulRouter = kit.NewRouter(httptransport.Group("/restful"))
@@ -25,7 +25,7 @@ func init() {
 
 type HealthCheck struct {
 	httpx.MethodHead
-	PullPolicy types2.PullPolicy `name:"pullPolicy,omitempty" in:"query"`
+	PullPolicy types.PullPolicy `name:"pullPolicy,omitempty" in:"query"`
 }
 
 func (HealthCheck) Output(ctx context.Context) (interface{}, error) {
@@ -45,9 +45,9 @@ func (req Create) Output(ctx context.Context) (interface{}, error) {
 type Data struct {
 	ID        string         `json:"id"`
 	Label     string         `json:"label"`
-	PtrString *string         `json:"ptrString,omitempty"`
-	SubData   *SubData        `json:"subData,omitempty"`
-	Protocol  types2.Protocol `json:"protocol,omitempty"`
+	PtrString *string        `json:"ptrString,omitempty"`
+	SubData   *SubData       `json:"subData,omitempty"`
+	Protocol  types.Protocol `json:"protocol,omitempty"`
 }
 
 type SubData struct {
@@ -57,8 +57,8 @@ type SubData struct {
 // get by id
 type GetByID struct {
 	httpx.MethodGet
-	Protocol types2.Protocol `name:"protocol,omitempty" in:"query"`
-	Name     string          `name:"name,omitempty" in:"query"`
+	Protocol types.Protocol `name:"protocol,omitempty" in:"query"`
+	Name     string         `name:"name,omitempty" in:"query"`
 	Label    []string       `name:"label,omitempty" in:"query"`
 }
 

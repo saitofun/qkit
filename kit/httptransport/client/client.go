@@ -20,7 +20,7 @@ import (
 	"github.com/saitofun/qkit/kit/statusx"
 	"github.com/saitofun/qkit/x/contextx"
 	"github.com/saitofun/qkit/x/typesx"
-	http2 "golang.org/x/net/http2"
+	"golang.org/x/net/http2"
 )
 
 type HttpTransport func(rt http.RoundTripper) http.RoundTripper

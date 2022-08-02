@@ -8,11 +8,10 @@ import (
 	"unsafe"
 
 	. "github.com/onsi/gomega"
-
+	"github.com/saitofun/qkit/testutil/typesxtestutil/typ"
+	typ2 "github.com/saitofun/qkit/testutil/typesxtestutil/typ/typ"
 	"github.com/saitofun/qkit/x/ptrx"
 	. "github.com/saitofun/qkit/x/typesx"
-	"github.com/saitofun/qkit/x/typesx/testdata/typ"
-	typ2 "github.com/saitofun/qkit/x/typesx/testdata/typ/typ"
 )
 
 func TestTypeFor(t *testing.T) {
