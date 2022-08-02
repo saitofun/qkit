@@ -2,10 +2,14 @@ package pkgx
 
 import (
 	"bytes"
+	"fmt"
 	"go/ast"
 	"go/format"
 	"go/token"
+	"path/filepath"
 	"strings"
+
+	"golang.org/x/tools/go/packages"
 )
 
 func StringifyNode(fs *token.FileSet, n ast.Node) string {
@@ -46,4 +50,41 @@ func ImportPathAndExpose(s string) (string, string) {
 		return Import(strings.Join(args[0:_len-1], ".")), args[_len-1]
 	}
 	return "", s
+}
+
+const (
+	ModeLoadFiles = packages.NeedName | packages.NeedFiles | packages.NeedCompiledGoFiles
+)
+
+func FindPkgInfoByPath(path string, modes ...packages.LoadMode) (*packages.Package, error) {
+	mode := ModeLoadFiles
+	if len(modes) > 0 {
+		for _, v := range modes {
+			mode |= v
+		}
+	}
+	pkgs, err := packages.Load(&packages.Config{Mode: ModeLoadFiles}, path)
+	if err != nil {
+		panic(err)
+	}
+	if len(pkgs) == 0 {
+		return nil, fmt.Errorf("package `%s` not found", path)
+	}
+	return pkgs[0], nil
+}
+
+func PkgIdByPath(path string, modes ...packages.LoadMode) (string, error) {
+	pkg, err := FindPkgInfoByPath(path, modes...)
+	if err != nil {
+		return "", err
+	}
+	return pkg.ID, nil
+}
+
+func PkgPathByPath(path string, modes ...packages.LoadMode) (string, error) {
+	pkg, err := FindPkgInfoByPath(path, modes...)
+	if err != nil {
+		return "", err
+	}
+	return filepath.Dir(pkg.GoFiles[0]), nil
 }
