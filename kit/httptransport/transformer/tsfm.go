@@ -154,8 +154,8 @@ func (f *factory) NewTransformer(ctx context.Context, t typesx.Type, opt Option)
 	return nil, errors.Errorf("fmt %s is not supported for content transformer", key)
 }
 
-// transformers returns all tsfms registered to DefaultFactory and test only
-func transformers() (ret []string) {
+// Transformers returns all tsfms registered to DefaultFactory
+func Transformers() (ret []string) {
 	names := make(map[string]bool)
 	for _, tf := range DefaultFactory.set {
 		name := tf.Names()[0]

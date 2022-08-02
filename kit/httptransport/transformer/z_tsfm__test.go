@@ -4,17 +4,16 @@ import (
 	"context"
 	"testing"
 	_ "unsafe"
+
+	"github.com/saitofun/qkit/kit/httptransport/transformer"
 )
 
 var (
 	bgctx = context.Background()
 )
 
-//go:linkname transformers github.com/saitofun/qkit/kit/httptransport/transformer.transformers
-func transformers() []string
-
 func TestTransformer(t *testing.T) {
-	tfs := transformers()
+	tfs := transformer.Transformers()
 	for _, name := range tfs {
 		t.Log(name)
 	}
