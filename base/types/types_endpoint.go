@@ -9,8 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/saitofun/qkit/x/reflectx"
 	"github.com/saitofun/qlib/encoding/qtext"
+
+	"github.com/saitofun/qkit/x/reflectx"
 )
 
 type Endpoint struct {

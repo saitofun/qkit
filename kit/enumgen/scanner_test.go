@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
+
 	"github.com/saitofun/qkit/kit/enumgen"
 	"github.com/saitofun/qkit/x/pkgx"
 )

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	. "github.com/onsi/gomega"
+
 	. "github.com/saitofun/qkit/base/types"
 )
 

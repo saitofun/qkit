@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
+
 	. "github.com/saitofun/qkit/kit/httptransport/transformer"
 	"github.com/saitofun/qkit/x/ptrx"
 	"github.com/saitofun/qkit/x/typesx"

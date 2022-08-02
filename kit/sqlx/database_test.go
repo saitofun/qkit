@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	. "github.com/onsi/gomega"
+
 	"github.com/saitofun/qkit/testutil/postgrestestutil"
 
 	"github.com/saitofun/qkit/base/types"

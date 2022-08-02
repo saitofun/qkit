@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
+
 	"github.com/saitofun/qkit/conf/default_setter"
 	"github.com/saitofun/qkit/x/ptrx"
 )

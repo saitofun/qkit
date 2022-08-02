@@ -7,11 +7,12 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/saitofun/qlib/util/qnaming"
+	"golang.org/x/tools/go/packages"
+
 	"github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/x/misc/must"
 	"github.com/saitofun/qkit/x/pkgx"
-	"github.com/saitofun/qlib/util/qnaming"
-	"golang.org/x/tools/go/packages"
 )
 
 type Generator struct {

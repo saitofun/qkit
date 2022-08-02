@@ -6,7 +6,7 @@ install_toolkit:
 	@go install "${TOOLKIT_PKG}/..."
 
 format:
-	go fmt ./...
+	goimports -w -l -local "${MODULE_NAME}" ./
 
 generate: install_toolkit format
 	@cd x/misc/clone/internal/main    && go generate ./...

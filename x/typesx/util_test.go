@@ -10,6 +10,7 @@ import (
 	"unsafe"
 
 	. "github.com/onsi/gomega"
+
 	"github.com/saitofun/qkit/testutil/typesxtestutil/typ"
 	typ2 "github.com/saitofun/qkit/testutil/typesxtestutil/typ/typ"
 	"github.com/saitofun/qkit/x/misc/must"

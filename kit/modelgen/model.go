@@ -9,12 +9,13 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/saitofun/qlib/util/qnaming"
+
 	g "github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/kit/sqlx/builder"
 	"github.com/saitofun/qkit/x/mapx"
 	"github.com/saitofun/qkit/x/misc/must"
 	"github.com/saitofun/qkit/x/pkgx"
-	"github.com/saitofun/qlib/util/qnaming"
 )
 
 func NewModel(pkg *pkgx.Pkg, tn *types.TypeName, doc string, cfg *Config) *Model {

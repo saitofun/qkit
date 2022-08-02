@@ -6,8 +6,9 @@ import (
 	"go/token"
 	"strings"
 
-	g "github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qlib/util/qnaming"
+
+	g "github.com/saitofun/qkit/gen/codegen"
 )
 
 func main() {

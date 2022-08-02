@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"github.com/spf13/cobra"
+
 	"github.com/saitofun/qkit/kit/statusxgen"
 	"github.com/saitofun/qkit/x/pkgx"
-	"github.com/spf13/cobra"
 )
 
 func init() {

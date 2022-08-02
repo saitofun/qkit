@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
+
 	. "github.com/saitofun/qkit/kit/validator"
 	"github.com/saitofun/qkit/kit/validator/errors"
 	"github.com/saitofun/qkit/x/typesx"

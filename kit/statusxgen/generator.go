@@ -7,11 +7,12 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/saitofun/qlib/util/qnaming"
+
 	gen "github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/kit/statusx"
 	"github.com/saitofun/qkit/x/misc/must"
 	"github.com/saitofun/qkit/x/pkgx"
-	"github.com/saitofun/qlib/util/qnaming"
 )
 
 func New(pkg *pkgx.Pkg) *Generator {

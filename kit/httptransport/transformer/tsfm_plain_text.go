@@ -5,9 +5,10 @@ import (
 	"io"
 	"net/textproto"
 
+	"github.com/saitofun/qlib/encoding/qtext"
+
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
 	"github.com/saitofun/qkit/x/typesx"
-	"github.com/saitofun/qlib/encoding/qtext"
 )
 
 func init() { DefaultFactory.Register(&PlainText{}) }

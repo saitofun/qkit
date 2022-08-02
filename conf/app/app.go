@@ -5,9 +5,10 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/saitofun/qkit/conf/deploy"
 	"github.com/saitofun/qkit/conf/log"
-	"gopkg.in/yaml.v2"
 )
 
 type OptSetter = func(conf *Ctx)

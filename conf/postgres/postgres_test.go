@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
+
 	"github.com/saitofun/qkit/conf/postgres"
 	"github.com/saitofun/qkit/testutil/postgrestestutil"
 )

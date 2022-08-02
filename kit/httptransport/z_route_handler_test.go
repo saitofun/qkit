@@ -7,6 +7,7 @@ import (
 	"time"
 
 	. "github.com/onsi/gomega"
+
 	. "github.com/saitofun/qkit/kit/httptransport"
 	"github.com/saitofun/qkit/kit/httptransport/mock"
 	"github.com/saitofun/qkit/kit/kit"

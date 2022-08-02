@@ -6,8 +6,9 @@ import (
 	"path/filepath"
 	"runtime"
 
-	. "github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qlib/util/qnaming"
+
+	. "github.com/saitofun/qkit/gen/codegen"
 )
 
 func main() {

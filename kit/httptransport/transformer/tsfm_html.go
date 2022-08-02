@@ -6,9 +6,10 @@ import (
 	"net/textproto"
 	"reflect"
 
+	"github.com/saitofun/qlib/encoding/qtext"
+
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
 	"github.com/saitofun/qkit/x/typesx"
-	"github.com/saitofun/qlib/encoding/qtext"
 )
 
 const HTMLTsfName = "text/html"

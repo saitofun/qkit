@@ -5,9 +5,10 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/saitofun/qlib/util/qnaming"
+
 	"github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/x/pkgx"
-	"github.com/saitofun/qlib/util/qnaming"
 )
 
 type Generator struct {

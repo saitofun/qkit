@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/saitofun/qlib/encoding/qtext"
+
 	"github.com/saitofun/qkit/kit/validator/errors"
 	"github.com/saitofun/qkit/kit/validator/rules"
 	"github.com/saitofun/qkit/x/contextx"
 	"github.com/saitofun/qkit/x/reflectx"
 	"github.com/saitofun/qkit/x/typesx"
-	"github.com/saitofun/qlib/encoding/qtext"
 )
 
 // Validator can validate input value

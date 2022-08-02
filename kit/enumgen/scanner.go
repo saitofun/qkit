@@ -8,8 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/saitofun/qkit/x/pkgx"
 	"github.com/saitofun/qlib/util/qnaming"
+
+	"github.com/saitofun/qkit/x/pkgx"
 )
 
 type Scanner struct {

@@ -4,8 +4,9 @@ import (
 	"crypto/tls"
 	"time"
 
-	"github.com/eclipse/paho.mqtt.golang"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/pkg/errors"
+
 	"github.com/saitofun/qkit/base/types"
 	"github.com/saitofun/qkit/x/misc/retry"
 )

@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"golang.org/x/net/http2"
+
 	"github.com/saitofun/qkit/kit/httptransport"
 	"github.com/saitofun/qkit/kit/httptransport/client/roundtrippers"
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
@@ -20,7 +22,6 @@ import (
 	"github.com/saitofun/qkit/kit/statusx"
 	"github.com/saitofun/qkit/x/contextx"
 	"github.com/saitofun/qkit/x/typesx"
-	"golang.org/x/net/http2"
 )
 
 type HttpTransport func(rt http.RoundTripper) http.RoundTripper

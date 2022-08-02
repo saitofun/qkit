@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
+
 	"github.com/saitofun/qkit/base/cmd"
 	"github.com/saitofun/qkit/base/types"
 	. "github.com/saitofun/qkit/conf/section_config"
