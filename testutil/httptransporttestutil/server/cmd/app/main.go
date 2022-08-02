@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/saitofun/qkit/httptransporttestutil/testdata/server/cmd/app/routes"
 	"github.com/saitofun/qkit/kit/httptransport"
 	"github.com/saitofun/qkit/kit/kit"
+	"github.com/saitofun/qkit/testutil/httptransporttestutil/server/cmd/app/routes"
 )
 
 func main() {

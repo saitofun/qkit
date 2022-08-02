@@ -4,10 +4,10 @@ import (
 	"context"
 	"mime/multipart"
 
-	"github.com/saitofun/qkit/httptransporttestutil/testdata/server/pkg/types"
 	"github.com/saitofun/qkit/kit/httptransport"
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
 	"github.com/saitofun/qkit/kit/kit"
+	"github.com/saitofun/qkit/testutil/httptransporttestutil/server/pkg/types"
 )
 
 var FormsRouter = kit.NewRouter(httptransport.Group("/forms"))

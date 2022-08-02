@@ -4,11 +4,11 @@ import (
 	"context"
 
 	pkgerr "github.com/pkg/errors"
-	"github.com/saitofun/qkit/httptransporttestutil/testdata/server/pkg/errors"
-	types2 "github.com/saitofun/qkit/httptransporttestutil/testdata/server/pkg/types"
 	"github.com/saitofun/qkit/kit/httptransport"
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
 	"github.com/saitofun/qkit/kit/kit"
+	"github.com/saitofun/qkit/testutil/httptransporttestutil/server/pkg/errors"
+	types2 "github.com/saitofun/qkit/testutil/httptransporttestutil/server/pkg/types"
 )
 
 var RestfulRouter = kit.NewRouter(httptransport.Group("/restful"))
