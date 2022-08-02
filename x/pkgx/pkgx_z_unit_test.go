@@ -9,11 +9,13 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"testing"
 
 	. "github.com/onsi/gomega"
+	"github.com/saitofun/qkit/x/misc/must"
 	. "github.com/saitofun/qkit/x/pkgx"
 )
 
@@ -91,7 +93,14 @@ func TestPkgFuncReturns(t *testing.T) {
 	NewWithT(t).Expect(err).To(BeNil())
 	NewWithT(t).Expect(pkg.Imports()).NotTo(BeEmpty())
 
-	var root = "github.com/saitofun/qkit/x/pkgx/__tests__"
+	var pkgid string
+
+	{
+		_, current, _, _ := runtime.Caller(0)
+		dir := filepath.Join(filepath.Dir(current), "./__tests__")
+		pkgid = must.String(PkgIdByPath(dir))
+	}
+
 	var cases = []struct {
 		FuncName string
 		Results  [][]string
@@ -108,28 +117,28 @@ func TestPkgFuncReturns(t *testing.T) {
 			"FuncWillCall",
 			[][]string{
 				{"interface{}"},
-				{strings.Join([]string{root, "String"}, ".")},
+				{strings.Join([]string{pkgid, "String"}, ".")},
 			},
 		},
 		{
 			"FuncReturnWithCallDirectly",
 			[][]string{
 				{"interface{}"},
-				{strings.Join([]string{root, "String"}, ".")},
+				{strings.Join([]string{pkgid, "String"}, ".")},
 			},
 		},
 		{
 			"FuncWithNamedReturn",
 			[][]string{
 				{"interface{}"},
-				{strings.Join([]string{root, "String"}, ".")},
+				{strings.Join([]string{pkgid, "String"}, ".")},
 			},
 		},
 		{
 			"FuncSingleNamedReturnByAssign",
 			[][]string{
 				{`untyped string("1")`},
-				{strings.Join([]string{root, `String("2")`}, ".")},
+				{strings.Join([]string{pkgid, `String("2")`}, ".")},
 			},
 		},
 		{
@@ -141,9 +150,9 @@ func TestPkgFuncReturns(t *testing.T) {
 					`untyped string("a3")`,
 				},
 				{
-					strings.Join([]string{root, `String("b1")`}, "."),
-					strings.Join([]string{root, `String("b2")`}, "."),
-					strings.Join([]string{root, `String("b3")`}, "."),
+					strings.Join([]string{pkgid, `String("b1")`}, "."),
+					strings.Join([]string{pkgid, `String("b2")`}, "."),
+					strings.Join([]string{pkgid, `String("b3")`}, "."),
 				},
 			},
 		},
