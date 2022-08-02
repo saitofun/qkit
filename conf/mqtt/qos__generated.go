@@ -1,7 +1,5 @@
 // This is a generated source file. DO NOT EDIT
-// Version: 0.0.1
 // Source: mqtt/qos__generated.go
-// Date: Jul 26 16:16:39
 
 package mqtt
 
