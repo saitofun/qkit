@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	_ "unsafe"
+	"testing"
+
+	. "github.com/onsi/gomega"
 
 	"github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/kit/enumgen"
 	"github.com/saitofun/qkit/x/pkgx"
 )
-
-//go:linkname _enum github.com/saitofun/qkit/kit/enumgen._enum
-func _enum(g *enumgen.Generator, name string) *enumgen.Enum
 
 var (
 	g      *enumgen.Generator
@@ -20,6 +19,7 @@ var (
 	scheme *enumgen.Enum
 	policy *enumgen.Enum
 	f      *codegen.File
+	PkgID  string
 )
 
 func init() {
@@ -28,17 +28,18 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	PkgID = pkg.ID
 	g = enumgen.New(pkg)
 	g.Scan("Sample", "Scheme", "PullPolicy")
 
-	if sample = _enum(g, "Sample"); sample == nil {
+	if sample = enumgen.GetEnumByName(g, "Sample"); sample == nil {
 		panic(nil)
 	}
-	if scheme = _enum(g, "Scheme"); scheme == nil {
+	if scheme = enumgen.GetEnumByName(g, "Scheme"); scheme == nil {
 		panic(nil)
 	}
 	// should be nil, just generate IntStringerEnum
-	if policy = _enum(g, "PullPolicy"); policy != nil {
+	if policy = enumgen.GetEnumByName(g, "PullPolicy"); policy != nil {
 		panic(nil)
 	}
 	g.Output(cwd)
@@ -150,12 +151,11 @@ func ExampleEnum_Labeler() {
 	// }
 }
 
-func ExampleEnum_TypeName() {
-	fmt.Println(string(sample.TypeName(f).Bytes()))
-	// Output:
-	// func (v Sample) TypeName() string {
-	// return "github.com/saitofun/qkit/kit/enumgen/__examples__.Sample"
-	// }
+func TestEnum_TypeName(t *testing.T) {
+	NewWithT(t).Expect(sample.TypeName(f).Bytes()).To(Equal([]byte(
+		`func (v Sample) TypeName() string {
+return "` + PkgID + `.Sample"
+}`)))
 }
 
 func ExampleEnum_ConstValues() {

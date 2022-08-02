@@ -4,12 +4,15 @@ import (
 	"bytes"
 	"fmt"
 	"go/types"
+	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 
 	g "github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/kit/sqlx/builder"
 	"github.com/saitofun/qkit/x/mapx"
+	"github.com/saitofun/qkit/x/misc/must"
 	"github.com/saitofun/qkit/x/pkgx"
 	"github.com/saitofun/qlib/util/qnaming"
 )
@@ -766,3 +769,11 @@ var (
 	BuilderPkg = "github.com/saitofun/qkit/kit/sqlx/builder"
 	SQLxPkg    = "github.com/saitofun/qkit/kit/sqlx"
 )
+
+func init() {
+	_, current, _, _ := runtime.Caller(0)
+	dir := filepath.Join(filepath.Dir(current), "../sqlx")
+	SQLxPkg = must.String(pkgx.PkgIdByPath(dir))
+	dir = filepath.Join(filepath.Dir(current), "../sqlx/builder")
+	BuilderPkg = must.String(pkgx.PkgIdByPath(dir))
+}

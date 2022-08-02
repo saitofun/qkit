@@ -84,7 +84,11 @@ func (s *Scanner) StatusError(tn *types.TypeName) []*statusx.StatusErr {
 		s.add(tn, key, msg, int(code)+serviceCode, canBeTalkError)
 	}
 
-	return sortedStatusErrList(s.StatusErrors[tn])
+	lst := s.StatusErrors[tn]
+	sort.Slice(lst, func(i, j int) bool {
+		return lst[i].Code < lst[j].Code
+	})
+	return lst
 }
 
 func ParseStatusErrMsg(s string) (string, bool) {

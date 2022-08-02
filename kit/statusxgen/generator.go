@@ -1,18 +1,17 @@
 package statusxgen
 
 import (
-	"fmt"
 	"go/types"
 	"log"
 	"path"
 	"path/filepath"
-
-	"github.com/saitofun/qlib/util/qnaming"
-	"golang.org/x/tools/go/packages"
+	"runtime"
 
 	gen "github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/kit/statusx"
+	"github.com/saitofun/qkit/x/misc/must"
 	"github.com/saitofun/qkit/x/pkgx"
+	"github.com/saitofun/qlib/util/qnaming"
 )
 
 func New(pkg *pkgx.Pkg) *Generator {
@@ -39,22 +38,12 @@ func (g *Generator) Scan(names ...string) {
 	}
 }
 
-func getPkgDir(importPath string) string {
-	pkgs, err := packages.Load(&packages.Config{
-		Mode: packages.LoadFiles,
-	}, importPath)
-	if err != nil {
-		panic(err)
-	}
-	if len(pkgs) == 0 {
-		panic(fmt.Errorf("package `%s` not found", importPath))
-	}
-	return filepath.Dir(pkgs[0].GoFiles[0])
-}
-
 func (g *Generator) Output(cwd string) {
 	for _, e := range g.errs {
-		dir, _ := filepath.Rel(cwd, getPkgDir(e.TypeName.Pkg().Path()))
+		dir, _ := filepath.Rel(
+			cwd,
+			must.String(pkgx.PkgPathByPath(e.TypeName.Pkg().Path())),
+		)
 		filename := gen.GenerateFileSuffix(path.Join(dir, qnaming.LowerSnakeCase(e.Name())+".go"))
 
 		f := gen.NewFile(e.TypeName.Pkg().Name(), filename)
@@ -72,20 +61,16 @@ type StatusError struct {
 
 func (s *StatusError) Name() string { return s.TypeName.Name() }
 
-var (
-	StatusxPkg = "github.com/saitofun/qkit/kit/statusx"
-)
-
 func (s *StatusError) SnippetTypeAssert(f *gen.File) gen.Snippet {
 	return gen.Exprer(
 		"var _ ? = (*?)(nil)",
-		gen.Type(f.Use(StatusxPkg, "Error")),
+		gen.Type(f.Use(PkgPath, "Error")),
 		gen.Type(s.Name()),
 	)
 }
 
 func (s *StatusError) SnippetStatusErr(f *gen.File) gen.Snippet {
-	t := gen.Type(f.Use(StatusxPkg, "StatusErr"))
+	t := gen.Type(f.Use(PkgPath, "StatusErr"))
 
 	return gen.Func().Named("StatusErr").MethodOf(gen.Var(gen.Type(s.Name()), "v")).
 		Return(gen.Var(gen.Star(t))).
@@ -118,7 +103,7 @@ func (s *StatusError) SnippetStatusCode(f *gen.File) gen.Snippet {
 		Do(
 			f.Expr(
 				`return ?(int(v))`,
-				gen.Ident(f.Use(StatusxPkg, "StatusCodeFromCode")),
+				gen.Ident(f.Use(PkgPath, "StatusCodeFromCode")),
 			),
 		)
 }
@@ -132,7 +117,7 @@ return with.ServiceCode() + int(v)
 }
 return int(v)
 `,
-				gen.Ident(f.Use(StatusxPkg, "ServiceCode"))),
+				gen.Ident(f.Use(PkgPath, "ServiceCode"))),
 		)
 }
 
@@ -207,4 +192,12 @@ func (s *StatusError) WriteToFile(f *gen.File) error {
 	)
 	_, err := f.Write()
 	return err
+}
+
+var PkgPath string
+
+func init() {
+	_, current, _, _ := runtime.Caller(0)
+	dir := filepath.Join(filepath.Dir(current), "../statusx")
+	PkgPath = must.String(pkgx.PkgIdByPath(dir))
 }

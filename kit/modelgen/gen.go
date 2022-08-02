@@ -39,8 +39,7 @@ func (g *Generator) Output(cwd string) {
 	_, _ = f.Write()
 }
 
-// model test only
-func model(g *Generator, name string) *Model {
+func GetModelByName(g *Generator, name string) *Model {
 	if g.StructName == name {
 		return g.mod
 	}

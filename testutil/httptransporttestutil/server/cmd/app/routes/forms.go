@@ -4,9 +4,9 @@ import (
 	"context"
 	"mime/multipart"
 
+	"github.com/saitofun/qkit/httptransporttestutil/testdata/server/pkg/types"
 	"github.com/saitofun/qkit/kit/httptransport"
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
-	"github.com/saitofun/qkit/kit/httptransport/testdata/server/pkg/types"
 	"github.com/saitofun/qkit/kit/kit"
 )
 
@@ -25,8 +25,8 @@ type FormURLEncoded struct {
 	httpx.MethodPost
 	FormData struct {
 		String string   `name:"string"`
-		Slice  []string `name:"slice"`
-		Data   Data     `name:"data"`
+		Slice []string `name:"slice"`
+		Data  Data     `name:"data"`
 	} `in:"body" mime:"urlencoded"`
 }
 
@@ -45,9 +45,9 @@ type FormMultipartWithFile struct {
 		Map map[types.Protocol]int `name:"map,omitempty"`
 		// @deprecated
 		String string                `name:"string,omitempty"`
-		Slice  []string              `name:"slice,omitempty"`
-		Data   Data                  `name:"data,omitempty"`
-		File   *multipart.FileHeader `name:"file"`
+		Slice []string              `name:"slice,omitempty"`
+		Data  Data                  `name:"data,omitempty"`
+		File  *multipart.FileHeader `name:"file"`
 	} `in:"body" mime:"multipart"`
 }
 

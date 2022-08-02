@@ -4,15 +4,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	_ "unsafe"
 
 	"github.com/saitofun/qkit/gen/codegen"
 	. "github.com/saitofun/qkit/kit/modelgen"
 	"github.com/saitofun/qkit/x/pkgx"
 )
-
-//go:linkname model github.com/saitofun/qkit/kit/modelgen.model
-func model(*Generator, string) *Model
 
 var (
 	g *Generator
@@ -46,7 +42,7 @@ func init() {
 	g.Output(cwd)
 
 	f = codegen.NewFile("example", "mock.go") // mock codegen.File
-	m = model(g, "User")
+	m = GetModelByName(g, "User")
 	if m == nil {
 		panic("should scanned `User` model")
 	}

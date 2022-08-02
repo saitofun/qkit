@@ -1,9 +1,13 @@
 package enumgen
 
 import (
+	"path/filepath"
+	"runtime"
 	"strings"
 
 	. "github.com/saitofun/qkit/gen/codegen"
+	"github.com/saitofun/qkit/x/misc/must"
+	"github.com/saitofun/qkit/x/pkgx"
 	"github.com/saitofun/qlib/util/qnaming"
 )
 
@@ -279,8 +283,14 @@ func (e Enum) Valuer(f *File) Snippet {
 }
 
 var (
-	PkgPath                 = "github.com/saitofun/qkit/kit/enum"
+	PkgPath                 string
 	IntStringerName         = "IntStringerEnum"
 	ValueOffsetName         = "ValueOffset"
 	ScanIntEnumStringerName = "ScanIntEnumStringer"
 )
+
+func init() {
+	_, current, _, _ := runtime.Caller(0)
+	dir := filepath.Join(filepath.Dir(current), "../enum")
+	PkgPath = must.String(pkgx.PkgIdByPath(dir))
+}

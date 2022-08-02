@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/saitofun/qkit/httptransporttestutil/testdata/server/cmd/app/routes"
 	"github.com/saitofun/qkit/kit/httptransport"
-	"github.com/saitofun/qkit/kit/httptransport/testdata/server/cmd/app/routes"
 	"github.com/saitofun/qkit/kit/kit"
 )
 
