@@ -2,17 +2,14 @@ package scanner_test
 
 import (
 	"context"
-	"database/sql"
 	"testing"
 	_ "unsafe"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/saitofun/qkit/kit/sqlx/scanner"
 
 	"github.com/saitofun/qkit/kit/sqlx/scanner/nullable"
 )
-
-//go:linkname scan github.com/saitofun/qkit/kit/sqlx/scanner.scan
-func scan(ctx context.Context, rows *sql.Rows, v interface{}) error
 
 func BenchmarkScanStruct(b *testing.B) {
 	db, mock, _ := sqlmock.New()
@@ -54,7 +51,7 @@ func BenchmarkScanStruct(b *testing.B) {
 			mockRows.AddRow(i, "b")
 
 			if rows.Next() {
-				_ = scan(context.Background(), rows, target)
+				_ = scanner.ScanRows(context.Background(), rows, target)
 			}
 		}
 
@@ -71,7 +68,7 @@ func BenchmarkScanStruct(b *testing.B) {
 			mockRows.AddRow(i, "c")
 
 			if rows.Next() {
-				_ = scan(context.Background(), rows, target)
+				_ = scanner.ScanRows(context.Background(), rows, target)
 			}
 		}
 

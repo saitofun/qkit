@@ -21,7 +21,7 @@ type WithColumnReceivers interface {
 	ColumnReceivers() map[string]interface{}
 }
 
-func scan(ctx context.Context, rows *sql.Rows, v interface{}) error {
+func ScanRows(ctx context.Context, rows *sql.Rows, v interface{}) error {
 	t := reflect.TypeOf(v)
 
 	if t.Kind() != reflect.Ptr {

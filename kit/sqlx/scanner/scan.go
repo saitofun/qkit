@@ -20,7 +20,7 @@ func Scan(ctx context.Context, rows *sql.Rows, v interface{}) error {
 
 	for rows.Next() {
 		item := iter.New()
-		if err := scan(ctx, rows, item); err != nil {
+		if err := ScanRows(ctx, rows, item); err != nil {
 			return err
 		}
 		if err := iter.Next(item); err != nil {
