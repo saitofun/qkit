@@ -4,7 +4,6 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/pkg/errors"
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
 	"github.com/saitofun/qkit/kit/kit"
 	"github.com/saitofun/qkit/x/reflectx"
@@ -14,20 +13,27 @@ type LivenessChecker interface {
 	LivenessCheck() map[string]string
 }
 
-func RegisterCheckerFromStruct(v interface{}) {
-	rv := reflectx.Indirect(reflect.ValueOf(v))
-	rt := rv.Type()
+func RegisterCheckerBy(vs ...interface{}) {
+	f :
+	for _, v := range vs {
+		rv := reflectx.Indirect(reflect.ValueOf(v))
+		typ := rv.Type()
 
-	if rt.Kind() != reflect.Struct {
-		panic(errors.New("not struct"))
-	}
+		if typ.Kind() != reflect.Struct {
+			continue
+		}
 
-	for i := 0; i < rv.NumField(); i++ {
-		fv := rv.Field(i)
-		fn := rt.Field(i).Name
+		if with, ok := rv.Interface().(LivenessChecker); ok {
+			RegisterChecker()
+		}
 
-		if chk, ok := fv.Interface().(LivenessChecker); ok {
-			RegisterChecker(fn, chk)
+		for i := 0; i < rv.NumField(); i++ {
+			value := rv.Field(i)
+			name := typ.Field(i).Name
+
+			if livenessChecker, ok := value.Interface().(LivenessChecker); ok {
+				RegisterChecker(name, livenessChecker)
+			}
 		}
 	}
 }
