@@ -32,31 +32,20 @@ func MiddlewareChain(mw ...HttpMiddleware) HttpMiddleware {
 
 type HttpMiddleware func(http.Handler) http.Handler
 
-func NewHttpTransport(serverModifiers ...ServerModifier) *HttpTransport {
-	return &HttpTransport{
-		ServerModifiers: serverModifiers,
-	}
+func NewHttpTransport(modifiers ...ServerModifier) *HttpTransport {
+	return &HttpTransport{Modifiers: modifiers}
 }
 
 type HttpTransport struct {
 	ServiceMeta
-
-	Port int
-
-	// for modifying http.Server
-	ServerModifiers []ServerModifier
-
-	// Middlewares
-	// can use https://github.com/gorilla/handlers
-	Middlewares []HttpMiddleware
-
-	Vldt validator.Factory   // Vldt validator factory
-	Tsfm transformer.Factory // transformer mgr for parameter transforming
-
-	CertFile string
-	KeyFile  string
-
-	httpRouter *httprouter.Router
+	Port        int
+	Modifiers   []ServerModifier    // for modifying http.Server
+	Middlewares []HttpMiddleware    // Middlewares https://github.com/gorilla/handlers
+	Vldt        validator.Factory   // Vldt validator factory
+	Tsfm        transformer.Factory // transformer mgr for parameter transforming
+	CertFile    string
+	KeyFile     string
+	httpRouter  *httprouter.Router
 }
 
 type ServerModifier func(server *http.Server) error
@@ -101,8 +90,8 @@ func (t *HttpTransport) ServeContext(ctx context.Context, router *kit.Router) er
 		Handler: MiddlewareChain(t.Middlewares...)(t),
 	}
 
-	for i := range t.ServerModifiers {
-		if err := t.ServerModifiers[i](srv); err != nil {
+	for i := range t.Modifiers {
+		if err := t.Modifiers[i](srv); err != nil {
 			logger.Fatal(err)
 		}
 	}

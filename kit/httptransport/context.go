@@ -9,6 +9,8 @@ import (
 	"github.com/saitofun/qkit/x/contextx"
 )
 
+// TODO move to conf
+
 type ServiceMeta struct {
 	Name    string
 	Version string
