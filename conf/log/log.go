@@ -14,7 +14,7 @@ type Logger interface {
 	// 	ctx log = log.Start(ctx, "SpanName")
 	// 	defer log.End()
 	//
-	Start(ctx context.Context, name string, keyAndValues ...interface{}) (context.Context, Logger)
+	Start(context.Context, string, ...interface{}) (context.Context, Logger)
 	// End to end span
 	End()
 
@@ -24,21 +24,20 @@ type Logger interface {
 	Trace(msg string, args ...interface{})
 	Debug(msg string, args ...interface{})
 	Info(msg string, args ...interface{})
-	// Warn consider use `github.com/pkg/errors` instead of `errors`
 	Warn(err error)
 	Error(err error)
 	Fatal(err error)
 	Panic(err error)
 }
 
-type k struct{}
+type keyLogger struct{}
 
 func WithLogger(ctx context.Context, l Logger) context.Context {
-	return contextx.WithValue(ctx, k{}, l)
+	return contextx.WithValue(ctx, keyLogger{}, l)
 }
 
 func FromContext(ctx context.Context) Logger {
-	if v, ok := ctx.Value(k{}).(Logger); ok {
+	if v, ok := ctx.Value(keyLogger{}).(Logger); ok {
 		return v
 	}
 	return Discard()
