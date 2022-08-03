@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/saitofun/qkit/x/misc/timer"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel/propagation"
@@ -18,23 +17,26 @@ import (
 	"github.com/saitofun/qkit/kit/metax"
 )
 
+func NewLogRoundTripper(logger *logrus.Entry) func(http.RoundTripper) http.RoundTripper {
+	return func(roundTripper http.RoundTripper) http.RoundTripper {
+		return &LogRoundTripper{
+			logger: logger,
+			next:   roundTripper,
+		}
+	}
+}
+
 type LogRoundTripper struct {
 	logger *logrus.Entry
 	next   http.RoundTripper
 }
 
-func NewLogRoundTripper(logger *logrus.Entry) func(http.RoundTripper) http.RoundTripper {
-	return func(rt http.RoundTripper) http.RoundTripper {
-		return &LogRoundTripper{logger, rt}
-	}
-}
-
 func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	cost := timer.Start()
+	startedAt := time.Now()
 
 	ctx := req.Context()
 
-	// inject b3 form context
+	// inject h3 form context
 	b3.New(b3.WithInjectEncoding(b3.B3SingleHeader)).
 		Inject(ctx, propagation.HeaderCarrier(req.Header))
 
@@ -45,13 +47,14 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 		level = rt.logger.Logger.Level
 	}
 
+	cost := time.Since(startedAt)
 	if err == nil {
 		// extract b3 to ctx
-		b3.New().Extract(ctx, propagation.HeaderCarrier(rsp.Header))
+		ctx = b3.New().Extract(ctx, propagation.HeaderCarrier(rsp.Header))
 	}
 
 	logger := rt.logger.WithContext(ctx).WithFields(logrus.Fields{
-		"cost":   fmt.Sprintf("%0.3fms", float64(cost()/time.Millisecond)),
+		"cost":   fmt.Sprintf("%0.3fms", float64(cost/time.Millisecond)),
 		"method": req.Method,
 		"url":    omitAuthorization(req.URL),
 	})
@@ -69,20 +72,15 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 	return rsp, err
 }
 
-func LogHandler(logger *logrus.Entry, tracer trace.Tracer) Middleware {
-	return func(next http.Handler) http.Handler {
+func LogHandler(logger *logrus.Entry, tracer trace.Tracer) func(handler http.Handler) http.Handler {
+	return func(nextHandler http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			ctx := b3.New().Extract(
-				req.Context(),
-				propagation.HeaderCarrier(req.Header),
-			)
-			cost := timer.StartSpan()
-			ctx, span := tracer.Start(
-				ctx,
-				"UnknownOperation",
-				trace.WithTimestamp(cost.StartedAt()),
-			)
+			ctx := req.Context()
 
+			ctx = b3.New().Extract(ctx, propagation.HeaderCarrier(req.Header))
+			startAt := time.Now()
+
+			ctx, span := tracer.Start(ctx, "UnknownOperation", trace.WithTimestamp(startAt))
 			defer func() {
 				span.End(trace.WithTimestamp(time.Now()))
 			}()
@@ -98,17 +96,19 @@ func LogHandler(logger *logrus.Entry, tracer trace.Tracer) Middleware {
 				metax.ParseMeta(span.SpanContext().TraceID().String()),
 			)
 
-			next.ServeHTTP(lrw, req.WithContext(ctx))
+			nextHandler.ServeHTTP(lrw, req.WithContext(ctx))
 
-			operator := metax.ParseMeta(lrw.Header().Get("X-Meta")).Get("operator")
-			if operator != "" {
-				span.SetName(operator)
+			op := metax.ParseMeta(lrw.Header().Get("X-Meta")).Get("operator")
+			if op != "" {
+				span.SetName(op)
 			}
 
 			level, _ := logrus.ParseLevel(strings.ToLower(req.Header.Get("x-log-level")))
 			if level == logrus.PanicLevel {
 				level = logger.Logger.Level
 			}
+
+			duration := time.Since(startAt)
 
 			entry := logger.WithContext(metax.ContextWithMeta(
 				ctx,
@@ -120,12 +120,13 @@ func LogHandler(logger *logrus.Entry, tracer trace.Tracer) Middleware {
 			fields := logrus.Fields{
 				"tag":         "access",
 				"remote_ip":   httpx.ClientIP(req),
-				"cost":        fmt.Sprintf("%0.3fms", float64(cost.Cost().Milliseconds())),
+				"cost":        fmt.Sprintf("%0.3fms", float64(duration/time.Millisecond)),
 				"method":      req.Method,
 				"request_uri": omitAuthorization(req.URL),
 				"user_agent":  header.Get(httpx.HeaderUserAgent),
-				"status":      lrw.statusCode,
 			}
+
+			fields["status"] = lrw.statusCode
 
 			if lrw.errMsg.Len() > 0 {
 				if lrw.statusCode >= http.StatusInternalServerError {

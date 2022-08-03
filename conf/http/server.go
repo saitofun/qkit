@@ -49,7 +49,7 @@ func (s *Server) SetDefault() {
 	}
 
 	if s.Spec == "" {
-		s.Spec = "./openapi.json"
+		s.Spec = "./swagger.json"
 	}
 
 	if s.Debug == nil {
@@ -69,15 +69,13 @@ func (s *Server) Serve(router *kit.Router) error {
 
 	ht.Middlewares = []httptransport.HttpMiddleware{mws.DefaultCompress}
 	ht.Middlewares = append(ht.Middlewares, middlewares...)
-	ht.Middlewares = append(ht.Middlewares, []httptransport.HttpMiddleware{
+	ht.Middlewares = append(ht.Middlewares,
 		mws.DefaultCORS(),
 		mws.HealthCheckHandler(),
 		mws.PProfHandler(*s.Debug),
-		LogHandler(logrus.WithContext(context.Background()), otel.Tracer("")),
+		LogHandler(logrus.WithContext(context.Background()), otel.Tracer("Server")),
 		NewContextInjectorMw(s.injector),
-	}...)
-
+	)
 	s.ht = ht
-
 	return ht.Serve(router)
 }

@@ -57,6 +57,7 @@ func (hdl *RouteHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	ctx = ContextWithServiceMeta(ctx, *hdl.meta)
 	ctx = ContextWithRouteMetaID(ctx, rid)
 
+	// trace span, use operator as span name
 	operator := []string{hdl.meta.String() + "/" + rid}
 	ctx = metax.ContextWithMeta(ctx, metax.Meta{"operator": operator})
 

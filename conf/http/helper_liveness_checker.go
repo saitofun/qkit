@@ -14,31 +14,33 @@ type LivenessChecker interface {
 }
 
 func RegisterCheckerBy(vs ...interface{}) {
-	f :
 	for _, v := range vs {
 		rv := reflectx.Indirect(reflect.ValueOf(v))
-		typ := rv.Type()
+		rt := rv.Type()
 
-		if typ.Kind() != reflect.Struct {
+		if rt.Kind() != reflect.Struct {
 			continue
 		}
 
-		if with, ok := rv.Interface().(LivenessChecker); ok {
-			RegisterChecker()
+		if chk, ok := rv.Interface().(LivenessChecker); ok {
+			RegisterChecker(rt.Name(), chk)
+			continue
 		}
 
 		for i := 0; i < rv.NumField(); i++ {
-			value := rv.Field(i)
-			name := typ.Field(i).Name
+			fv := rv.Field(i)
+			name := rt.Field(i).Name
 
-			if livenessChecker, ok := value.Interface().(LivenessChecker); ok {
-				RegisterChecker(name, livenessChecker)
+			if chk, ok := fv.Interface().(LivenessChecker); ok {
+				RegisterChecker(name, chk)
 			}
 		}
 	}
 }
 
-func RegisterChecker(k string, checker LivenessChecker) { checkers[k] = checker }
+func RegisterChecker(k string, chk LivenessChecker) { checkers[k] = chk }
+
+func ResetRegistered() { checkers = LivenessCheckers{} }
 
 type LivenessCheckers map[string]LivenessChecker
 

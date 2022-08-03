@@ -55,6 +55,7 @@ func (log *Log) Create() {
 	// TODO add hook with goid meta
 	// logrus.AddHook(goid.Default)
 	logrus.AddHook(NewProjectHook(log.Name))
+	// TODO export trace & span, such as zipkin ...
 
 	logrus.SetOutput(os.Stdout)
 }
