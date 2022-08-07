@@ -18,7 +18,7 @@ func Span(tracer string, s trace.Span) Logger {
 	return &span{lvl: DebugLevel, tracer: tracer, span: s}
 }
 
-func SpanWithContext(ctx context.Context, tracer string) (context.Context, Logger) {
+func SpanContext(ctx context.Context, tracer string) (context.Context, Logger) {
 	ctx, sp := otel.Tracer(tracer).Start(ctx, tracer, trace.WithTimestamp(time.Now()))
 	l := Span(tracer, sp)
 	return WithLogger(ctx, l), l
@@ -32,9 +32,9 @@ type span struct {
 }
 
 func (l *span) SetLevel(lvl Level) Logger {
-	ret := ptrx.Ptr(*l)
-	l.lvl = lvl
-	return ret
+	logger := ptrx.Ptr(*l)
+	logger.lvl = lvl
+	return logger
 }
 
 func (l *span) Start(ctx context.Context, name string, kvs ...interface{}) (context.Context, Logger) {

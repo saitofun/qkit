@@ -2,136 +2,106 @@ package log
 
 import (
 	"context"
-	"fmt"
-	"strings"
+	"os"
+	"runtime"
+	"strconv"
 
-	"github.com/saitofun/qkit/x/contextx"
+	"github.com/saitofun/qkit/base/consts"
+	"github.com/saitofun/qkit/kit/metax"
+	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/sdk/trace"
 )
 
-type Logger interface {
-	// Start to start span for tracing
-	//
-	// 	ctx log = log.Start(ctx, "SpanName")
-	// 	defer log.End()
-	//
-	Start(context.Context, string, ...interface{}) (context.Context, Logger)
-	// End to end span
-	End()
-
-	// WithValues key value pairs
-	WithValues(keyAndValues ...interface{}) Logger
-
-	Trace(msg string, args ...interface{})
-	Debug(msg string, args ...interface{})
-	Info(msg string, args ...interface{})
-	Warn(err error)
-	Error(err error)
-	Fatal(err error)
-	Panic(err error)
+type Log struct {
+	Name         string
+	Level        Level            `env:""`
+	Output       LoggerOutputType `env:""`
+	Format       LoggerFormatType
+	Exporter     trace.SpanExporter `env:"-"`
+	ReportCaller bool
 }
 
-type keyLogger struct{}
-
-func WithLogger(ctx context.Context, l Logger) context.Context {
-	return contextx.WithValue(ctx, keyLogger{}, l)
-}
-
-func FromContext(ctx context.Context) Logger {
-	if v, ok := ctx.Value(keyLogger{}).(Logger); ok {
-		return v
+func (l *Log) SetDefault() {
+	if l.Level == 0 {
+		l.Level = DebugLevel
 	}
-	return Discard()
-}
-
-func Start(ctx context.Context, name string, kvs ...interface{}) (context.Context, Logger) {
-	return FromContext(ctx).Start(ctx, name, kvs...)
-}
-
-type LevelSetter interface {
-	SetLevel(lvl Level)
-}
-
-// Level type
-type Level uint32
-
-const (
-	// PanicLevel level, the highest level of severity. Logs and then calls panic with the
-	// message passed to Debug, Info, ...
-	PanicLevel Level = iota
-	// FatalLevel level. Logs and then calls `logger.Exit(1)`. It will exit even if the
-	// logging level is set to Panic.
-	FatalLevel
-	// ErrorLevel level. Logs. Used for errors that should definitely be noted.
-	// Commonly used for hooks to send errors to an error tracking service.
-	ErrorLevel
-	// WarnLevel level. Non-critical entries that deserve eyes.
-	WarnLevel
-	// InfoLevel level. General operational entries about what's going on inside the
-	// application.
-	InfoLevel
-	// DebugLevel level. Usually only enabled when debugging. Very verbose logging.
-	DebugLevel
-	// TraceLevel level. Designates finer-grained informational events than the Debug.
-	TraceLevel
-)
-
-// ParseLevel takes a string level and returns the Logrus log level constant.
-func ParseLevel(lvl string) (Level, error) {
-	switch strings.ToLower(lvl) {
-	case "panic":
-		return PanicLevel, nil
-	case "fatal":
-		return FatalLevel, nil
-	case "error":
-		return ErrorLevel, nil
-	case "warn", "warning":
-		return WarnLevel, nil
-	case "info":
-		return InfoLevel, nil
-	case "debug":
-		return DebugLevel, nil
-	case "trace":
-		return TraceLevel, nil
+	if l.Output == 0 {
+		l.Output = LOGGER_OUTPUT_TYPE__ALWAYS
 	}
-
-	var l Level
-	return l, fmt.Errorf("not a valid level: %q", lvl)
+	if l.Format == 0 {
+		l.Format = LOGGER_FORMAT_TYPE__JSON
+	}
+	if l.Name == "" {
+		l.Name = "unknown"
+		if v := os.Getenv(consts.EnvProjectName); v != "" {
+			l.Name = v
+		}
+	}
 }
 
-func (lvl Level) String() string {
-	if b, err := lvl.MarshalText(); err == nil {
-		return string(b)
+func (l *Log) InitLogrus() {
+	pretty := func(f *runtime.Frame) (fn string, file string) {
+		return f.Function + " line:" + strconv.FormatInt(int64(f.Line), 10), ""
+	}
+	if l.Format == LOGGER_FORMAT_TYPE__JSON {
+		logrus.SetFormatter(&logrus.JSONFormatter{
+			CallerPrettyfier: pretty,
+		})
 	} else {
-		return "unknown"
+		logrus.SetFormatter(&logrus.TextFormatter{
+			ForceColors:      true,
+			CallerPrettyfier: pretty,
+		})
+	}
+
+	logrus.SetLevel(l.Level.LogrusLogLevel())
+	logrus.SetReportCaller(l.ReportCaller)
+	// TODO add hook with goid meta logrus.AddHook(goid.Default)
+	logrus.AddHook(&ProjectAndMetaHook{l.Name})
+
+	logrus.SetOutput(os.Stdout)
+}
+
+func (l *Log) InitSpanLog() {
+	if l.Exporter == nil {
+		return
+	}
+	if err := InstallPipeline(l.Output, l.Format, l.Exporter); err != nil {
+		panic(err)
 	}
 }
 
-func (lvl *Level) UnmarshalText(text []byte) error {
-	l, err := ParseLevel(string(text))
-	if err != nil {
-		return err
+func (l *Log) Init() {
+	l.InitLogrus()
+	l.InitSpanLog()
+}
+
+type ProjectAndMetaHook struct {
+	Name string
+}
+
+func (h *ProjectAndMetaHook) Fire(entry *logrus.Entry) error {
+	ctx := entry.Context
+	if ctx == nil {
+		ctx = context.Background()
 	}
-	*lvl = l
+	meta := metax.GetMetaFrom(ctx)
+	entry.Data["project"] = h.Name
+	for k, v := range meta {
+		entry.Data["meta."+k] = v
+	}
 	return nil
 }
 
-func (lvl Level) MarshalText() ([]byte, error) {
-	switch lvl {
-	case TraceLevel:
-		return []byte("trace"), nil
-	case DebugLevel:
-		return []byte("debug"), nil
-	case InfoLevel:
-		return []byte("info"), nil
-	case WarnLevel:
-		return []byte("warning"), nil
-	case ErrorLevel:
-		return []byte("error"), nil
-	case FatalLevel:
-		return []byte("fatal"), nil
-	case PanicLevel:
-		return []byte("panic"), nil
-	}
+func (h *ProjectAndMetaHook) Levels() []logrus.Level { return logrus.AllLevels }
 
-	return nil, fmt.Errorf("not a valid level %d", lvl)
+var project = "unknown"
+
+func init() {
+	if v := os.Getenv(consts.EnvProjectName); v != "" {
+		project = v
+		if version := os.Getenv(consts.EnvProjectVersion); version != "" {
+			project = project + "@" + version
+		}
+	}
 }
