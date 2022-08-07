@@ -323,7 +323,7 @@ func (m *Model) SnippetUniqueIndexes(f *g.File) []g.Snippet {
 	}
 	sort.Strings(names)
 	snippets = append(snippets,
-		g.Func().Named("UniqueIndex").MethodOf(g.Var(m.Type())).
+		g.Func().Named("UniqueIndexes").MethodOf(g.Var(m.Type())).
 			Return(g.Var(g.Type(f.Use(BuilderPkg, "Indexes")))).
 			Do(g.Return(f.Value(m.Keys.UniqueIndexes))),
 	)

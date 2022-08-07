@@ -189,7 +189,7 @@ func ExampleModel_SnippetUniqueIndexes() {
 		fmt.Println(string(s.Bytes()))
 	}
 	// Output:
-	// func ( User) UniqueIndex() builder.Indexes {
+	// func ( User) UniqueIndexes() builder.Indexes {
 	// return builder.Indexes{
 	// "UI_id_org": []string{
 	// "ID",
