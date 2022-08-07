@@ -10,6 +10,7 @@ import (
 	"time"
 
 	. "github.com/onsi/gomega"
+
 	"github.com/saitofun/qkit/base/types"
 	"github.com/saitofun/qkit/conf/log"
 	"github.com/saitofun/qkit/kit/httptransport"

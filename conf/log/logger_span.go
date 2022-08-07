@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/saitofun/qkit/kit/metax"
-	"github.com/saitofun/qkit/x/ptrx"
 	"github.com/saitofun/qlib/encoding/qtext"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/saitofun/qkit/kit/metax"
+	"github.com/saitofun/qkit/x/ptrx"
 )
 
 func Span(tracer string, s trace.Span) Logger {

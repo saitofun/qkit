@@ -5,11 +5,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/saitofun/qkit/base/types"
 	"github.com/saitofun/qkit/kit/httptransport/client"
 	"github.com/saitofun/qkit/kit/kit"
 	"github.com/saitofun/qkit/kit/statusx"
-	"github.com/sirupsen/logrus"
 )
 
 type ClientEndpoint struct {

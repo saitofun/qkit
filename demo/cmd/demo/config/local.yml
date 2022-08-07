@@ -1,0 +1,17 @@
+DEMO__JWT__ExpIn: 0s
+DEMO__JWT__Issuer: ""
+DEMO__JWT__Method: ""
+DEMO__JWT__SignKey: ""
+DEMO__LOG__Format: json
+DEMO__LOG__Level: DEBUG
+DEMO__LOG__Name: ""
+DEMO__LOG__ReportCaller: "false"
+DEMO__PGCLI__ConnMaxLifetime: 1h
+DEMO__PGCLI__Master: postgres://test_user:test_passwd@127.0.0.1:5432/test?sslmode=disable
+DEMO__PGCLI__PoolSize: "10"
+DEMO__PGCLI__Retry_Interval: 3s
+DEMO__PGCLI__Retry_Repeats: "3"
+DEMO__PGCLI__Slave: ""
+DEMO__SERVER__Debug: "true"
+DEMO__SERVER__Port: "8888"
+DEMO__SERVER__Spec: ./swagger.json

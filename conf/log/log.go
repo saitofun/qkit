@@ -4,10 +4,11 @@ import (
 	"context"
 	"os"
 
-	"github.com/saitofun/qkit/base/consts"
-	"github.com/saitofun/qkit/kit/metax"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/sdk/trace"
+
+	"github.com/saitofun/qkit/base/consts"
+	"github.com/saitofun/qkit/kit/metax"
 )
 
 type Log struct {

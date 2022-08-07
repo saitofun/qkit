@@ -157,13 +157,13 @@ func ExampleModel_SnippetIndexes() {
 	// Output:
 	// func ( User) Indexes() builder.Indexes {
 	// return builder.Indexes{
-	// "I_geom/SPATIAL": []string{
+	// "i_geom/SPATIAL": []string{
 	// "(#Geom)",
 	// },
-	// "I_nickname/BTREE": []string{
+	// "i_nickname/BTREE": []string{
 	// "Name",
 	// },
-	// "I_username": []string{
+	// "i_username": []string{
 	// "Username",
 	// },
 	// }
@@ -191,22 +191,22 @@ func ExampleModel_SnippetUniqueIndexes() {
 	// Output:
 	// func ( User) UniqueIndexes() builder.Indexes {
 	// return builder.Indexes{
-	// "UI_id_org": []string{
+	// "ui_id_org": []string{
 	// "ID",
 	// "OrgID",
 	// "DeletedAt",
 	// },
-	// "UI_name": []string{
+	// "ui_name": []string{
 	// "Name",
 	// "DeletedAt",
 	// },
 	// }
 	// }
 	// func ( User) UniqueIndexUiIdOrg() string {
-	// return "UI_id_org"
+	// return "ui_id_org"
 	// }
 	// func ( User) UniqueIndexUiName() string {
-	// return "UI_name"
+	// return "ui_name"
 	// }
 }
 

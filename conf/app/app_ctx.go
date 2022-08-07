@@ -11,9 +11,10 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/saitofun/qkit/base/consts"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
+
+	"github.com/saitofun/qkit/base/consts"
 
 	"github.com/saitofun/qkit/base/types"
 	"github.com/saitofun/qkit/conf/deploy"

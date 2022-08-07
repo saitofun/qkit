@@ -4,12 +4,13 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/saitofun/qkit/conf/http/mws"
 	"github.com/saitofun/qkit/kit/httptransport"
 	"github.com/saitofun/qkit/kit/kit"
 	"github.com/saitofun/qkit/x/contextx"
 	"github.com/saitofun/qkit/x/ptrx"
-	"github.com/sirupsen/logrus"
 )
 
 var middlewares []httptransport.HttpMiddleware

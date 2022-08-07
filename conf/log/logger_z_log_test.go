@@ -6,11 +6,12 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	. "github.com/saitofun/qkit/conf/log"
-	"github.com/saitofun/qkit/kit/metax"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/zipkin"
 	"go.opentelemetry.io/otel/trace"
+
+	. "github.com/saitofun/qkit/conf/log"
+	"github.com/saitofun/qkit/kit/metax"
 )
 
 func ExampleLogger() {

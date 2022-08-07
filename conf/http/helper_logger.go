@@ -8,14 +8,15 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/saitofun/qkit/conf/log"
-	"github.com/saitofun/qkit/kit/httptransport/httpx"
-	"github.com/saitofun/qkit/x/misc/timer"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/saitofun/qkit/conf/log"
+	"github.com/saitofun/qkit/kit/httptransport/httpx"
+	"github.com/saitofun/qkit/x/misc/timer"
 
 	"github.com/saitofun/qkit/kit/metax"
 )

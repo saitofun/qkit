@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/saitofun/qkit/kit/metax"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/sdk/trace"
+
+	"github.com/saitofun/qkit/kit/metax"
 )
 
 type (

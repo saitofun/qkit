@@ -6,6 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	_ "github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
+
 	"github.com/saitofun/qkit/base/types"
 )
 
