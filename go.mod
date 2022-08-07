@@ -13,11 +13,13 @@ require (
 	github.com/lib/pq v1.10.6
 	github.com/onsi/gomega v1.20.0
 	github.com/pkg/errors v0.9.1
-	github.com/saitofun/qlib v0.0.0-20220731094833-0773222dd04d
+	github.com/saitofun/qlib v0.0.0-20220804014931-3a213f937710
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.5.0
+	github.com/wasmerio/wasmer-go v1.0.4
 	go.opentelemetry.io/contrib/propagators/b3 v1.8.0
 	go.opentelemetry.io/otel v1.9.0
+	go.opentelemetry.io/otel/sdk v1.9.0
 	go.opentelemetry.io/otel/trace v1.9.0
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4
 	golang.org/x/tools v0.1.11
