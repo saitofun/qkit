@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/saitofun/qkit/base/consts"
 	"github.com/saitofun/qkit/kit/kit"
 	"github.com/saitofun/qkit/x/contextx"
 )
@@ -18,10 +19,10 @@ type ServiceMeta struct {
 
 func (s *ServiceMeta) SetDefault() {
 	if s.Name == "" {
-		s.Name = os.Getenv(EnvProjectName)
+		s.Name = os.Getenv(consts.EnvProjectName)
 	}
 	if s.Version == "" {
-		s.Version = os.Getenv(EnvProjectVersion)
+		s.Version = os.Getenv(consts.EnvProjectVersion)
 	}
 }
 
@@ -31,12 +32,6 @@ func (s ServiceMeta) String() string {
 	}
 	return s.Name + "@" + s.Version
 }
-
-const (
-	EnvProjectName    = "PRJ_NAME"
-	EnvProjectFeat    = "PRJ_FEAT"
-	EnvProjectVersion = "PRJ_VERSION"
-)
 
 type (
 	keyHttpRequest     struct{} // keyHttpRequest pass original *http.Request

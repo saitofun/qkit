@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
+	"github.com/saitofun/qkit/base/consts"
 
 	. "github.com/saitofun/qkit/kit/httptransport"
 )
@@ -15,11 +16,11 @@ func TestServiceMeta(t *testing.T) {
 
 	name, version := "srv-test", "1.1.1"
 
-	os.Setenv(EnvProjectName, name)
+	os.Setenv(consts.EnvProjectName, name)
 	meta.SetDefault()
 	NewWithT(t).Expect(meta.String()).To(Equal(name))
 
-	os.Setenv(EnvProjectVersion, version)
+	os.Setenv(consts.EnvProjectVersion, version)
 	meta.SetDefault()
 	NewWithT(t).Expect(meta.String()).To(Equal(name + "@" + version))
 }
