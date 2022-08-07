@@ -248,7 +248,7 @@ func ScanDefToTable(tbl *Table, i interface{}) {
 // SplitIndexNameAndMethod @def index name/method
 func SplitIndexNameAndMethod(v string) (string, string) {
 	parts := strings.Split(v, "/")
-	name := parts[0]
+	name := strings.ToLower(parts[0])
 	method := ""
 	if len(parts) > 1 {
 		method = parts[1]
