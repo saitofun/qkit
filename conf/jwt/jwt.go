@@ -3,8 +3,7 @@ package jwt
 import (
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
-	_ "github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/pkg/errors"
 
 	"github.com/saitofun/qkit/base/types"
@@ -13,8 +12,8 @@ import (
 type Jwt struct {
 	Issuer  string         `env:""`
 	ExpIn   types.Duration `env:""`
-	Method  SigningMethod  `env:""`
 	SignKey string         `env:""`
+	// Method  SigningMethod  `env:""`
 }
 
 func (c *Jwt) SetDefault() {}
@@ -23,14 +22,14 @@ func (c *Jwt) Init() {}
 
 func (c *Jwt) GenerateTokenByPayload(payload interface{}) (string, error) {
 	claim := &Claims{
-		pl: payload,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(c.ExpIn.Duration()).Unix(),
+		Payload: payload,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: &jwt.NumericDate{Time: time.Now().Add(c.ExpIn.Duration())},
 			Issuer:    c.Issuer,
 		},
 	}
-	token := jwt.NewWithClaims(SigningMethods[c.Method], claim)
-	return token.SignedString(c.SignKey)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
+	return token.SignedString([]byte(c.SignKey))
 }
 
 func (c *Jwt) ParseToken(v string) (*Claims, error) {
@@ -38,7 +37,7 @@ func (c *Jwt) ParseToken(v string) (*Claims, error) {
 		v,
 		&Claims{},
 		func(token *jwt.Token) (interface{}, error) {
-			return c.SignKey, nil
+			return []byte(c.SignKey), nil
 		},
 	)
 	if err != nil {
@@ -48,15 +47,15 @@ func (c *Jwt) ParseToken(v string) (*Claims, error) {
 		return nil, ErrNilToken
 	}
 	claim, ok := t.Claims.(*Claims)
-	if !ok {
+	if !ok || !t.Valid {
 		return nil, ErrInvalidClaim
 	}
 	return claim, nil
 }
 
 type Claims struct {
-	pl interface{}
-	jwt.StandardClaims
+	Payload interface{}
+	jwt.RegisteredClaims
 }
 
 var (
