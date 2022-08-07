@@ -28,7 +28,7 @@ type Endpoint struct {
 
 var _ types.DefaultSetter = (*Endpoint)(nil)
 
-func (e *Endpoint) LivenessCheck() map[string]string {
+func (e Endpoint) LivenessCheck() map[string]string {
 	s := map[string]string{}
 
 	_, err := e.DB.ExecContext(context.Background(), "SELECT 1")
