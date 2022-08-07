@@ -11,7 +11,6 @@ import (
 
 	. "github.com/onsi/gomega"
 	"github.com/saitofun/qkit/base/types"
-	"github.com/saitofun/qkit/conf/log"
 	"github.com/saitofun/qkit/conf/logger"
 	"github.com/saitofun/qkit/kit/httptransport"
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
@@ -61,7 +60,6 @@ func TestHttp(t *testing.T) {
 	l := logger.Log{
 		Level:        "debug",
 		Format:       "json",
-		Output:       log.Std(),
 		ReportCaller: true,
 	}
 	l.SetDefault()

@@ -7,9 +7,9 @@ import (
 	"github.com/saitofun/qkit/conf/http/mws"
 	"github.com/saitofun/qkit/kit/httptransport"
 	"github.com/saitofun/qkit/kit/kit"
+	"github.com/saitofun/qkit/x/contextx"
 	"github.com/saitofun/qkit/x/ptrx"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/otel"
 )
 
 var middlewares []httptransport.HttpMiddleware
@@ -25,10 +25,10 @@ type Server struct {
 	HealthCheck string                       `env:",opt,healthCheck"`
 	Debug       *bool                        `env:""`
 	ht          *httptransport.HttpTransport `env:"-"`
-	injector    WithContext                  `env:"-"`
+	injector    contextx.WithContext         `env:"-"`
 }
 
-func (s Server) WithContextInjector(injector WithContext) *Server {
+func (s Server) WithContextInjector(injector contextx.WithContext) *Server {
 	s.injector = injector
 	return &s
 }
@@ -73,7 +73,8 @@ func (s *Server) Serve(router *kit.Router) error {
 		mws.DefaultCORS(),
 		mws.HealthCheckHandler(),
 		mws.PProfHandler(*s.Debug),
-		LogHandler(logrus.WithContext(context.Background()), otel.Tracer("Server")),
+		// TraceLogHandler("Server"),
+		TraceLogHandlerWithLogger(logrus.WithContext(context.Background()), "Server"),
 		NewContextInjectorMw(s.injector),
 	)
 	s.ht = ht

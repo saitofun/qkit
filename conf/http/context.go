@@ -3,9 +3,11 @@ package http
 import (
 	"context"
 	"net/http"
+
+	"github.com/saitofun/qkit/x/contextx"
 )
 
-func NewContextInjectorMw(ctx WithContext) Middleware {
+func NewContextInjectorMw(ctx contextx.WithContext) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(
 			func(rw http.ResponseWriter, req *http.Request) {
@@ -18,12 +20,9 @@ func NewContextInjectorMw(ctx WithContext) Middleware {
 	}
 }
 
-type (
-	WithContext = func(ctx context.Context) context.Context
-	Middleware  = func(http.Handler) http.Handler
-)
+type Middleware = func(http.Handler) http.Handler
 
-func WithContextCompose(contexts ...WithContext) WithContext {
+func WithContextCompose(contexts ...contextx.WithContext) contextx.WithContext {
 	return func(ctx context.Context) context.Context {
 		for i := range contexts {
 			ctx = contexts[i](ctx)
