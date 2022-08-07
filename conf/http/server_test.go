@@ -11,7 +11,7 @@ import (
 
 	. "github.com/onsi/gomega"
 	"github.com/saitofun/qkit/base/types"
-	"github.com/saitofun/qkit/conf/logger"
+	"github.com/saitofun/qkit/conf/log"
 	"github.com/saitofun/qkit/kit/httptransport"
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
 	"github.com/saitofun/qkit/kit/kit"
@@ -57,9 +57,10 @@ func (GetOther) Output(ctx context.Context) (interface{}, error) {
 }
 
 func TestHttp(t *testing.T) {
-	l := logger.Log{
-		Level:        "debug",
-		Format:       "json",
+	l := log.Log{
+		Level:        log.DebugLevel,
+		Format:       log.LOGGER_FORMAT_TYPE__TEXT,
+		Output:       log.LOGGER_OUTPUT_TYPE__ALWAYS,
 		ReportCaller: true,
 	}
 	l.SetDefault()
