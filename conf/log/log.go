@@ -3,8 +3,6 @@ package log
 import (
 	"context"
 	"os"
-	"runtime"
-	"strconv"
 
 	"github.com/saitofun/qkit/base/consts"
 	"github.com/saitofun/qkit/kit/metax"
@@ -40,17 +38,17 @@ func (l *Log) SetDefault() {
 }
 
 func (l *Log) InitLogrus() {
-	pretty := func(f *runtime.Frame) (fn string, file string) {
-		return f.Function + " line:" + strconv.FormatInt(int64(f.Line), 10), ""
-	}
+	// pretty := func(f *runtime.Frame) (fn string, file string) {
+	// 	return f.Function + " line:" + strconv.FormatInt(int64(f.Line), 10), ""
+	// }
 	if l.Format == LOGGER_FORMAT_TYPE__JSON {
 		logrus.SetFormatter(&logrus.JSONFormatter{
-			CallerPrettyfier: pretty,
+			// CallerPrettyfier: pretty,
 		})
 	} else {
 		logrus.SetFormatter(&logrus.TextFormatter{
-			ForceColors:      true,
-			CallerPrettyfier: pretty,
+			ForceColors: true,
+			// CallerPrettyfier: pretty,
 		})
 	}
 

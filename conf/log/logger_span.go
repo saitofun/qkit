@@ -49,7 +49,7 @@ func (l *span) Start(ctx context.Context, name string, kvs ...interface{}) (cont
 		trace.WithAttributes(toAttributes(kvs...)...),
 		trace.WithTimestamp(time.Now()),
 	)
-	return ctx, &span{span: sp, tracer: l.tracer}
+	return ctx, &span{span: sp, tracer: l.tracer, lvl: l.lvl}
 }
 
 func (l *span) End() { l.span.End(trace.WithTimestamp(time.Now())) }
@@ -59,6 +59,7 @@ func (l *span) WithValues(kvs ...interface{}) Logger {
 		tracer: l.tracer,
 		span:   l.span,
 		attrs:  append(l.attrs, toAttributes(kvs...)...),
+		lvl:    l.lvl,
 	}
 }
 
