@@ -10,6 +10,7 @@ install_goimports:
 
 ## TODO add source format as a githook
 format: install_goimports
+	go mod tidy
 	goimports -w -l -local "${MODULE_NAME}" ./
 
 generate: install_toolkit format
@@ -20,6 +21,6 @@ generate: install_toolkit format
 	cd kit/httptransport/httpx       && go generate ./...
 	cd conf/log                      && go generate ./...
 
+
 test: generate
-	go mod tidy
 	@cd testutil && make test
