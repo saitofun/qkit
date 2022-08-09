@@ -19,7 +19,7 @@ require (
 	github.com/wasmerio/wasmer-go v1.0.4
 	go.opentelemetry.io/contrib/propagators/b3 v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/otel v1.9.0
-	go.opentelemetry.io/otel/exporters/zipkin v0.0.0-00010101000000-000000000000
+	go.opentelemetry.io/otel/exporters/zipkin v1.7.0
 	go.opentelemetry.io/otel/sdk v1.9.0
 	go.opentelemetry.io/otel/trace v1.9.0
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2
@@ -31,7 +31,7 @@ require (
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
-	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect

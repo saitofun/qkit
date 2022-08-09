@@ -2,9 +2,10 @@ version: '3.3'
 services:
   postgres:
     image: postgis/postgis
+    container_name: postgis
     restart: always
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - ./var/postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: test_user
       POSTGRES_PASSWORD: test_passwd

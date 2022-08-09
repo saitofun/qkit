@@ -27,7 +27,7 @@ func (r Retry) Do(exec func() error) (err error) {
 	}
 	for i := 0; i < r.Repeats; i++ {
 		if err = exec(); err != nil {
-			log.Printf("retry in seconds %s", r.Interval.Duration())
+			log.Printf("retry in seconds %s [err: %v]", r.Interval.Duration(), err)
 			time.Sleep(time.Duration(r.Interval))
 			continue
 		}
