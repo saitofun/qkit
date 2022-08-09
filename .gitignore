@@ -4,4 +4,4 @@ gen/cmd/toolkit/toolkit
 __examples__/cmd/demo/demo
 testutil/data
 script/
-
+demo
