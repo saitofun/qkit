@@ -5,3 +5,4 @@ __examples__/cmd/demo/demo
 testutil/var
 script/
 demo
+var
