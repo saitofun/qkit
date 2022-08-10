@@ -16,7 +16,6 @@ require (
 	github.com/saitofun/qlib v0.0.0-20220804014931-3a213f937710
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.5.0
-	github.com/wasmerio/wasmer-go v1.0.4
 	go.opentelemetry.io/contrib/propagators/b3 v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/otel v1.9.0
 	go.opentelemetry.io/otel/exporters/zipkin v1.7.0
