@@ -77,7 +77,7 @@ func (h *loggerHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			"tag", "access",
 			"cost", fmt.Sprintf("%0.3fms", float64(cost()/time.Millisecond)),
 			"remote_ip", httpx.ClientIP(req),
-			"method", req.Method,
+			"method", req.Method[0:3],
 			"request_url", req.URL.String(),
 			"user_agent", header.Get(httpx.HeaderUserAgent),
 			"status", writer.statusCode,

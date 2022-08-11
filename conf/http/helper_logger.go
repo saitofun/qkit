@@ -54,7 +54,7 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 
 	logger.WithValues(
 		"cost", fmt.Sprintf("%dms", cost().Milliseconds()),
-		"method", req.Method,
+		"method", req.Method[0:3],
 		"url", OmitAuthorization(req.URL),
 	)
 
@@ -118,7 +118,7 @@ func TraceLogHandler(name string) func(handler http.Handler) http.Handler {
 				"tag", "access",
 				"remote_ip", httpx.ClientIP(req),
 				"cost", fmt.Sprintf("%dms", cost.Cost().Milliseconds()),
-				"method", req.Method,
+				"method", req.Method[0:3],
 				"request_uri", OmitAuthorization(req.URL),
 				"user_agent", req.Header.Get(httpx.HeaderUserAgent),
 				"status", lrw.code,
@@ -186,7 +186,7 @@ func TraceLogHandlerWithLogger(logger *logrus.Entry, name string) func(handler h
 				"tag":         "access",
 				"remote_ip":   httpx.ClientIP(req),
 				"cost":        fmt.Sprintf("%dms", cost.Cost().Milliseconds()),
-				"method":      req.Method,
+				"method":      req.Method[0:3],
 				"request_uri": OmitAuthorization(req.URL),
 				"user_agent":  req.Header.Get(httpx.HeaderUserAgent),
 				"status":      lrw.code,

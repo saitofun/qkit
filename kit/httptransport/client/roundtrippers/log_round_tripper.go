@@ -33,7 +33,7 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 	defer func() {
 		l := logger.WithValues(
 			"cost", fmt.Sprintf("%0.3fms", float64(cost()/time.Millisecond)),
-			"method", req.Method,
+			"method", req.Method[0:3],
 			"url", req.URL.String(),
 			"metadata", req.Header,
 		)
