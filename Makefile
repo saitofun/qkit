@@ -44,7 +44,7 @@ pg_start:
 	@if [[ $$(pg_isready -h localhost) != "localhost:5432 - accepting connections" ]] ; \
 	then \
 		echo "=== start postgres server ==="; \
-		docker-compose -f docker-compose-pg.yaml up -d ; \
+		docker-compose -f testutil/docker-compose-pg.yaml up -d ; \
 		echo "=== init database ===" ; \
 		for i in {1..5} ; \
 		do \
