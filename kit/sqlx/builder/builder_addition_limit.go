@@ -26,15 +26,3 @@ func (l *limit) Ex(ctx context.Context) *Ex {
 	}
 	return e.Ex(ctx)
 }
-
-type Pager struct {
-	Size   int64 `name:"size,omitempty"   in:"query" default:"10" validate:"@int64[-1,]"`
-	Offset int64 `name:"offset,omitempty" in:"query" default:"10" validate:"@int64[0,]"`
-}
-
-func (p *Pager) Addition() Addition {
-	if p.Size != -1 {
-		return Limit(p.Size).Offset(p.Offset)
-	}
-	return nil
-}
