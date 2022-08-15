@@ -16,14 +16,18 @@ require (
 	github.com/saitofun/qlib v0.0.0-20220804014931-3a213f937710
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.5.0
-	go.opentelemetry.io/contrib/propagators/b3 v0.0.0-00010101000000-000000000000
-	go.opentelemetry.io/otel v1.9.0
-	go.opentelemetry.io/otel/exporters/zipkin v1.7.0
-	go.opentelemetry.io/otel/sdk v1.9.0
-	go.opentelemetry.io/otel/trace v1.9.0
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2
 	golang.org/x/tools v0.1.11
 	gopkg.in/yaml.v2 v2.4.0
+)
+
+// lock these modules
+require (
+	go.opentelemetry.io/contrib/propagators/b3 v1.9.0
+	go.opentelemetry.io/otel v1.9.0
+	go.opentelemetry.io/otel/exporters/zipkin v1.9.0
+	go.opentelemetry.io/otel/sdk v1.9.0
+	go.opentelemetry.io/otel/trace v1.9.0
 )
 
 require (
@@ -43,12 +47,4 @@ require (
 	golang.org/x/sys v0.0.0-20220727055044-e65921a090b8 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-)
-
-replace (
-	go.opentelemetry.io/contrib/propagators/b3 => go.opentelemetry.io/contrib/propagators/b3 v1.8.0
-	go.opentelemetry.io/otel => go.opentelemetry.io/otel v1.9.0
-	go.opentelemetry.io/otel/exporters/zipkin => go.opentelemetry.io/otel/exporters/zipkin v1.9.0
-	go.opentelemetry.io/otel/sdk => go.opentelemetry.io/otel/sdk v1.9.0
-	go.opentelemetry.io/otel/trace => go.opentelemetry.io/otel/trace v1.9.0
 )

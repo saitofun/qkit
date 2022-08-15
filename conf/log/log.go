@@ -3,6 +3,8 @@ package log
 import (
 	"context"
 	"os"
+	"runtime"
+	"strconv"
 
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/sdk/trace"
@@ -39,18 +41,10 @@ func (l *Log) SetDefault() {
 }
 
 func (l *Log) InitLogrus() {
-	// pretty := func(f *runtime.Frame) (fn string, file string) {
-	// 	return f.Function + " line:" + strconv.FormatInt(int64(f.Line), 10), ""
-	// }
 	if l.Format == LOGGER_FORMAT_TYPE__JSON {
-		logrus.SetFormatter(&logrus.JSONFormatter{
-			// CallerPrettyfier: pretty,
-		})
+		logrus.SetFormatter(JsonFormatter)
 	} else {
-		logrus.SetFormatter(&logrus.TextFormatter{
-			ForceColors: true,
-			// CallerPrettyfier: pretty,
-		})
+		logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 	}
 
 	logrus.SetLevel(l.Level.LogrusLogLevel())
@@ -85,7 +79,7 @@ func (h *ProjectAndMetaHook) Fire(entry *logrus.Entry) error {
 		ctx = context.Background()
 	}
 	meta := metax.GetMetaFrom(ctx)
-	entry.Data["project"] = h.Name
+	entry.Data["@prj"] = h.Name
 	for k, v := range meta {
 		entry.Data["meta."+k] = v
 	}
@@ -94,7 +88,21 @@ func (h *ProjectAndMetaHook) Fire(entry *logrus.Entry) error {
 
 func (h *ProjectAndMetaHook) Levels() []logrus.Level { return logrus.AllLevels }
 
-var project = "unknown"
+var (
+	project       = "unknown"
+	JsonFormatter = &logrus.JSONFormatter{
+		FieldMap: logrus.FieldMap{
+			logrus.FieldKeyLevel: "@lv",
+			logrus.FieldKeyTime:  "@ts",
+			logrus.FieldKeyFunc:  "@fn",
+			logrus.FieldKeyFile:  "@fl",
+		},
+		CallerPrettyfier: func(f *runtime.Frame) (fn string, file string) {
+			return f.Function + " line:" + strconv.FormatInt(int64(f.Line), 10), ""
+		},
+		TimestampFormat: "20060102-150405.000Z07:00",
+	}
+)
 
 func init() {
 	if v := os.Getenv(consts.EnvProjectName); v != "" {
@@ -103,4 +111,6 @@ func init() {
 			project = project + "@" + version
 		}
 	}
+	logrus.SetFormatter(JsonFormatter)
+	logrus.SetReportCaller(true)
 }

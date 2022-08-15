@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -74,13 +72,13 @@ func (h *loggerHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	defer func() {
 		header := req.Header
 		fields := []interface{}{
-			"tag", "access",
-			"cost", fmt.Sprintf("%0.3fms", float64(cost()/time.Millisecond)),
-			"remote_ip", httpx.ClientIP(req),
-			"method", req.Method[0:3],
-			"request_url", req.URL.String(),
-			"user_agent", header.Get(httpx.HeaderUserAgent),
-			"status", writer.statusCode,
+			"@tag", "access",
+			"@cst", cost().Milliseconds(),
+			"@rmt", httpx.ClientIP(req),
+			"@mtd", req.Method[0:3],
+			"@url", req.URL.String(),
+			"@agent", header.Get(httpx.HeaderUserAgent),
+			"@status", writer.statusCode,
 		}
 		if writer.err != nil {
 			if writer.statusCode >= http.StatusInternalServerError {

@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -53,9 +52,9 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 	cost := timer.Start()
 
 	logger.WithValues(
-		"cost", fmt.Sprintf("%dms", cost().Milliseconds()),
-		"method", req.Method[0:3],
-		"url", OmitAuthorization(req.URL),
+		"@cst", cost().Milliseconds(),
+		"@mtd", req.Method[0:3],
+		"@url", OmitAuthorization(req.URL),
 	)
 
 	if err == nil {
@@ -115,13 +114,13 @@ func TraceLogHandler(name string) func(handler http.Handler) http.Handler {
 				}
 			}
 			kvs := []interface{}{
-				"tag", "access",
-				"remote_ip", httpx.ClientIP(req),
-				"cost", fmt.Sprintf("%dms", cost.Cost().Milliseconds()),
-				"method", req.Method[0:3],
-				"request_uri", OmitAuthorization(req.URL),
-				"user_agent", req.Header.Get(httpx.HeaderUserAgent),
-				"status", lrw.code,
+				"@tag", "access",
+				"@rmt", httpx.ClientIP(req),
+				"@cst", cost.Cost().Milliseconds(),
+				"@mtd", req.Method[0:3],
+				"@url", OmitAuthorization(req.URL),
+				"@agent", req.Header.Get(httpx.HeaderUserAgent),
+				"@status", lrw.code,
 			}
 			if lrw.err != nil {
 				if lrw.code >= http.StatusInternalServerError {
@@ -183,13 +182,13 @@ func TraceLogHandlerWithLogger(logger *logrus.Entry, name string) func(handler h
 				level = log.TraceLevel
 			}
 			fields := logrus.Fields{
-				"tag":         "access",
-				"remote_ip":   httpx.ClientIP(req),
-				"cost":        fmt.Sprintf("%dms", cost.Cost().Milliseconds()),
-				"method":      req.Method[0:3],
-				"request_uri": OmitAuthorization(req.URL),
-				"user_agent":  req.Header.Get(httpx.HeaderUserAgent),
-				"status":      lrw.code,
+				"@tag":    "access",
+				"@cst":    cost.Cost().Milliseconds(),
+				"@rmt":    httpx.ClientIP(req),
+				"@mtd":    req.Method[0:3],
+				"@url":    OmitAuthorization(req.URL),
+				"@agent":  req.Header.Get(httpx.HeaderUserAgent),
+				"@status": lrw.code,
 			}
 			if lrw.err != nil {
 				if lrw.code >= http.StatusInternalServerError {
