@@ -27,23 +27,23 @@ func (OrgIterator) Resolve(v interface{}) *Org {
 	return v.(*Org)
 }
 
-func (Org) TableName() string {
+func (*Org) TableName() string {
 	return "t_org"
 }
 
-func (Org) TableDesc() []string {
+func (*Org) TableDesc() []string {
 	return []string{
 		"Org describe organization information",
 	}
 }
 
-func (Org) Comments() map[string]string {
+func (*Org) Comments() map[string]string {
 	return map[string]string{
 		"UserID": "User relation...",
 	}
 }
 
-func (Org) ColDesc() map[string][]string {
+func (*Org) ColDesc() map[string][]string {
 	return map[string][]string{
 		"UserID": []string{
 			"User relation...",
@@ -51,7 +51,7 @@ func (Org) ColDesc() map[string][]string {
 	}
 }
 
-func (Org) ColRel() map[string][]string {
+func (*Org) ColRel() map[string][]string {
 	return map[string][]string{
 		"UserID": []string{
 			"User",
@@ -60,7 +60,7 @@ func (Org) ColRel() map[string][]string {
 	}
 }
 
-func (Org) PrimaryKey() []string {
+func (*Org) PrimaryKey() []string {
 	return []string{
 		"ID",
 	}
@@ -76,7 +76,7 @@ func (m *Org) ColID() *builder.Column {
 	return OrgTable.ColByFieldName(m.FieldID())
 }
 
-func (Org) FieldID() string {
+func (*Org) FieldID() string {
 	return "ID"
 }
 
@@ -84,7 +84,7 @@ func (m *Org) ColName() *builder.Column {
 	return OrgTable.ColByFieldName(m.FieldName())
 }
 
-func (Org) FieldName() string {
+func (*Org) FieldName() string {
 	return "Name"
 }
 
@@ -92,7 +92,7 @@ func (m *Org) ColUserID() *builder.Column {
 	return OrgTable.ColByFieldName(m.FieldUserID())
 }
 
-func (Org) FieldUserID() string {
+func (*Org) FieldUserID() string {
 	return "UserID"
 }
 

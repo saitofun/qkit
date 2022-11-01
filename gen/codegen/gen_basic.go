@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/saitofun/qlib/util/qnaming"
+	"github.com/saitofun/qkit/x/stringsx"
 )
 
 type (
@@ -71,11 +71,13 @@ func (s *SnippetLiteralCompose) Bytes() []byte {
 }
 
 /*
-	SnippetBlock code block, like
-	```go
-		var a = "Hello CodeGen"
-		fmt.Print(a)
-	```
+SnippetBlock code block, like
+```go
+
+	var a = "Hello CodeGen"
+	fmt.Print(a)
+
+```
 */
 type SnippetBlock []Snippet
 
@@ -96,13 +98,15 @@ func (s SnippetBlock) Bytes() []byte {
 }
 
 /*
-	SnippetBlockWithBrace code block quote with '{' and '}', like
-	```go
+SnippetBlockWithBrace code block quote with '{' and '}', like
+```go
+
 	{
 		var a = "Hello CodeGen"
 		fmt.Print(a)
 	}
-	```
+
+```
 */
 type SnippetBlockWithBrace []Snippet
 
@@ -142,19 +146,19 @@ func (s SnippetIdent) Bytes() []byte { return []byte(s) }
 func (s SnippetIdent) _canAddr() {}
 
 func (s SnippetIdent) UpperCamelCase() *SnippetIdent {
-	return Ident(qnaming.UpperCamelCase(string(s)))
+	return Ident(stringsx.UpperCamelCase(string(s)))
 }
 
 func (s SnippetIdent) LowerCamelCase() *SnippetIdent {
-	return Ident(qnaming.LowerCamelCase(string(s)))
+	return Ident(stringsx.LowerCamelCase(string(s)))
 }
 
 func (s SnippetIdent) UpperSnakeCase() *SnippetIdent {
-	return Ident(qnaming.UpperSnakeCase(string(s)))
+	return Ident(stringsx.UpperSnakeCase(string(s)))
 }
 
 func (s SnippetIdent) LowerSnakeCase() *SnippetIdent {
-	return Ident(qnaming.LowerSnakeCase(string(s)))
+	return Ident(stringsx.LowerSnakeCase(string(s)))
 }
 
 // SnippetComments comment code
@@ -222,6 +226,7 @@ func (s *SnippetKVExpr) Bytes() []byte {
 type SnippetTypeDecl struct {
 	Token token.Token
 	Specs []SnippetSpec
+	*SnippetComments
 }
 
 var _ Snippet = (*SnippetTypeDecl)(nil)
@@ -229,6 +234,11 @@ var _ Snippet = (*SnippetTypeDecl)(nil)
 func (s *SnippetTypeDecl) Bytes() []byte {
 	buf := bytes.NewBuffer(nil)
 	mul := len(s.Specs) > 1
+
+	if s.SnippetComments != nil {
+		buf.Write(s.SnippetComments.Bytes())
+		buf.WriteRune('\n')
+	}
 
 	buf.WriteString(s.Token.String())
 	buf.WriteRune(' ')
@@ -251,6 +261,13 @@ func (s *SnippetTypeDecl) Bytes() []byte {
 	}
 
 	return buf.Bytes()
+}
+
+func (s SnippetTypeDecl) WithComments(comments ...string) *SnippetTypeDecl {
+	if len(comments) > 0 {
+		s.SnippetComments = Comments(comments...)
+	}
+	return &s
 }
 
 // SnippetField define a field or var
@@ -300,7 +317,9 @@ func (s *SnippetField) Bytes() []byte {
 
 	// type inference
 	if s.Type != nil {
-		buf.WriteRune(' ')
+		if len(s.Names) > 0 {
+			buf.WriteRune(' ')
+		}
 		buf.Write(s.Type.Bytes())
 	}
 
@@ -1044,11 +1063,11 @@ func (f *FuncType) Bytes() []byte {
 		buf.Write(f.Args[i].WithoutTag().Bytes())
 	}
 	buf.WriteByte(')')
+	buf.WriteRune(' ')
 
 	quoteRet := len(f.Rets) > 0 && len(f.Rets[0].Names) > 0 || len(f.Rets) > 1
 
 	if quoteRet {
-		buf.WriteRune(' ')
 		buf.WriteRune('(')
 	}
 
@@ -1062,10 +1081,14 @@ func (f *FuncType) Bytes() []byte {
 
 	if quoteRet {
 		buf.WriteRune(')')
+		buf.WriteRune(' ')
+	} else {
+		if len(f.Rets) > 0 {
+			buf.WriteRune(' ')
+		}
 	}
 
 	if f.Blk != nil {
-		buf.WriteRune(' ')
 		buf.Write(f.Blk.Bytes())
 	}
 	return buf.Bytes()

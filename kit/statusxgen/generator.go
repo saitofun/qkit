@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/saitofun/qlib/util/qnaming"
+	qnaming "github.com/saitofun/qkit/x/stringsx"
 
 	gen "github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/kit/statusx"

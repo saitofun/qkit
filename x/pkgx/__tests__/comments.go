@@ -70,8 +70,9 @@ var (
 	}
 )
 
-//go:generate echo
 // func Print
+//
+//go:generate echo
 func Print(a string, b string) string {
 	return a + b
 }

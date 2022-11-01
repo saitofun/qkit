@@ -4,10 +4,9 @@ import (
 	"go/ast"
 	"reflect"
 
-	"github.com/saitofun/qlib/encoding/qtext"
-
 	"github.com/saitofun/qkit/base/types"
 	"github.com/saitofun/qkit/x/reflectx"
+	"github.com/saitofun/qkit/x/textx"
 )
 
 type Encoder struct {
@@ -67,7 +66,7 @@ func (e *Encoder) scan(w *PathWalker, rv reflect.Value) error {
 		if s, ok := rv.Interface().(types.SecurityString); ok {
 			v.Mask = s.SecurityString()
 		}
-		text, err := qtext.MarshalText(rv)
+		text, err := textx.MarshalText(rv)
 		if err != nil {
 			return err
 		}

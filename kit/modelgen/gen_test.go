@@ -68,10 +68,10 @@ func ExampleModel_SnippetTableIteratorAndMethods() {
 	// Output:
 	// type UserIterator struct {
 	// }
-	// func ( UserIterator) New() interface{} {
+	// func (UserIterator) New() interface{} {
 	// return &User{}
 	// }
-	// func ( UserIterator) Resolve(v interface{}) *User {
+	// func (UserIterator) Resolve(v interface{}) *User {
 	// return v.(*User)
 	// }
 }
@@ -79,7 +79,7 @@ func ExampleModel_SnippetTableIteratorAndMethods() {
 func ExampleModel_SnippetTableName() {
 	fmt.Println(string(m.SnippetTableName(f).Bytes()))
 	// Output:
-	// func ( User) TableName() string {
+	// func (*User) TableName() string {
 	// return "t_user"
 	// }
 }
@@ -87,7 +87,7 @@ func ExampleModel_SnippetTableName() {
 func ExampleModel_SnippetTableDesc() {
 	fmt.Println(string(m.SnippetTableDesc(f).Bytes()))
 	// Output:
-	// func ( User) TableDesc() []string {
+	// func (*User) TableDesc() []string {
 	// return []string{
 	// "User 用户表",
 	// }
@@ -97,7 +97,7 @@ func ExampleModel_SnippetTableDesc() {
 func ExampleModel_SnippetComments() {
 	fmt.Println(string(m.SnippetComments(f).Bytes()))
 	// Output:
-	// func ( User) Comments() map[string]string {
+	// func (*User) Comments() map[string]string {
 	// return map[string]string{
 	// "Name": "姓名",
 	// "Nickname": "昵称",
@@ -110,7 +110,7 @@ func ExampleModel_SnippetComments() {
 func ExampleModel_SnippetColDesc() {
 	fmt.Println(string(m.SnippetColDesc(f).Bytes()))
 	// Output:
-	// func ( User) ColDesc() map[string][]string {
+	// func (*User) ColDesc() map[string][]string {
 	// return map[string][]string{
 	// "Name": []string{
 	// "姓名",
@@ -132,7 +132,7 @@ func ExampleModel_SnippetColDesc() {
 func ExampleModel_SnippetColRel() {
 	fmt.Println(string(m.SnippetColRel(f).Bytes()))
 	// Output:
-	// func ( User) ColRel() map[string][]string {
+	// func (*User) ColRel() map[string][]string {
 	// return map[string][]string{
 	// "OrgID": []string{
 	// "Org",
@@ -145,7 +145,7 @@ func ExampleModel_SnippetColRel() {
 func ExampleModel_SnippetPrimaryKey() {
 	fmt.Println(string(m.SnippetPrimaryKey(f).Bytes()))
 	// Output:
-	// func ( User) PrimaryKey() []string {
+	// func (*User) PrimaryKey() []string {
 	// return []string{
 	// "ID",
 	// }
@@ -155,7 +155,7 @@ func ExampleModel_SnippetPrimaryKey() {
 func ExampleModel_SnippetIndexes() {
 	fmt.Println(string(m.SnippetIndexes(f).Bytes()))
 	// Output:
-	// func ( User) Indexes() builder.Indexes {
+	// func (*User) Indexes() builder.Indexes {
 	// return builder.Indexes{
 	// "i_geom/SPATIAL": []string{
 	// "(#Geom)",
@@ -189,7 +189,7 @@ func ExampleModel_SnippetUniqueIndexes() {
 		fmt.Println(string(s.Bytes()))
 	}
 	// Output:
-	// func ( User) UniqueIndexes() builder.Indexes {
+	// func (*User) UniqueIndexes() builder.Indexes {
 	// return builder.Indexes{
 	// "ui_id_org": []string{
 	// "ID",
@@ -202,10 +202,10 @@ func ExampleModel_SnippetUniqueIndexes() {
 	// },
 	// }
 	// }
-	// func ( User) UniqueIndexUiIdOrg() string {
+	// func (*User) UniqueIndexUIIDOrg() string {
 	// return "ui_id_org"
 	// }
-	// func ( User) UniqueIndexUiName() string {
+	// func (*User) UniqueIndexUIName() string {
 	// return "ui_name"
 	// }
 }
@@ -218,47 +218,47 @@ func ExampleModel_SnippetFieldMethods() {
 	// Output:
 	// func (m *User) ColID() *builder.Column {
 	// return UserTable.ColByFieldName(m.FieldID())
-	// }func ( User) FieldID() string {
+	// }func (*User) FieldID() string {
 	// return "ID"
 	// }func (m *User) ColName() *builder.Column {
 	// return UserTable.ColByFieldName(m.FieldName())
-	// }func ( User) FieldName() string {
+	// }func (*User) FieldName() string {
 	// return "Name"
 	// }func (m *User) ColNickname() *builder.Column {
 	// return UserTable.ColByFieldName(m.FieldNickname())
-	// }func ( User) FieldNickname() string {
+	// }func (*User) FieldNickname() string {
 	// return "Nickname"
 	// }func (m *User) ColUsername() *builder.Column {
 	// return UserTable.ColByFieldName(m.FieldUsername())
-	// }func ( User) FieldUsername() string {
+	// }func (*User) FieldUsername() string {
 	// return "Username"
 	// }func (m *User) ColGender() *builder.Column {
 	// return UserTable.ColByFieldName(m.FieldGender())
-	// }func ( User) FieldGender() string {
+	// }func (*User) FieldGender() string {
 	// return "Gender"
 	// }func (m *User) ColBoolean() *builder.Column {
 	// return UserTable.ColByFieldName(m.FieldBoolean())
-	// }func ( User) FieldBoolean() string {
+	// }func (*User) FieldBoolean() string {
 	// return "Boolean"
 	// }func (m *User) ColGeom() *builder.Column {
 	// return UserTable.ColByFieldName(m.FieldGeom())
-	// }func ( User) FieldGeom() string {
+	// }func (*User) FieldGeom() string {
 	// return "Geom"
 	// }func (m *User) ColOrgID() *builder.Column {
 	// return UserTable.ColByFieldName(m.FieldOrgID())
-	// }func ( User) FieldOrgID() string {
+	// }func (*User) FieldOrgID() string {
 	// return "OrgID"
 	// }func (m *User) ColCreatedAt() *builder.Column {
 	// return UserTable.ColByFieldName(m.FieldCreatedAt())
-	// }func ( User) FieldCreatedAt() string {
+	// }func (*User) FieldCreatedAt() string {
 	// return "CreatedAt"
 	// }func (m *User) ColUpdatedAt() *builder.Column {
 	// return UserTable.ColByFieldName(m.FieldUpdatedAt())
-	// }func ( User) FieldUpdatedAt() string {
+	// }func (*User) FieldUpdatedAt() string {
 	// return "UpdatedAt"
 	// }func (m *User) ColDeletedAt() *builder.Column {
 	// return UserTable.ColByFieldName(m.FieldDeletedAt())
-	// }func ( User) FieldDeletedAt() string {
+	// }func (*User) FieldDeletedAt() string {
 	// return "DeletedAt"
 	// }
 }
@@ -310,7 +310,7 @@ func ExampleModel_SnippetCreate() {
 func ExampleModel_SnippetList() {
 	fmt.Println(string(m.SnippetList(f).Bytes()))
 	// Output:
-	// func (m *User) List(db sqlx.DBExecutor, cond builder.SqlCondition, adds ...builder.Addition) ( []User,  error) {
+	// func (m *User) List(db sqlx.DBExecutor, cond builder.SqlCondition, adds ...builder.Addition) ([]User, error) {
 	// var (
 	// tbl = db.T(m)
 	// lst = make([]User, 0)

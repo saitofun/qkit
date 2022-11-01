@@ -6,7 +6,7 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/saitofun/qlib/util/qnaming"
+	qnaming "github.com/saitofun/qkit/x/stringsx"
 
 	g "github.com/saitofun/qkit/gen/codegen"
 )

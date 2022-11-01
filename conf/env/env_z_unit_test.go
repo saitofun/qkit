@@ -6,10 +6,10 @@ import (
 	"time"
 
 	. "github.com/onsi/gomega"
-	"github.com/saitofun/qlib/container/qptr"
 
 	"github.com/saitofun/qkit/base/types"
 	. "github.com/saitofun/qkit/conf/env"
+	"github.com/saitofun/qkit/x/ptrx"
 )
 
 func TestPathWalker(t *testing.T) {
@@ -69,7 +69,7 @@ func TestEnvVars(t *testing.T) {
 	c.Duration = types.Duration(time.Hour + 2*time.Second + 3*time.Microsecond)
 	c.Password = types.Password("123123")
 	c.Key = "123456"
-	c.PtrString = qptr.String("123456=")
+	c.PtrString = ptrx.String("123456=")
 	c.Slice = []string{"1", "2"}
 	c.Config.Key = "key"
 	c.Config.defaultValue = true

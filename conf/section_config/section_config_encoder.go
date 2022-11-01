@@ -6,10 +6,9 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/saitofun/qlib/encoding/qtext"
-
 	"github.com/saitofun/qkit/base/types"
 	"github.com/saitofun/qkit/x/reflectx"
+	"github.com/saitofun/qkit/x/textx"
 )
 
 type Encoder struct {
@@ -77,7 +76,7 @@ func (e *Encoder) scan(rv reflect.Value, buf *bytes.Buffer) error {
 			if v, ok := fv.Interface().(types.TextMarshaler); ok {
 				val, err = v.MarshalText()
 			} else {
-				val, err = qtext.MarshalText(fv.Interface())
+				val, err = textx.MarshalText(fv.Interface())
 			}
 			if err != nil {
 				return err

@@ -5,9 +5,8 @@ import (
 	"io"
 	"net/textproto"
 
-	"github.com/saitofun/qlib/encoding/qtext"
-
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
+	"github.com/saitofun/qkit/x/textx"
 	"github.com/saitofun/qkit/x/typesx"
 )
 
@@ -28,7 +27,7 @@ func (t *PlainText) EncodeTo(ctx context.Context, w io.Writer, v interface{}) er
 		"charset": "utf-8",
 	})
 
-	data, err := qtext.MarshalText(v, true)
+	data, err := textx.MarshalText(v, true)
 	if err != nil {
 		return err
 	}
@@ -48,19 +47,19 @@ func (t *PlainText) DecodeFrom(_ context.Context, r io.Reader, v interface{}, _ 
 			*x = raw
 			return nil
 		}
-		return qtext.UnmarshalText(v, []byte(raw), true)
+		return textx.UnmarshalText(v, []byte(raw), true)
 	case CanInterface:
 		if raw, ok := x.Interface().(string); ok {
 			if x, ok := v.(*string); ok {
 				*x = raw
 				return nil
 			}
-			return qtext.UnmarshalText(v, []byte(raw), true)
+			return textx.UnmarshalText(v, []byte(raw), true)
 		}
 	}
 	data, err := io.ReadAll(r)
 	if err != nil {
 		return err
 	}
-	return qtext.UnmarshalText(v, data, true)
+	return textx.UnmarshalText(v, data, true)
 }

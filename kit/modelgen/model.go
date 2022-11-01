@@ -9,7 +9,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/saitofun/qlib/util/qnaming"
+	qnaming "github.com/saitofun/qkit/x/stringsx"
 
 	g "github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/kit/sqlx/builder"
@@ -227,7 +227,7 @@ func (m *Model) SnippetTableIteratorAndMethods(_ *g.File) []g.Snippet {
 // TableName implements builder.Model
 // func (`Model`) TableName() string
 func (m *Model) SnippetTableName(f *g.File) g.Snippet {
-	return g.Func().Named("TableName").MethodOf(g.Var(m.Type())).
+	return g.Func().Named("TableName").MethodOf(g.Var(m.PtrType())).
 		Return(g.Var(g.String)).
 		Do(g.Return(f.Value(m.Config.TableName)))
 }
@@ -239,7 +239,7 @@ func (m *Model) SnippetTableDesc(f *g.File) g.Snippet {
 	if len(m.Table.Desc) == 0 {
 		return nil
 	}
-	return g.Func().Named("TableDesc").MethodOf(g.Var(m.Type())).
+	return g.Func().Named("TableDesc").MethodOf(g.Var(m.PtrType())).
 		Return(g.Var(g.Slice(g.String))).
 		Do(g.Return(f.Value(m.Table.Desc)))
 }
@@ -251,7 +251,7 @@ func (m *Model) SnippetComments(f *g.File) g.Snippet {
 	if !m.WithComments {
 		return nil
 	}
-	return g.Func().Named("Comments").MethodOf(g.Var(m.Type())).
+	return g.Func().Named("Comments").MethodOf(g.Var(m.PtrType())).
 		Return(g.Var(g.Map(g.String, g.String))).
 		Do(g.Return(f.Value(m.GetComments())))
 }
@@ -261,7 +261,7 @@ func (m *Model) SnippetComments(f *g.File) g.Snippet {
 // func (`Model`) ColDesc() map[string][]string
 func (m *Model) SnippetColDesc(f *g.File) g.Snippet {
 	desc := m.GetColDesc()
-	return g.Func().Named("ColDesc").MethodOf(g.Var(m.Type())).
+	return g.Func().Named("ColDesc").MethodOf(g.Var(m.PtrType())).
 		Return(g.Var(g.Map(g.String, g.Slice(g.String)))).
 		Do(g.Return(f.Value(desc)))
 }
@@ -271,7 +271,7 @@ func (m *Model) SnippetColDesc(f *g.File) g.Snippet {
 // func (`Model`) ColRel() map[string][]string
 func (m *Model) SnippetColRel(f *g.File) g.Snippet {
 	rel := m.GetColRel()
-	return g.Func().Named("ColRel").MethodOf(g.Var(m.Type())).
+	return g.Func().Named("ColRel").MethodOf(g.Var(m.PtrType())).
 		Return(g.Var(g.Map(g.String, g.Slice(g.String)))).
 		Do(g.Return(f.Value(rel)))
 }
@@ -283,7 +283,7 @@ func (m *Model) SnippetPrimaryKey(f *g.File) g.Snippet {
 	if len(m.Keys.Primary) == 0 {
 		return nil
 	}
-	return g.Func().Named("PrimaryKey").MethodOf(g.Var(m.Type())).
+	return g.Func().Named("PrimaryKey").MethodOf(g.Var(m.PtrType())).
 		Return(g.Var(g.Slice(g.String))).
 		Do(g.Return(f.Value(m.Keys.Primary)))
 }
@@ -295,7 +295,7 @@ func (m *Model) SnippetIndexes(f *g.File) g.Snippet {
 	if len(m.Keys.Indexes) == 0 {
 		return nil
 	}
-	return g.Func().Named("Indexes").MethodOf(g.Var(m.Type())).
+	return g.Func().Named("Indexes").MethodOf(g.Var(m.PtrType())).
 		Return(g.Var(g.Type(f.Use(BuilderPkg, "Indexes")))).
 		Do(g.Return(f.Value(m.Keys.Indexes)))
 }
@@ -323,14 +323,14 @@ func (m *Model) SnippetUniqueIndexes(f *g.File) []g.Snippet {
 	}
 	sort.Strings(names)
 	snippets = append(snippets,
-		g.Func().Named("UniqueIndexes").MethodOf(g.Var(m.Type())).
+		g.Func().Named("UniqueIndexes").MethodOf(g.Var(m.PtrType())).
 			Return(g.Var(g.Type(f.Use(BuilderPkg, "Indexes")))).
 			Do(g.Return(f.Value(m.Keys.UniqueIndexes))),
 	)
 	for _, name := range names {
 		fn := "UniqueIndex" + qnaming.UpperCamelCase(name)
 		snippets = append(snippets,
-			g.Func().Named(fn).MethodOf(g.Var(m.Type())).
+			g.Func().Named(fn).MethodOf(g.Var(m.PtrType())).
 				Return(g.Var(g.String)).
 				Do(g.Return(f.Value(name))),
 		)
@@ -362,7 +362,7 @@ func (m *Model) SnippetFieldMethods(f *g.File) []g.Snippet {
 		)
 		fn = "Field" + c.FieldName
 		snippets = append(snippets,
-			g.Func().Named(fn).MethodOf(g.Var(m.Type())).
+			g.Func().Named(fn).MethodOf(g.Var(m.PtrType())).
 				Return(g.Var(g.String)).
 				Do(g.Return(f.Value(c.FieldName))),
 		)

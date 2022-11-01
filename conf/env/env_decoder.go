@@ -4,10 +4,9 @@ import (
 	"go/ast"
 	"reflect"
 
-	"github.com/saitofun/qlib/encoding/qtext"
-
 	"github.com/saitofun/qkit/base/types"
 	"github.com/saitofun/qkit/x/reflectx"
+	"github.com/saitofun/qkit/x/textx"
 )
 
 type Decoder struct{ vars *Vars }
@@ -47,7 +46,7 @@ func (d *Decoder) scan(w *PathWalker, rv reflect.Value) error {
 		if rt.Implements(types.RTypeTextUnmarshaler) ||
 			reflect.PtrTo(rt).Implements(types.RTypeTextUnmarshaler) {
 			if v := d.vars.Get(w.String()); v != nil && v.Value != "" {
-				return qtext.UnmarshalText(rv, []byte(v.Value))
+				return textx.UnmarshalText(rv, []byte(v.Value))
 			}
 			return nil
 		}
@@ -96,7 +95,7 @@ func (d *Decoder) scan(w *PathWalker, rv reflect.Value) error {
 			}
 		default:
 			if v := d.vars.Get(w.String()); v != nil && v.Value != "" {
-				return qtext.UnmarshalText(rv, []byte(v.Value))
+				return textx.UnmarshalText(rv, []byte(v.Value))
 			}
 		}
 	}

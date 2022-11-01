@@ -6,9 +6,8 @@ import (
 	"net/textproto"
 	"reflect"
 
-	"github.com/saitofun/qlib/encoding/qtext"
-
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
+	"github.com/saitofun/qkit/x/textx"
 	"github.com/saitofun/qkit/x/typesx"
 )
 
@@ -36,7 +35,7 @@ func (t *HTMLText) EncodeTo(ctx context.Context, w io.Writer, v interface{}) err
 		"charset": "utf-8",
 	})
 
-	data, err := qtext.MarshalText(rv, true)
+	data, err := textx.MarshalText(rv, true)
 	if err != nil {
 		return err
 	}
@@ -54,5 +53,5 @@ func (HTMLText) DecodeFrom(_ context.Context, r io.Reader, v interface{}, _ ...t
 	if err != nil {
 		return err
 	}
-	return qtext.UnmarshalText(rv, data, true)
+	return textx.UnmarshalText(rv, data, true)
 }

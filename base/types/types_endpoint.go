@@ -9,9 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/saitofun/qlib/encoding/qtext"
-
 	"github.com/saitofun/qkit/x/reflectx"
+	"github.com/saitofun/qkit/x/textx"
 )
 
 type Endpoint struct {
@@ -155,7 +154,7 @@ func UnmarshalExtra(ext url.Values, v interface{}) error {
 		if value == "" {
 			value = ft.Tag.Get("default")
 		}
-		if err := qtext.UnmarshalText(fv, []byte(value)); err != nil {
+		if err := textx.UnmarshalText(fv, []byte(value)); err != nil {
 			return err
 		}
 	}

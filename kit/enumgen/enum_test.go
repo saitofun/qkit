@@ -70,7 +70,7 @@ func ExampleEnum_Errors() {
 func ExampleEnum_StringParser() {
 	fmt.Println(string(sample.StringParser(f).Bytes()))
 	// Output:
-	// func ParseSampleFromString(s string) ( Sample,  error) {
+	// func ParseSampleFromString(s string) (Sample, error) {
 	// switch s {
 	// default:
 	// return SAMPLE_UNKNOWN, InvalidSample
@@ -89,7 +89,7 @@ func ExampleEnum_StringParser() {
 func ExampleEnum_LabelParser() {
 	fmt.Println(string(sample.LabelParser(f).Bytes()))
 	// Output:
-	// func ParseSampleFromLabel(s string) ( Sample,  error) {
+	// func ParseSampleFromLabel(s string) (Sample, error) {
 	// switch s {
 	// default:
 	// return SAMPLE_UNKNOWN, InvalidSample
@@ -169,7 +169,7 @@ func ExampleEnum_ConstValues() {
 func ExampleEnum_TextMarshaler() {
 	fmt.Println(string(sample.TextMarshaler(f).Bytes()))
 	// Output:
-	// func (v Sample) MarshalText() ( []byte,  error) {
+	// func (v Sample) MarshalText() ([]byte, error) {
 	// s := v.String()
 	// if s == "UNKNOWN" {
 	// return nil, InvalidSample
@@ -213,7 +213,7 @@ func ExampleEnum_Scanner() {
 func ExampleEnum_Valuer() {
 	fmt.Println(string(sample.Valuer(f).Bytes()))
 	// Output:
-	// func (v Sample) Value() ( driver.Value,  error) {
+	// func (v Sample) Value() (driver.Value, error) {
 	// offset := 0
 	// o, ok := interface{}(v).(enum.ValueOffset)
 	// if ok {

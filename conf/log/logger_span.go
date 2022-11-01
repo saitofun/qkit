@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/saitofun/qlib/encoding/qtext"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/saitofun/qkit/kit/metax"
 	"github.com/saitofun/qkit/x/ptrx"
+	"github.com/saitofun/qkit/x/textx"
 )
 
 func Span(tracer string, s trace.Span) Logger {
@@ -130,7 +130,7 @@ func toAttributes(kvs ...interface{}) []attribute.KeyValue {
 			if !ok {
 				continue
 			}
-			vs, err := qtext.MarshalText(v)
+			vs, err := textx.MarshalText(v)
 			if err != nil {
 				continue
 			}

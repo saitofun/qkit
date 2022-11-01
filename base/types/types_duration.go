@@ -6,8 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/saitofun/qlib/container/qptr"
-
 	"github.com/saitofun/qkit/x/ptrx"
 )
 
@@ -86,7 +84,7 @@ func (d Duration) Span() Span { return &d }
 
 type Hour int64
 
-func Hours(h int64) *Hour { return (*Hour)(qptr.Int64(h)) }
+func Hours(h int64) *Hour { return (*Hour)(ptrx.Int64(h)) }
 
 func (h *Hour) UnmarshalText(text []byte) error {
 	d := Duration(0)
@@ -111,7 +109,7 @@ func (h Hour) Span() Span { return &h }
 
 type Minute int64
 
-func Minutes(h int64) *Minute { return (*Minute)(qptr.Int64(h)) }
+func Minutes(h int64) *Minute { return (*Minute)(ptrx.Int64(h)) }
 
 func (m *Minute) UnmarshalText(text []byte) error {
 	d := Duration(0)
