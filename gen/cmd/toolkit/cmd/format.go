@@ -60,9 +60,9 @@ func PrepareArgs() {
 	fmt.Printf("source root: %s\n", dir)
 }
 
-func MustFormatRoot(group, root string) { must.NoError(FormatRoot(group, root)) }
+func MustFormatRoot(group, root string) { must.NoError(FormatRoot(group, root, false)) }
 
-func FormatRoot(group, root string) error {
+func FormatRoot(group, root string, verbose bool) error {
 	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -88,7 +88,9 @@ func FormatRoot(group, root string) error {
 		if bytes.Equal(code, formatted) {
 			return nil
 		}
-		fmt.Println(filepath.Rel(dir, path))
+		fmt.Println(path)
+		if verbose {
+		}
 		return os.WriteFile(path, formatted, stat.Mode())
 	})
 }

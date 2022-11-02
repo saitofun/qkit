@@ -8,7 +8,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/saitofun/qkit/base/consts"
-
 	. "github.com/saitofun/qkit/kit/httptransport"
 )
 

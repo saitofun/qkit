@@ -30,12 +30,12 @@ func SortImports(fset *token.FileSet, f *ast.File, file, group string) error {
 				g.AppendStd(path, s)
 				continue
 			}
-			if strings.Contains(dir, path) {
-				g.AppendLocal(path, s)
-				continue
-			}
 			if group != "" && strings.HasPrefix(path, group) {
 				g.AppendGroup(path, s)
+				continue
+			}
+			if strings.Contains(dir, path) {
+				g.AppendLocal(path, s)
 				continue
 			}
 			g.AppendVendor(path, s)
@@ -74,7 +74,9 @@ func (g GroupSet) Bytes() []byte {
 	buf := bytes.NewBuffer(nil)
 
 	buf.WriteString("import ")
-	buf.WriteRune('(')
+	if g.Len() > 1 {
+		buf.WriteRune('(')
+	}
 	for _, deps := range g {
 		for _, d := range deps {
 			buf.WriteRune('\n')
@@ -97,9 +99,15 @@ func (g GroupSet) Bytes() []byte {
 		}
 		buf.WriteRune('\n')
 	}
-	buf.WriteRune(')')
+	if g.Len() > 1 {
+		buf.WriteRune(')')
+	}
 
 	return buf.Bytes()
+}
+
+func (g *GroupSet) Len() int {
+	return len(g[0]) + len(g[1]) + len(g[2]) + len(g[3])
 }
 
 func (g *GroupSet) append(idx int, pkg string, spec *ast.ImportSpec) {

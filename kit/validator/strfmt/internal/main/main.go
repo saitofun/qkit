@@ -6,9 +6,8 @@ import (
 	"go/token"
 	"strings"
 
-	qnaming "github.com/saitofun/qkit/x/stringsx"
-
 	g "github.com/saitofun/qkit/gen/codegen"
+	"github.com/saitofun/qkit/x/stringsx"
 )
 
 func main() {
@@ -27,9 +26,9 @@ func main() {
 	for _, key := range regexps {
 		var (
 			name          = strings.Replace(key, "regexpString", "", 1)
-			validatorName = strings.Replace(qnaming.LowerSnakeCase(name), "_", "-", -1)
+			validatorName = strings.Replace(stringsx.LowerSnakeCase(name), "_", "-", -1)
 			args          = []g.Snippet{g.Ident(key), g.Valuer(validatorName)}
-			prefix        = qnaming.UpperCamelCase(name)
+			prefix        = stringsx.UpperCamelCase(name)
 			snippet       g.Snippet
 		)
 		snippet = g.Func().Named("init").Do(

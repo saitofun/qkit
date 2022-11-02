@@ -1,8 +1,6 @@
 package mws
 
-import (
-	"net/http"
-)
+import "net/http"
 
 func HealthCheckHandler() func(http.Handler) http.Handler {
 	return func(handler http.Handler) http.Handler {

@@ -504,9 +504,7 @@ func ExampleNewFile() {
 	//
 	// package main
 	//
-	// import (
-	// 	"fmt"
-	// )
+	// import "fmt"
 	//
 	// var lines []string
 	//

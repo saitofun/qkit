@@ -3,9 +3,7 @@
 
 package httpx
 
-import (
-	"bytes"
-)
+import "bytes"
 
 func NewApplicationOgg() *ApplicationOgg { return &ApplicationOgg{} }
 

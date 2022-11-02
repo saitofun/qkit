@@ -8,7 +8,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/saitofun/qkit/kit/sqlx/scanner"
-
 	"github.com/saitofun/qkit/kit/sqlx/scanner/nullable"
 )
 

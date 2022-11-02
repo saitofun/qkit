@@ -25,5 +25,5 @@ func TestPrepareArg(t *testing.T) {
 }
 
 func TestFormatRoot(t *testing.T) {
-	_ = cmd.FormatRoot("golang.org/x", "./testdata")
+	_ = cmd.FormatRoot("github.com/saitofun/qkit", "/Users/sincos/sincos/src/github.com/saitofun/qkit/base/types/snowflake_id", true)
 }

@@ -9,13 +9,12 @@ import (
 	"sort"
 	"strings"
 
-	qnaming "github.com/saitofun/qkit/x/stringsx"
-
 	g "github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/kit/sqlx/builder"
 	"github.com/saitofun/qkit/x/mapx"
 	"github.com/saitofun/qkit/x/misc/must"
 	"github.com/saitofun/qkit/x/pkgx"
+	"github.com/saitofun/qkit/x/stringsx"
 )
 
 func NewModel(pkg *pkgx.Pkg, tn *types.TypeName, doc string, cfg *Config) *Model {
@@ -328,7 +327,7 @@ func (m *Model) SnippetUniqueIndexes(f *g.File) []g.Snippet {
 			Do(g.Return(f.Value(m.Keys.UniqueIndexes))),
 	)
 	for _, name := range names {
-		fn := "UniqueIndex" + qnaming.UpperCamelCase(name)
+		fn := "UniqueIndex" + stringsx.UpperCamelCase(name)
 		snippets = append(snippets,
 			g.Func().Named(fn).MethodOf(g.Var(m.PtrType())).
 				Return(g.Var(g.String)).

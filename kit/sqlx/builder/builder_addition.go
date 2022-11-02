@@ -1,8 +1,6 @@
 package builder
 
-import (
-	"sort"
-)
+import "sort"
 
 type Addition interface {
 	SqlExpr

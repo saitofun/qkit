@@ -1,8 +1,6 @@
 package typesx
 
-import (
-	"reflect"
-)
+import "reflect"
 
 type ReflectType struct{ reflect.Type }
 

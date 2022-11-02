@@ -1,8 +1,6 @@
 package builder
 
-import (
-	"context"
-)
+import "context"
 
 type orderby struct {
 	orders []*Order

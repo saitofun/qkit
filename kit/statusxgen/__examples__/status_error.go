@@ -1,8 +1,6 @@
 package examples
 
-import (
-	"net/http"
-)
+import "net/http"
 
 type StatusError int
 

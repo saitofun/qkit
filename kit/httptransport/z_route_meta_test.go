@@ -8,7 +8,6 @@ import (
 	"github.com/fatih/color"
 
 	"github.com/saitofun/qkit/base/consts"
-
 	. "github.com/saitofun/qkit/kit/httptransport"
 	"github.com/saitofun/qkit/testutil/httptransporttestutil/server/cmd/app/routes"
 )

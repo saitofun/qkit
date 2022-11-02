@@ -3,9 +3,7 @@
 
 package must
 
-import (
-	"log"
-)
+import "log"
 
 func Byte(v byte, err error) byte {
 	if err != nil {

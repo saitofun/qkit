@@ -8,9 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	qnaming "github.com/saitofun/qkit/x/stringsx"
-
 	"github.com/saitofun/qkit/x/pkgx"
+	"github.com/saitofun/qkit/x/stringsx"
 )
 
 type Scanner struct {
@@ -59,7 +58,7 @@ func (s *Scanner) Options(tn *types.TypeName) (Options, bool) {
 		case constant.Int:
 			// TYPE_NAME_UNKNOWN
 			// TYPE_NAME__XXX
-			if strings.HasPrefix(name, qnaming.UpperSnakeCase(tn.Name())) {
+			if strings.HasPrefix(name, stringsx.UpperSnakeCase(tn.Name())) {
 				parts := strings.SplitN(name, "__", 2)
 				if len(parts) == 2 {
 					v, _ := strconv.ParseInt(val.String(), 10, 64)

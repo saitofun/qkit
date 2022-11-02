@@ -11,8 +11,6 @@ import (
 	"github.com/google/uuid"
 	. "github.com/onsi/gomega"
 
-	"github.com/saitofun/qkit/testutil/postgrestestutil"
-
 	"github.com/saitofun/qkit/base/types"
 	"github.com/saitofun/qkit/conf/log"
 	"github.com/saitofun/qkit/kit/metax"
@@ -20,6 +18,7 @@ import (
 	"github.com/saitofun/qkit/kit/sqlx/builder"
 	"github.com/saitofun/qkit/kit/sqlx/driver/postgres"
 	"github.com/saitofun/qkit/kit/sqlx/migration"
+	"github.com/saitofun/qkit/testutil/postgrestestutil"
 )
 
 var connectors map[string]driver.Connector

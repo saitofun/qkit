@@ -5,11 +5,10 @@ import (
 	"runtime"
 	"strings"
 
-	qnaming "github.com/saitofun/qkit/x/stringsx"
-
 	. "github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/x/misc/must"
 	"github.com/saitofun/qkit/x/pkgx"
+	"github.com/saitofun/qkit/x/stringsx"
 )
 
 type Enum struct {
@@ -33,11 +32,11 @@ func NewEnum(name string, options Options) *Enum {
 }
 
 func (e Enum) ConstUnknown() Snippet {
-	return Ident(qnaming.UpperSnakeCase(e.Name) + "_UNKNOWN")
+	return Ident(stringsx.UpperSnakeCase(e.Name) + "_UNKNOWN")
 }
 
 func (e Enum) ConstName(value string) Snippet {
-	return Ident(qnaming.UpperSnakeCase(e.Name) + "__" + value)
+	return Ident(stringsx.UpperSnakeCase(e.Name) + "__" + value)
 }
 
 func (e Enum) VarInvalidError() Snippet { return Ident("Invalid" + e.Name) }

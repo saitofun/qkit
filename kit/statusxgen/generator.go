@@ -7,12 +7,11 @@ import (
 	"path/filepath"
 	"runtime"
 
-	qnaming "github.com/saitofun/qkit/x/stringsx"
-
 	gen "github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/kit/statusx"
 	"github.com/saitofun/qkit/x/misc/must"
 	"github.com/saitofun/qkit/x/pkgx"
+	"github.com/saitofun/qkit/x/stringsx"
 )
 
 func New(pkg *pkgx.Pkg) *Generator {
@@ -45,7 +44,7 @@ func (g *Generator) Output(cwd string) {
 			cwd,
 			must.String(pkgx.PkgPathByPath(e.TypeName.Pkg().Path())),
 		)
-		filename := gen.GenerateFileSuffix(path.Join(dir, qnaming.LowerSnakeCase(e.Name())+".go"))
+		filename := gen.GenerateFileSuffix(path.Join(dir, stringsx.LowerSnakeCase(e.Name())+".go"))
 
 		f := gen.NewFile(e.TypeName.Pkg().Name(), filename)
 

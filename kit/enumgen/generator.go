@@ -9,11 +9,10 @@ import (
 
 	"golang.org/x/tools/go/packages"
 
-	qnaming "github.com/saitofun/qkit/x/stringsx"
-
 	"github.com/saitofun/qkit/gen/codegen"
 	"github.com/saitofun/qkit/x/misc/must"
 	"github.com/saitofun/qkit/x/pkgx"
+	"github.com/saitofun/qkit/x/stringsx"
 )
 
 type Generator struct {
@@ -53,7 +52,7 @@ func (g Generator) Output(cwd string) {
 			must.String(pkgx.PkgPathByPath(tn.Pkg().Path(), packages.NeedName, packages.NeedFiles)),
 		)
 		filename := codegen.GenerateFileSuffix(
-			path.Join(dir, qnaming.LowerSnakeCase(enum.Name)+".go"))
+			path.Join(dir, stringsx.LowerSnakeCase(enum.Name)+".go"))
 		f := codegen.NewFile(tn.Pkg().Name(), filename)
 		enum.WriteToFile(f)
 

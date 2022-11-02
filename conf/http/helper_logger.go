@@ -15,9 +15,8 @@ import (
 
 	"github.com/saitofun/qkit/conf/log"
 	"github.com/saitofun/qkit/kit/httptransport/httpx"
-	"github.com/saitofun/qkit/x/misc/timer"
-
 	"github.com/saitofun/qkit/kit/metax"
+	"github.com/saitofun/qkit/x/misc/timer"
 )
 
 func NewLogRoundTripper(logger *logrus.Entry) func(http.RoundTripper) http.RoundTripper {

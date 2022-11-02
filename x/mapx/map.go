@@ -55,3 +55,9 @@ func (m *Map[K, V]) LoadAndRemove(k K) (v V, ok bool) {
 	}
 	return v, ok
 }
+
+func (m *Map[K, V]) Len() int {
+	m.mtx.Lock()
+	defer m.mtx.Unlock()
+	return len(m.val)
+}

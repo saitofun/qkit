@@ -3,9 +3,7 @@
 
 package examples
 
-import (
-	"github.com/saitofun/qkit/kit/statusx"
-)
+import "github.com/saitofun/qkit/kit/statusx"
 
 var _ statusx.Error = (*StatusError)(nil)
 

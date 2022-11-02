@@ -6,9 +6,8 @@ import (
 	"path/filepath"
 	"runtime"
 
-	qnaming "github.com/saitofun/qkit/x/stringsx"
-
 	. "github.com/saitofun/qkit/gen/codegen"
+	"github.com/saitofun/qkit/x/stringsx"
 )
 
 func main() {
@@ -56,7 +55,7 @@ func main() {
 		filename := filepath.Join(root, pkg+"_generated.go")
 		file := NewFile(pkg, filename)
 		for _, t := range types {
-			fn := qnaming.UpperCamelCase(string(t)) + "s"
+			fn := stringsx.UpperCamelCase(string(t)) + "s"
 			st := Slice(t)
 			file.WriteSnippet(
 				Func(Var(st, "orig")).
