@@ -1,7 +1,5 @@
 // This is a generated source file. DO NOT EDIT
-// Version: 0.0.1
 // Source: types/protocol__generated.go
-// Date: Aug  2 00:41:17
 
 package types
 
@@ -80,7 +78,7 @@ func (v Protocol) Label() string {
 }
 
 func (v Protocol) TypeName() string {
-	return "github.com/saitofun/qkit/kit/httptransport/testdata/server/pkg/types.Protocol"
+	return "github.com/saitofun/qkit/testutil/httptransporttestutil/server/pkg/types.Protocol"
 }
 
 func (v Protocol) ConstValues() []enum.IntStringerEnum {
