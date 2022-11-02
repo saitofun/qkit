@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"sort"
 	"strings"
 
 	g "github.com/saitofun/qkit/gen/codegen"
@@ -21,6 +22,7 @@ func main() {
 			regexps = append(regexps, key)
 		}
 	}
+	sort.Strings(regexps)
 
 	snippets := make([]g.Snippet, 0)
 	for _, key := range regexps {
