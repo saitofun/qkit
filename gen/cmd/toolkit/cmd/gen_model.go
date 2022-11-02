@@ -41,7 +41,7 @@ func init() {
 		&withMethods, "with-methods", "", true, "with table methods",
 	)
 
-	Cmd.AddCommand(cmd)
+	Gen.AddCommand(cmd)
 }
 
 var (

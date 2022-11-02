@@ -1,4 +1,4 @@
-package format
+package formatx
 
 import (
 	"bytes"
@@ -9,9 +9,9 @@ import (
 	"go/token"
 )
 
-type Proc func(*token.FileSet, *ast.File, string) error
+type Proc func(fset *token.FileSet, f *ast.File, filename, group string) error
 
-func Format(file string, src []byte, procs ...Proc) ([]byte, error) {
+func Format(file, mod string, src []byte, procs ...Proc) ([]byte, error) {
 	fset, f, err := Parse(file, src)
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func Format(file string, src []byte, procs ...Proc) ([]byte, error) {
 		if proc == nil {
 			continue
 		}
-		if err = proc(fset, f, file); err != nil {
+		if err = proc(fset, f, file, mod); err != nil {
 			return nil, err
 		}
 	}
@@ -42,8 +42,8 @@ func Parse(file string, src []byte) (*token.FileSet, *ast.File, error) {
 	return fset, f, nil
 }
 
-func MustFormat(file string, src []byte, procs ...Proc) []byte {
-	code, err := Format(file, src, procs...)
+func MustFormat(file, mod string, src []byte, procs ...Proc) []byte {
+	code, err := Format(file, mod, src, procs...)
 	if err != nil {
 		panic(err)
 	}

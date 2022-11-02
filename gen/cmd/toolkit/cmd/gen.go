@@ -11,7 +11,7 @@ import (
 	"github.com/saitofun/qkit/x/pkgx"
 )
 
-var Cmd = &cobra.Command{
+var Gen = &cobra.Command{
 	Use:   "gen",
 	Short: "generators",
 }

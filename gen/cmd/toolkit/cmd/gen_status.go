@@ -21,5 +21,5 @@ func init() {
 		},
 	}
 
-	Cmd.AddCommand(cmd)
+	Gen.AddCommand(cmd)
 }

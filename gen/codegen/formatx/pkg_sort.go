@@ -1,8 +1,7 @@
-package format
+package formatx
 
 import (
 	"bytes"
-	"fmt"
 	"go/ast"
 	"go/format"
 	"go/token"
@@ -13,7 +12,7 @@ import (
 	"strings"
 )
 
-func SortImports(fset *token.FileSet, f *ast.File, file string) error {
+func SortImports(fset *token.FileSet, f *ast.File, file, group string) error {
 	ast.SortImports(fset, f)
 	dir := filepath.Dir(file)
 
@@ -35,6 +34,10 @@ func SortImports(fset *token.FileSet, f *ast.File, file string) error {
 				g.AppendLocal(path, s)
 				continue
 			}
+			if group != "" && strings.HasPrefix(path, group) {
+				g.AppendGroup(path, s)
+				continue
+			}
 			g.AppendVendor(path, s)
 		}
 		_fset, _f, err := Parse(file, bytes.Replace(
@@ -44,10 +47,8 @@ func SortImports(fset *token.FileSet, f *ast.File, file string) error {
 			1,
 		))
 		if err != nil {
-			fmt.Println(".....", err)
 			return err
 		}
-		// TODO assignment has lock value
 		*fset, *f = *_fset, *_f
 	}
 
@@ -108,6 +109,7 @@ func (g *GroupSet) append(idx int, pkg string, spec *ast.ImportSpec) {
 func (g *GroupSet) AppendStd(pkg string, spec *ast.ImportSpec)    { g.append(0, pkg, spec) }
 func (g *GroupSet) AppendVendor(pkg string, spec *ast.ImportSpec) { g.append(1, pkg, spec) }
 func (g *GroupSet) AppendLocal(pkg string, spec *ast.ImportSpec)  { g.append(2, pkg, spec) }
+func (g *GroupSet) AppendGroup(pkg string, spec *ast.ImportSpec)  { g.append(3, pkg, spec) }
 
 type StdLibSet map[string]bool
 

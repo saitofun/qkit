@@ -6,7 +6,7 @@ import (
 
 var Patch = &cobra.Command{
 	Use:   "patch",
-	Short: "patch",
+	Short: "patch code to go root",
 }
 
 func init() {
