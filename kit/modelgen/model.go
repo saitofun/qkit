@@ -149,6 +149,10 @@ func (m *Model) IteratorType() g.SnippetType {
 	return g.Type(m.StructName + "Iterator")
 }
 
+func (m *Model) IteratorPtrType() g.SnippetType {
+	return g.Star(m.IteratorType())
+}
+
 func (m *Model) PtrType() g.SnippetType {
 	return g.Star(m.Type())
 }
@@ -210,13 +214,13 @@ func (m *Model) SnippetTableIteratorAndMethods(_ *g.File) []g.Snippet {
 
 		g.Func().
 			Named("New").
-			MethodOf(g.Var(m.IteratorType())).
+			MethodOf(g.Var(m.IteratorPtrType())).
 			Return(g.Var(g.Interface())).
 			Do(g.Return(g.Exprer("&?{}", m.Type()))),
 
 		g.Func(g.Var(g.Interface(), "v")).
 			Named("Resolve").
-			MethodOf(g.Var(m.IteratorType())).
+			MethodOf(g.Var(m.IteratorPtrType())).
 			Return(g.Var(m.PtrType())).
 			Do(g.Return(g.Exprer("v.(?)", m.PtrType()))),
 	}
@@ -344,7 +348,7 @@ func (m *Model) SnippetFieldMethods(f *g.File) []g.Snippet {
 	snippets := make([]g.Snippet, 0, 2*m.Columns.Len())
 	m.Columns.Range(func(c *builder.Column, _ int) {
 		if c.DeprecatedActs != nil {
-			return
+			return // TODO generate deprecated actions
 		}
 		fn := "Col" + c.FieldName
 		snippets = append(snippets,
@@ -530,6 +534,9 @@ func (m *Model) SnippetList(f *g.File) g.Snippet {
 // Count by condition and addition(offset, size)
 // func (m *`Model`) Count(DBExecutor, SqlCondition, Additions) (int64, error)
 func (m *Model) SnippetCount(f *g.File) g.Snippet {
+	if !m.WithMethods {
+		return nil
+	}
 	return g.Func(
 		g.Var(g.Type(f.Use(SQLxPkg, `DBExecutor`)), `db`),
 		g.Var(g.Type(f.Use(BuilderPkg, `SqlCondition`)), `cond`),
@@ -604,12 +611,20 @@ db.T(m),
 		set, _ = mapx.ToSet(keys, strings.ToLower)
 	}
 
+	names := make([]string, 0, m.Table.Keys.Len())
+
 	m.Table.Keys.Range(func(k *builder.Key, _ int) {
+		names = append(names, k.Name)
+	})
+	sort.Strings(names)
+
+	for _, name := range names {
+		k := m.Table.Keys.Key(name)
 		if !k.IsUnique {
-			return
+			continue
 		}
 		if len(set) != 0 && !set[strings.ToLower(k.Name)] {
-			return
+			continue
 		}
 		fns := k.Def.FieldNames
 		kns := filterStrings(fns, func(s string, _ int) bool {
@@ -738,7 +753,7 @@ return err`,
 					),
 			)
 		}
-	})
+	}
 	return append(fetches, append(updates, deletes...)...)
 }
 

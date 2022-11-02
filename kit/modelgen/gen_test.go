@@ -68,10 +68,10 @@ func ExampleModel_SnippetTableIteratorAndMethods() {
 	// Output:
 	// type UserIterator struct {
 	// }
-	// func (UserIterator) New() interface{} {
+	// func (*UserIterator) New() interface{} {
 	// return &User{}
 	// }
-	// func (UserIterator) Resolve(v interface{}) *User {
+	// func (*UserIterator) Resolve(v interface{}) *User {
 	// return v.(*User)
 	// }
 }

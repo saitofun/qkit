@@ -3,6 +3,7 @@ package section_config_test
 import (
 	"os"
 	"path/filepath"
+	"syscall"
 	"testing"
 
 	. "github.com/onsi/gomega"
@@ -51,7 +52,7 @@ func TestLoadFile(t *testing.T) {
 			User:         "root",
 			Priority:     200,
 			ExitCodes:    types.CommaSplitInts{0},
-			StopSignal:   types.SIGTERM,
+			StopSignal:   types.Signal(syscall.SIGTERM),
 			Envs:         types.CommaSplitStrings{`PATH="/opt/iTR/core/bin:/opt/iTR/core/sbin"`},
 			LogConfig: &LogConfig{
 				StdoutLogFile:         "/opt/iTR/core/var/log/supervisor/crond.log",

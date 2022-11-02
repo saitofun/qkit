@@ -73,11 +73,13 @@ func (s *Server) Serve(router *kit.Router) error {
 	ht.Middlewares = append(ht.Middlewares,
 		mws.DefaultCORS(),
 		mws.HealthCheckHandler(),
-		mws.PProfHandler(*s.Debug),
 		// TraceLogHandler("Server"),
 		TraceLogHandlerWithLogger(logrus.WithContext(context.Background()), "Server"),
 		NewContextInjectorMw(s.injector),
 	)
+	if s.Debug != nil && *s.Debug {
+		ht.Middlewares = append(ht.Middlewares, mws.PProfHandler(*s.Debug))
+	}
 	s.ht = ht
 	return ht.Serve(router)
 }

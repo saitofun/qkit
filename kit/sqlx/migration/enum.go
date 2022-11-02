@@ -25,13 +25,13 @@ func (*SqlMetaEnum) UniqueIndexes() builder.Indexes {
 }
 
 func SyncEnum(db sqlx.DBExecutor) error {
-	tbl := builder.T((&SqlMetaEnum{}).TableName())
+	tbl := builder.T((&SqlMetaEnum{}).TableName()).WithSchema(db.D().Schema)
 
 	dialect := db.Dialect()
 
 	builder.ScanDefToTable(tbl, &SqlMetaEnum{})
 
-	tx := sqlx.NewTasks(db.WithSchema("")).With(
+	tx := sqlx.NewTasks(db).With(
 		func(db sqlx.DBExecutor) error {
 			_, err := db.Exec(dialect.DropTable(tbl))
 			return err

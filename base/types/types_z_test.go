@@ -1,7 +1,6 @@
 package types_test
 
 import (
-	"fmt"
 	"net/url"
 	"testing"
 	"time"
@@ -239,14 +238,4 @@ func TestEndpoint(t *testing.T) {
 }
 
 func TestSignal(t *testing.T) {
-	for s := SIGHUP; s <= SIGUSR2; s++ {
-		t.Run(fmt.Sprintf("%s: %s", s.String(), s.Error()), func(t *testing.T) {
-			data, err := s.MarshalText()
-			NewWithT(t).Expect(err).To(BeNil())
-			NewWithT(t).Expect(data).To(Equal([]byte(s.String())))
-			var tmp Signal
-			NewWithT(t).Expect(tmp.UnmarshalText([]byte(s.String()))).To(BeNil())
-			NewWithT(t).Expect(tmp).To(Equal(s))
-		})
-	}
 }

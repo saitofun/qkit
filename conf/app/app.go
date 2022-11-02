@@ -21,7 +21,14 @@ func WithFeat(feat string) OptSetter { return func(c *Ctx) { c.feat = feat } }
 
 func WithRoot(root string) OptSetter {
 	_, filename, _, _ := runtime.Caller(1)
-	return func(c *Ctx) { c.root = filepath.Join(filepath.Dir(filename), root) }
+	return func(c *Ctx) {
+		info, err := os.Stat(filepath.Join(".", "config"))
+		if err == nil && info.IsDir() {
+			c.root = "."
+			return
+		}
+		c.root = filepath.Join(filepath.Dir(filename), root)
+	}
 }
 
 func WithLogger(l log.Logger) OptSetter { return func(c *Ctx) { c.ctx = log.WithLogger(c.ctx, l) } }

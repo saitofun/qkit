@@ -4,23 +4,13 @@ TOOLKIT_PKG = ${MODULE_NAME}/gen/cmd/toolkit
 install_toolkit:
 	@go install "${TOOLKIT_PKG}/..."
 
-install_goimports:
-	@go install golang.org/x/tools/cmd/goimports@latest
-
 ## TODO add source format as a githook
-format: install_goimports
+format: install_toolkit
 	go mod tidy
-	goimports -w -l -local "${MODULE_NAME}" ./
+	toolkit fmt -g "${MODULE_NAME}"
 
 generate: install_toolkit format
-	cd x/misc/clone/internal/main    && go generate ./...
-	cd x/misc/must/internal/main     && go generate ./...
-	cd kit/validator/strfmt/internal && go generate ./...
-	cd kit/httptransport/httpx       && go generate ./...
-	cd conf/mqtt/                    && go generate ./...
-	cd conf/jwt/                     && go generate ./...
-	cd conf/log                      && go generate ./...
-
+	go generate ./...
 
 export PG_TEST_DB_NAME=test
 export PG_TEST_DB_USER=test_user

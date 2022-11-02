@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/saitofun/qkit/x/contextx"
+	"github.com/saitofun/qkit/x/misc/must"
 )
 
 type Auth struct {
@@ -57,6 +58,12 @@ func WithConfContext(jwt *Jwt) func(context.Context) context.Context {
 func ConfFromContext(ctx context.Context) (*Jwt, bool) {
 	j, ok := ctx.Value(keyConf{}).(*Jwt)
 	return j, ok
+}
+
+func MustConfFromContext(ctx context.Context) *Jwt {
+	j, ok := ctx.Value(keyConf{}).(*Jwt)
+	must.BeTrue(ok)
+	return j
 }
 
 type keyAuth struct{}

@@ -19,11 +19,11 @@ func init() {
 type OrgIterator struct {
 }
 
-func (OrgIterator) New() interface{} {
+func (*OrgIterator) New() interface{} {
 	return &Org{}
 }
 
-func (OrgIterator) Resolve(v interface{}) *Org {
+func (*OrgIterator) Resolve(v interface{}) *Org {
 	return v.(*Org)
 }
 
